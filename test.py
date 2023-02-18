@@ -1,9 +1,9 @@
 import numpy as np
 
-qtable = np.ndarray(shape=(60, 36, 36, 21, 20), dtype=float)
+qtable = np.ndarray(shape=(60, 36, 36), dtype=float)
 
 for q in qtable:
-    q = 0.1
+    q = np.ndarray(shape=( 21, 20), dtype=float)
 
 print(qtable.nbytes)
 
