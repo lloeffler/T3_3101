@@ -9,17 +9,19 @@ from botlib.bot import Bot
 
 
 class ParkingLearner:
-    def __init__(self, bot, qtable=None):
+    def __init__(self, bot, qtable=None, alpha=None, r_t=None):
         self._bot = bot
         self._qtable = qtable or np.ndarray(
             shape=(60, 36, 36), dtype=float)
         self._state = {
             'rho': 0,
             'phi': 0,
-            'orientation': 0,
-            'parking': False,
-            'action': 'utilize' if qtable else 'explore'
+            'orientation': 0
         }
+        self._parking = False
+        self._action = 'utilize' if qtable else 'explore'
+        self._alpha = alpha or 1
+        self._r_t = r_t or 0.95
         if not qtable:
             for q in self._qtable:
                 q = np.ndarray(shape=(21, 20), dtype=float)
@@ -98,7 +100,7 @@ class ParkingLearner:
         self._state['rho'] = 0
         self._state['phi'] = 0
         self._state['orientation'] = 0
-        self._state['parking'] = False
+        self._parking = False
         ''' return to line deetection and following the line '''
 
     # Checks if the right parking position is reached.
@@ -120,24 +122,26 @@ class ParkingLearner:
         self._state['rho'] = distance
         self._state['phi'] = angel
         self._state['orientation'] = orientation
-        while self._state['parking']:
+        while self._parking:
             # Decides to utilize the filled q-table oder explore and fill the q-table.
             # Uses q-table to find a way to park.
-            if self._state['action'] == 'utilize':
+            if self._action == 'utilize':
                 [action_direction, action_lenght] = np.unravel_index(self._qtable[self._state['rho'], self._state['phi'], self._state['orientation']].argmax(
                 ), np.unravel_index(self._qtable[self._state['rho'], self._state['phi'], self._state['orientation']].shape))
                 self.action(action_direction, action_lenght)
                 # Stays in the parking lot for 30 seconds, after a succesfully parking manover.
                 if self.check_location():
-                    self._state['parking'] = False
+                    self._sparking = False
                     time.sleep(30)
             # Fills q-Table
-            if self._state['action'] == 'explore':
+            if self._action == 'explore':
                 direction = round(random.randint(-10, 11)/10, 1)
                 length = 0
                 while length == 0:
                     length = random.randint(-10, 11)
                 ''' Add q-function to calculate the reward for the robot '''
+                self._qtable[self._state['rho'], self._state['phi'], self._state['orientation']][direction, length] = (1 - self._aplha) * (
+                    self._qtable[self._state['rho'], self._state['phi'], self._state['orientation']][direction, length]) + self._aplha * (self._r_t + y * max(self._qtable[new_rho, new_phi, new_orientation]))
                 self.action(direction, length)
             # Aborts parking, if the robot is to far away from the parking lot.
             if self._state['rho'] > 60:
