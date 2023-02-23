@@ -1,10 +1,18 @@
-import numpy as np
+# import numpy as np
 
-qtable = np.ndarray(shape=(60, 36, 36), dtype=float)
+import math
 
-for q in qtable:
-    q = np.ndarray(shape=( 21, 20), dtype=float)
+rho = 1
+phi = math.radians(90)
 
-print(qtable.nbytes)
+x = rho * math.cos(phi)
+y = rho * math.sin(phi)
 
-x = input()
+# x = 0
+# y = 1
+# 
+# rho = math.sqrt(x**2 + y**2)
+# phi = math.atan2(y, x)
+
+print(f"x= {x} y= {y}")
+print(f"rho= {rho} phi= {math.degrees(phi)}")
