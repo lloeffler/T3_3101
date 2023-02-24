@@ -66,6 +66,16 @@ class ParkingLearner:
         y = rho * np.sin(phi)
         return (x, y)
 
+    # Sets self._action to 'utilize', to change behavior.
+    def set_action_utilize(self):
+        self._action = 'utilize'
+
+    # Sets self._action to 'explore', to change behavior and resets self._exploration_counter.
+    # param exploration_counter: the new exploration counter to be set, by default 0, to reset exploration counter
+    def set_action_utilize(self, exploration_counter=0):
+        self._action = 'explore'
+        self._exploration_counter = exploration_counter
+
     # Calculates and sets new realtive position to parking lot as state.
     # param double direction: steering impact from -1 to +1 in 0.1 steps.
     # param int length: how long the robot wil drive in cm.
@@ -88,10 +98,11 @@ class ParkingLearner:
             x_m = x + x_m_delta
             y_m = y + y_m_delta
             # Calculating new robot coordinates.
+            # Calculates new robot orientation
+            orientation_t = self._state['orientation']
             [delta_x, delta_y] = self.pol2cart(0, 1)
             x_t = x_m + delta_x
             y_t = y_m + delta_y
-            orientation_t = self._state['orientation']
 
         [rho_t, phi_t] = self.cart2pol(x_t, y_t)
         self._state['rho'] = rho_t
@@ -152,12 +163,12 @@ class ParkingLearner:
         self._state['phi'] = angle
         self._state['orientation'] = orientation
         is_in_range = True
-        # Limits the number of explorations to 250.000 explorations.
-        if self._exploration_counte > 250000 and self._action == 'explore':
-            self._action = 'utilize'
         # Increases exploration counter, if the robot is exploring.
         if self._action == 'explore':
             self._exploration_counter += 1
+        # Limits the number of explorations to 250.000 explorations.
+        if self._exploration_counte == 250000 and self._action == 'explore':
+            self.set_action_utilize()
         while self._parking:
             # Decides to utilize the filled q-table oder explore and fill the q-table.
             # Uses q-table to find a way to park.
