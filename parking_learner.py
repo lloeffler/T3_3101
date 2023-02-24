@@ -128,6 +128,7 @@ class ParkingLearner:
 
     # Pauses line detection and starts parking process.
     def start_parking(self):
+        self._bot.linetracker._autopilot(False)
         '''
         stop pause line detection and following the line
         calculate position relativ to parking lot
@@ -146,6 +147,7 @@ class ParkingLearner:
         self._state['phi'] = 0
         self._state['orientation'] = 0
         ''' return to line deetection and following the line '''
+        self._bot.linetracker._autopilot(True)
 
     # Checks if the right parking position is reached.
     # return boolean: true if calculated pisition is correct, proofed by optical detection.
