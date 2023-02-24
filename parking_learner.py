@@ -91,19 +91,23 @@ class ParkingLearner:
             orientation_t = self._state['orientation']
         else:
             # Robot drives a curve.
-            ''' Add curve moving calculation '''
             # Calculating centre of rotation (x_m, y_m) of the turning circle.
             [x_m_delta, y_m_delta] = self.pol2cart(self._turning_radius[abs(direction)], self._state['orientation'] + (
                 1.5 * np.pi)) if direction > 0 else self.pol2cart(self._turning_radius[abs(direction)], self._state['orientation'] + (0.5 * np.pi))
             x_m = x + x_m_delta
             y_m = y + y_m_delta
+            # Calculating perimeter of the turningcicle.
+            turning_perimeter = 2 * np.pi * \
+                self._turning_radius[abs(direction)]
+            turning_radiant = 2 * np.pi * (-lenght/turning_perimeter)
             # Calculating new robot coordinates.
+            [x_m_delta_t, y_m_delta_t] = self.pol2cart(self._turning_radius[abs(
+                direction)], (self._state['orientation'] + np.pi + turning_radiant))
             # Calculates new robot orientation
-            orientation_t = self._state['orientation']
-            [delta_x, delta_y] = self.pol2cart(0, 1)
-            x_t = x_m + delta_x
-            y_t = y_m + delta_y
-
+            orientation_t = self._state['orientation'] + turning_radiant
+            x_t = x_m + x_m_delta_t
+            y_t = y_m + y_m_delta_t
+        # Sets new position as robot state.
         [rho_t, phi_t] = self.cart2pol(x_t, y_t)
         self._state['rho'] = rho_t
         self._state['phi'] = phi_t
