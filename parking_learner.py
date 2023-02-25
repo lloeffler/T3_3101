@@ -5,31 +5,36 @@ import numpy as np
 
 from botlib.bot import Bot
 
-# A q-learning algorithm to learn how to park the robot.
-# The q-table (qtable) is five a dimensional array,
-# that contains the reward of all actions from all possible states.
-# The state is a dictionary, that contains the radius rho, tha angle phi and the
-# orientation of the robot. Phi and orientation have the unit radians. The state
-# describes the relative position of the robot to the parking lot (entrance).
-# The robot is parking when self._parking is True.
-# The robot can explore the possibiliteies how it can park and fill its q-table or
-# it can utilize the filled q-table to execute the learned actions to park mostly
-# efficient.
-# Alpha is the exploration rate.
-# r_t is the other exploration rate.
-# The turnings radius for all allowed steer angles are fix values stored in the
-# array self._turning_radius.
-# The exploration coutner limits the number of explorations to 250.000 explorations.
-
 
 class ParkingLearner:
-    # Creates a new instance of a parking learner.
-    # param bot: a botlib.bot instance of the robot.
-    # param qtable: a three demensional numpy.ndarray with shape=(60, 36, 36)
-    #               containing two dimensional numpy.ndarray with shape=(9, 20).
-    # param alpha: the exploration rate.
-    # param r_t: the other expploration rate.
-    def __init__(self, bot, qtable=None, alpha=None, r_t=None):
+    """
+    A q-learning algorithm to learn how to park the robot.
+    The q-table (qtable) is five a dimensional array, that contains the reward of all actions from all possible states.
+    The state is a dictionary, that contains the radius rho, tha angle phi and the orientation of the robot. Phi and orientation have the unit radians.
+    The state describes the relative position of the robot to the parking lot (entrance).
+    The robot is parking when self._parking is True.
+    The robot can explore the possibiliteies how it can park and fill its q-table or it can utilize the filled q-table to execute the learned actions to park mostly efficient.
+    Alpha is the exploration rate.
+    r_t is the other exploration rate.
+    The turnings radius for all allowed steer angles are fix values stored in the array self._turning_radius.
+    The exploration coutner limits the number of explorations to 250.000 explorations.
+    """
+
+    def __init__(self, bot: Bot, qtable: np.ndarray = None, alpha: float = None, r_t: float = None):
+        """
+        Creates a new instance of a parking learner.
+
+        Parameters
+        ----------
+        bot: botlib.bot
+            A instance of the robot.
+        qtable: numpy.ndarray
+            A three demensional numpy.ndarray with shape=(60, 36, 36), containing two dimensional numpy.ndarray with shape=(9, 20).
+        alpha: float 
+            The exploration rate.
+        r_t: float 
+            The other expploration rate.
+        """
         self._bot = bot
         self._qtable = qtable or np.ndarray(
             shape=(60, 36, 36), dtype=float)
@@ -48,39 +53,77 @@ class ParkingLearner:
         self._exploration_counter = 0
         self._turning_radius = [0, 1, 2, 3]
 
-    # Converts cartesian coordinates into polar coordinates.
-    # param x: distance between point and y-axis.
-    # param y: distance between point and x-axis.
-    # return tuple: rho and phi in radians of given point.
-    def cart2pol(x, y):
+    def cart2pol(self, x: float, y: float):
+        """
+        Converts cartesian coordinates into polar coordinates.
+
+        Parameters
+        ----------
+        x: int
+            Distance between point and y-axis.
+        y: int
+            Distance between point and x-axis.
+
+        Returns
+        ------
+        tuple : rho and phi in radians of given point.
+        """
         rho = np.sqrt(x**2 + y**2)
         phi = np.arctan2(y, x)
         return (rho, phi)
 
-    # Converts polar coordinates into cartesian coordinates.
-    # param rho: radius of the point in the unitary circle.
-    # param phi: angle of phi of the point in the unitary circle in radians.
-    # return tuple: x and y of given point.
-    def pol2cart(rho, phi):
+    def pol2cart(self, rho: float, phi: float):
+        """
+        Converts polar coordinates into cartesian coordinates.
+
+        Parameters
+        ----------
+        rho: float 
+            Radius of the point in the unitary circle.
+        phi: float 
+            Angle of phi of the point in the unitary circle in radians.
+
+        Returns
+        ------
+        tuple: x and y of given point.
+        """
         x = rho * np.cos(phi)
         y = rho * np.sin(phi)
         return (x, y)
 
-    # Sets self._action to 'utilize', to change behavior.
     def set_action_utilize(self):
+        """
+        Sets self._action to 'utilize', to change behavior.
+        """
         self._action = 'utilize'
 
-    # Sets self._action to 'explore', to change behavior and resets self._exploration_counter.
-    # param exploration_counter: the new exploration counter to be set, by default 0, to reset exploration counter
     def set_action_utilize(self, exploration_counter=0):
+        """
+        Sets self._action to 'explore', to change behavior and resets self._exploration_counter.
+
+        Parameters
+        ----------
+        exploration_counter: int
+            The new exploration counter to be set, by default 0, to reset exploration counter.
+        """
         self._action = 'explore'
         self._exploration_counter = exploration_counter
 
-    # Calculates and sets new realtive position to parking lot as state.
-    # param double direction: steering impact from -1 to +1 in 0.1 steps.
-    # param int length: how long the robot wil drive in cm.
-    # return boolean: True if the robot is less equals 60 cm from the parking lot away.
-    def update_state(self, direction, lenght):
+    def update_state(self, direction: float, lenght: int) -> bool:
+        """
+        Calculates and sets new realtive position to parking lot as state.
+
+        Parameters
+        ----------
+        direction: float 
+            Steering impact from -1 to +1 in 0.1 steps.
+        length: int
+            How long the robot wil drive in cm.
+
+        Returns
+        -------
+        boolean : True if the robot is less equals 60 cm from the parking lot away.
+        """
         [x, y] = self.pol2cart(self._state['rho'], self._state['phi'])
         if direction == 0:
             # Robot drives straight forward.
@@ -101,12 +144,12 @@ class ParkingLearner:
                 self._turning_radius[abs(direction)]
             turning_radiant = 2 * np.pi * (-lenght/turning_perimeter)
             # Calculating new robot coordinates.
-            [x_m_delta_t, y_m_delta_t] = self.pol2cart(self._turning_radius[abs(
+            [x_delta_t, y_delta_t] = self.pol2cart(self._turning_radius[abs(
                 direction)], (self._state['orientation'] + np.pi + turning_radiant))
             # Calculates new robot orientation
             orientation_t = self._state['orientation'] + turning_radiant
-            x_t = x_m + x_m_delta_t
-            y_t = y_m + y_m_delta_t
+            x_t = x_m + x_delta_t
+            y_t = y_m + y_delta_t
         # Sets new position as robot state.
         [rho_t, phi_t] = self.cart2pol(x_t, y_t)
         self._state['rho'] = rho_t
@@ -114,21 +157,36 @@ class ParkingLearner:
         self._state['orientation'] = orientation_t
         return rho_t <= 60
 
-    # Moves Robot and calculate its new position relative to the parking lot
-    # param direction: steering impact from -1 to +1 in 0.1 steps
-    # param length: how long the robot wil drive in cm
-    # return boolean: True if the robot is less equals 60 cm from the parking lot away
-    def action(self, direction, length):
+    def action(self, direction: float, length: int) -> bool:
+        """
+        Moves Robot and calculate its new position relative to the parking lot.
+
+        Parameters
+        ----------
+        direction: float 
+            Steering impact from -1 to +1 in 0.1 steps.
+        length: int
+            How long the robot wil drive in cm.
+
+        Returns
+        -------
+        boolean: True if the robot is less equals 60 cm from the parking lot away.
+        """
         self._bot.drive_steer(direction)
         time.sleep(0.5)
-        self._bot.drive_power(20)
-        time.sleep(length)
+        self._bot.drive_power(20) if length > 0 else self._bot.drive_power(-20)
+        time.sleep(abs(length))
         self._bot.drive_power(0)
         return self.update_state(self, direction, length)
 
-    # Pauses line detection and starts parking process.
     def start_parking(self):
+        """
+        Pauses line detection and starts parking process.
+        """
         self._bot.linetracker._autopilot(False)
+        self._bot.stop_all()
+        # self._bot.drive_steer(0)
+        # self._bot.drive_power(0)
         '''
         stop pause line detection and following the line
         calculate position relativ to parking lot
@@ -136,35 +194,45 @@ class ParkingLearner:
         distance = 0
         angle = 0
         orientation = 180
-        self._bot.drive_steer(0)
-        self._bot.drive_power(0)
         self.parking(distance, angle, orientation)
 
-    # Resets the state, aka. the relativ position, to 0.
-    # Sets parking to false, to leave while loop from self.parking();
     def end_parking(self):
+        """
+        Resets the state, aka. the relativ position, to 0.
+        Sets parking to false, to leave while loop from self.parking();
+        """
         self._state['rho'] = 0
         self._state['phi'] = 0
         self._state['orientation'] = 0
         ''' return to line deetection and following the line '''
         self._bot.linetracker._autopilot(True)
 
-    # Checks if the right parking position is reached.
-    # return boolean: true if calculated pisition is correct, proofed by optical detection.
-    def check_location(self):
+    def check_location(self) -> bool:
+        """
+        Checks if the right parking position is reached.
+        return bool: true if calculated pisition is correct, proofed by optical detection.
+        """
         calculated = (self._state['rho'] ==
                       0 and self._state['orientation'] == 0)
         ''' somthing with opencv, check if parking lot entrance is in lower x% and in the middle of the picture.
          if actual position and calculated position not true, recalculate current position, based on seen parking lot position. '''
         return calculated
 
-    # Parks the robot automaticly.
-    # If the action is set to 'utilize', the robot will use the filled q-table to find the best steps to park.
-    # If the action is set to 'explore', the robot will try some random actions to find a way to park and fill the q-table.
-    # param distance: the distance between the robot and tha parking lot in cm.
-    # param angle: the angle how much the parking lot is left or right from the robot in rad.
-    # param orientation: how much the robot is turned relativ to the parking lot in rad.
-    def parking(self, distance, angle, orientation):
+    def parking(self, distance: float, angle: float, orientation: float):
+        """
+        Parks the robot automaticly.
+        If the action is set to 'utilize', the robot will use the filled q-table to find the best steps to park.
+        If the action is set to 'explore', the robot will try some random actions to find a way to park and fill the q-table.
+
+        Parameters
+        ----------
+        distance: float
+            The distance between the robot and tha parking lot in cm.
+        angle: float
+            The angle how much the parking lot is left or right from the robot in rad.
+        orientation: float
+            How much the robot is turned relativ to the parking lot in rad.
+        """
         self._state['rho'] = distance
         self._state['phi'] = angle
         self._state['orientation'] = orientation
