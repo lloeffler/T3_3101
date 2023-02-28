@@ -185,8 +185,7 @@ class ParkingLearner:
         """
         self._bot.linetracker._autopilot(False)
         self._bot.stop_all()
-        # self._bot.drive_steer(0)
-        # self._bot.drive_power(0)
+        self._bot.drive_steer(0)
         '''
         stop pause line detection and following the line
         calculate position relativ to parking lot
