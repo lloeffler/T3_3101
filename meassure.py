@@ -1,6 +1,7 @@
+#!/usr/bin/python3
 import time
 
-from botlib.bot import Bot
+from botlib import Bot
 
 # switched ports B and C
 
