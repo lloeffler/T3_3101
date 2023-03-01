@@ -104,7 +104,7 @@ while user_input != "end":
         left3(bot=bot)
     if user_input == "left4":
         left4(bot=bot)
-    if user_input == "forward":
+    if user_input == "drive":
         drive(bot=bot, dspeed=speed)
     if user_input == "reset":
         speed = reset(bot=bot)
