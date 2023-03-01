@@ -88,6 +88,7 @@ help()
 user_input = input("enter something\n>")
 
 while user_input != "end":
+    print(user_input)
     if user_input == "right1":
         right1(bot=bot)
     if user_input == "right2":
