@@ -57,10 +57,10 @@ def reset(bot):
     time.sleep(0.5)
     bot.drive_steer(0.25)
     time.sleep(0.5)
-    return 20
+    return 18
 
 def set_speed():
-    return int(input("enter speed between -100 and +100\nx equals 1 cm per second\n>"))
+    return int(input("enter speed between -100 and +100\n18 equals between 8.5 and 10 cm per second\n>"))
 
 def help():
     print("commands:\n")
@@ -77,7 +77,7 @@ def help():
 
 bot = Bot()
 
-speed = 20
+speed = 18
 
 bot.calibrate()
 
