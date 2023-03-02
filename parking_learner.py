@@ -10,7 +10,7 @@ class ParkingLearner:
     """
     A q-learning algorithm to learn how to park the robot.
     The q-table (qtable) is five a dimensional array, that contains the reward of all actions from all possible states.
-    The state is a dictionary, that contains the radius rho, tha angle phi and the orientation of the robot. Phi and orientation have the unit radians.
+    The state is a dictionary, that contains the radius rho, tha angle phi and the orientation of the robot. Phi and orientation have the unit degree.
     The state describes the relative position of the robot to the parking lot (entrance).
     The robot is parking when self._parking is True.
     The robot can explore the possibiliteies how it can park and fill its q-table or it can utilize the filled q-table to execute the learned actions to park mostly efficient.
@@ -105,6 +105,7 @@ class ParkingLearner:
         ----------
         exploration_counter: int
             The new exploration counter to be set, by default 0, to reset exploration counter.
+            If greater or eqals 250.000, self._action will not set to 'utilize' automaticly.
         """
         self._action = 'explore'
         self._exploration_counter = exploration_counter
@@ -124,19 +125,19 @@ class ParkingLearner:
         -------
         boolean : True if the robot is less equals 60 cm from the parking lot away.
         """
-        [x, y] = self.pol2cart(self._state['rho'], self._state['phi'])
+        [x, y] = self.pol2cart(self._state['rho'], np.deg2rad(self._state['phi']))
         if direction == 0:
             # Robot drives straight forward.
             [delta_x, delta_y] = self.pol2cart(
-                lenght, self._state['orientation'])
+                lenght, np.deg2rad(self._state['orientation']))
             x_t = x + delta_x
             y_t = y + delta_y
             orientation_t = self._state['orientation']
         else:
             # Robot drives a curve.
             # Calculating centre of rotation (x_m, y_m) of the turning circle.
-            [x_m_delta, y_m_delta] = self.pol2cart(self._turning_radius[abs(direction)], self._state['orientation'] + (
-                1.5 * np.pi)) if direction > 0 else self.pol2cart(self._turning_radius[abs(direction)], self._state['orientation'] + (0.5 * np.pi))
+            [x_m_delta, y_m_delta] = self.pol2cart(self._turning_radius[abs(direction)], np.deg2rad(self._state['orientation']) + (
+                1.5 * np.pi)) if direction > 0 else self.pol2cart(self._turning_radius[abs(direction)], np.deg2rad(self._state['orientation']) + (0.5 * np.pi))
             x_m = x + x_m_delta
             y_m = y + y_m_delta
             # Calculating perimeter of the turningcicle.
@@ -145,16 +146,16 @@ class ParkingLearner:
             turning_radiant = 2 * np.pi * (-lenght/turning_perimeter)
             # Calculating new robot coordinates.
             [x_delta_t, y_delta_t] = self.pol2cart(self._turning_radius[abs(
-                direction)], (self._state['orientation'] + np.pi + turning_radiant))
+                direction)], (np.deg2rad(self._state['orientation']) + np.pi + turning_radiant))
             # Calculates new robot orientation
-            orientation_t = self._state['orientation'] + turning_radiant
+            orientation_t = np.deg2rad(self._state['orientation']) + turning_radiant
             x_t = x_m + x_delta_t
             y_t = y_m + y_delta_t
         # Sets new position as robot state.
         [rho_t, phi_t] = self.cart2pol(x_t, y_t)
         self._state['rho'] = rho_t
-        self._state['phi'] = phi_t
-        self._state['orientation'] = orientation_t
+        self._state['phi'] = np.rint(np.rad2deg(phi_t)/10)
+        self._state['orientation'] = np.rint(np.rad2deg(orientation_t)/10)
         return rho_t <= 60
 
     def action(self, direction: float, length: int) -> bool:
