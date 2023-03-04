@@ -211,9 +211,18 @@ class ParkingLearner:
         self._bot.drive_power(0)
         return self.update_state(self, direction, length)
 
-    def start_parking(self):
+    def start_parking(self, distance: int = 15, angle: int = 0, orientation: int = 18):
         """
         Pauses line detection and starts parking process.
+
+        Parameters
+        ----------
+        distance: int = 15
+            The distance between the robot and the parking lot. By default 15 cm.
+        angle: int = 0
+            The angle phi of the robot relativ to the parking lot entrance. By defautl 0 degree.
+        orientation: int = 18
+            The angle, that describes in what direction the front of the robot is, relativ to the parking lot entrance. By default 180 degrees saved as 18.
         """
         self._bot.linetracker._autopilot(False)
         self._bot.stop_all()
@@ -222,9 +231,7 @@ class ParkingLearner:
         stop pause line detection and following the line
         calculate position relativ to parking lot
         '''
-        distance = 0
-        angle = 0
-        orientation = 180
+        self._parking = True
         self.parking(distance, angle, orientation)
 
     def end_parking(self):
