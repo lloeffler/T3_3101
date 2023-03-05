@@ -4,7 +4,7 @@ import random
 import numpy as np
 
 from botlib.bot import Bot
-from parkingdirection import Parkindirection
+from parkingdirection import Parkingdirection
 
 
 class ParkingLearner:
@@ -17,12 +17,12 @@ class ParkingLearner:
     The robot can explore the possibiliteies how it can park and fill its q-table or it can utilize the filled q-table to execute the learned actions to park mostly efficient.
     Alpha is the exploration rate.
     y is the other exploration rate.
-    The parkindirection is the direction of parking the robot, either FORAWARD or BACKWARD. The Value of the orientation ist the angle in the parking position.
+    The parkingdirection is the direction of parking the robot, either FORAWARD or BACKWARD. The Value of the orientation ist the angle in the parking position.
     The turnings radius for all allowed steer angles are fix values stored in the array self._turning_radius.
     The exploration coutner limits the number of explorations to 250.000 explorations.
     """
 
-    def __init__(self, bot: Bot, qtable: np.ndarray = None, alpha: float = 1, y: float = 0.95, parkindirection: Parkindirection = Parkindirection.FORWARD):
+    def __init__(self, bot: Bot, qtable: np.ndarray = None, alpha: float = 1, y: float = 0.95, parkingdirection: Parkingdirection = Parkingdirection.FORWARD):
         """
         Creates a new instance of a parking learner.
 
@@ -36,7 +36,7 @@ class ParkingLearner:
             The exploration rate.
         y: float 
             The other expploration rate.
-        parkindirection: Parkindirection
+        parkingdirection: Parkingdirection
             The direction of parking the robot, either FORAWARD or BACKWARD.
         """
         self._bot = bot
@@ -51,21 +51,21 @@ class ParkingLearner:
         self._action = 'utilize' if qtable else 'explore'
         self._alpha = alpha
         self._y = y
-        self._parking_direction = parkindirection
+        self._parking_direction = parkingdirection
         if not qtable:
             for q in self._qtable:
                 q = np.ndarray(shape=(9, 20), dtype=float)
         self._exploration_counter = 0
         self._turning_radius = [0, 1, 2, 3]
 
-    def change_parking_direction(self, new_parking_direction: Parkindirection = Parkindirection.FORWARD, new_qtable: np.ndarray = None) -> np.ndarray:
+    def change_parking_direction(self, new_parking_direction: Parkingdirection = Parkingdirection.FORWARD, new_qtable: np.ndarray = None) -> np.ndarray:
         """
         Changes parking direction of the robot and sets a new q-table.
 
         Parameters
         ----------
-        new_parking_direction: Parkindirection
-            The new parkindirection.
+        new_parking_direction: Parkingdirection
+            The new parking direction.
         new_qtable: np.ndarray(shape=(60, 36, 36))
             The new 3 dimensional q-table filled, with 2 dimensional np.ndarray(shape=(9, 20), dtype=float) filled with floats.
 
@@ -224,13 +224,10 @@ class ParkingLearner:
         orientation: int = 18
             The angle, that describes in what direction the front of the robot is, relativ to the parking lot entrance. By default 180 degrees saved as 18.
         """
+        # Stop pause line detection and following the line
         self._bot.linetracker._autopilot(False)
         self._bot.stop_all()
         self._bot.drive_steer(0)
-        '''
-        stop pause line detection and following the line
-        calculate position relativ to parking lot
-        '''
         self._parking = True
         self.parking(distance, angle, orientation)
 
