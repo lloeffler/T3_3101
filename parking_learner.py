@@ -3,7 +3,7 @@ import random
 
 import numpy as np
 
-from botlib.bot import Bot
+from botlib import Bot
 from parkingdirection import Parkingdirection
 
 
@@ -209,7 +209,7 @@ class ParkingLearner:
         self._bot.drive_power(20) if length > 0 else self._bot.drive_power(-20)
         time.sleep(abs(length))
         self._bot.drive_power(0)
-        return self.update_state(self, direction, length)
+        return self.update_state(direction=direction, lenght=length)
 
     def start_parking(self, distance: int = 15, angle: int = 0, orientation: int = 18):
         """
