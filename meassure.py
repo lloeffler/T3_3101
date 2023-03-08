@@ -1,9 +1,7 @@
 #!/usr/bin/python3
 import time
 
-from botlib import Bot
-
-# switched ports B and C
+from swarmrobot import SwarmRobot
 
 def right1(bot):
     bot.drive_steer(0.25)
@@ -75,7 +73,7 @@ def help():
     print("end -> quits programm")
     print("help -> prints this help")
 
-bot = Bot()
+bot = SwarmRobot()
 
 speed = 18
 

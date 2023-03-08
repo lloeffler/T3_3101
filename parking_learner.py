@@ -3,7 +3,7 @@ import random
 
 import numpy as np
 
-from botlib import Bot
+from swarmrobot import SwarmRobot
 from parkingdirection import Parkingdirection
 
 
@@ -22,7 +22,7 @@ class ParkingLearner:
     The exploration coutner limits the number of explorations to 250.000 explorations.
     """
 
-    def __init__(self, bot: Bot, qtable: np.ndarray = None, alpha: float = 1, y: float = 0.95, parkingdirection: Parkingdirection = Parkingdirection.FORWARD):
+    def __init__(self, bot: SwarmRobot, qtable: np.ndarray = None, alpha: float = 1, y: float = 0.95, parkingdirection: Parkingdirection = Parkingdirection.FORWARD):
         """
         Creates a new instance of a parking learner.
 

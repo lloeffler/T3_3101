@@ -6,7 +6,7 @@ import os.path
 
 import numpy as np
 
-from botlib import Bot
+from swarmrobot import SwarmRobot
 from parking_learner import ParkingLearner
 from parkingdirection import Parkingdirection
 
@@ -110,8 +110,7 @@ class Exhibition:
 
     def __init__(self):
         # Create instance of the robot.
-        self._bot = Bot()
-        self._linetracker = self._bot.linetracker()
+        self._bot = SwarmRobot()
         # Loads configuration.
         self.load_config()
         self.laod_qtable_pair(
@@ -122,7 +121,7 @@ class Exhibition:
         print('Calibrate robot')
         # Waits a second before calibrating the robot.
         time.sleep(1)
-        self._bot.calibrate()
+        self._bot.calibrate(True, True)
 
     def load_config(self):
         """
@@ -383,7 +382,24 @@ class Exhibition:
         if user_input == 'yes' or user_input == 'ja':
             np.savez_compressed(self.config['qtable_name'], forward=self._qtable_pair[Parkingdirection.FORWARD.value],
                                 backward=self._qtable_pair[Parkingdirection.FORWARD.value])
-
+            
+    def start(self):
+        """
+        Let drive the robot for about 15 cm and then start the automated parking.
+        1Basileus /
+Swarmrobotlib
+aka der andere quellen ordner, ist besser. Mülli bescheid geben!
+        """
+        # Setup automatic Linedetection
+        self._bot.set_autopilot_state(active = True)
+        # Setup Navigation
+        self._bot.set_navigaton_state(active = True)
+        #bot._setup_navigation()
+        self._bot.set_intsecdet_state(active=True)
+        # Set velocity of Bot
+        self._bot.set_power_lvl(29)
+        self._bot.change_drive_power(self._bot.power_lvl)
+        self._bot.stop_all()
 
 if __name__ == '__main__':
     try:
