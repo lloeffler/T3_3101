@@ -26,9 +26,9 @@ class ParkingLearner:
         """
         Creates a new instance of a parking learner.
 
-        Parameters
+        Parameter
         ----------
-        bot: botlib.bot
+        bot: SwarmRobot
             A instance of the robot.
         qtable: numpy.ndarray
             A three demensional numpy.ndarray with shape=(60, 36, 36), containing two dimensional numpy.ndarray with shape=(9, 20).
@@ -62,7 +62,7 @@ class ParkingLearner:
         """
         Changes parking direction of the robot and sets a new q-table.
 
-        Parameters
+        Parameter
         ----------
         new_parking_direction: Parkingdirection
             The new parking direction.
@@ -86,7 +86,7 @@ class ParkingLearner:
         """
         Converts cartesian coordinates into polar coordinates.
 
-        Parameters
+        Parameter
         ----------
         x: int
             Distance between point and y-axis.
@@ -105,7 +105,7 @@ class ParkingLearner:
         """
         Converts polar coordinates into cartesian coordinates.
 
-        Parameters
+        Parameter
         ----------
         rho: float 
             Radius of the point in the unitary circle.
@@ -130,7 +130,7 @@ class ParkingLearner:
         """
         Sets self._action to 'explore', to change behavior and resets self._exploration_counter.
 
-        Parameters
+        Parameter
         ----------
         exploration_counter: int
             The new exploration counter to be set, by default 0, to reset exploration counter.
@@ -143,7 +143,7 @@ class ParkingLearner:
         """
         Calculates and sets new realtive position to parking lot as state.
 
-        Parameters
+        Parameter
         ----------
         direction: float 
             Steering impact from -1 to +1 in 0.1 steps.
@@ -193,7 +193,7 @@ class ParkingLearner:
         """
         Moves Robot and calculate its new position relative to the parking lot.
 
-        Parameters
+        Parameter
         ----------
         direction: float 
             Steering impact from -1 to +1 in 0.1 steps.
@@ -204,18 +204,18 @@ class ParkingLearner:
         -------
         boolean: True if the robot is less equals 60 cm from the parking lot away.
         """
-        self._bot.drive_steer(direction)
+        self._bot.set_drive_steer(direction)
         time.sleep(0.5)
-        self._bot.drive_power(20) if length > 0 else self._bot.drive_power(-20)
+        self._bot.set_power_lvl(20) if length > 0 else self._bot.set_power_lvl(-20)
         time.sleep(abs(length))
-        self._bot.drive_power(0)
+        self._bot.set_power_lvl(0)
         return self.update_state(direction=direction, lenght=length)
 
     def start_parking(self, distance: int = 15, angle: int = 0, orientation: int = 18):
         """
-        Pauses line detection and starts parking process.
+        Starts parking process.
 
-        Parameters
+        Parameter
         ----------
         distance: int = 15
             The distance between the robot and the parking lot. By default 15 cm.
@@ -224,10 +224,8 @@ class ParkingLearner:
         orientation: int = 18
             The angle, that describes in what direction the front of the robot is, relativ to the parking lot entrance. By default 180 degrees saved as 18.
         """
-        # Stop pause line detection and following the line
-        self._bot.linetracker._autopilot(False)
         self._bot.stop_all()
-        self._bot.drive_steer(0)
+        self._bot.set_drive_steer(0)
         self._parking = True
         self.parking(distance, angle, orientation)
 
@@ -239,8 +237,6 @@ class ParkingLearner:
         self._state['rho'] = 0
         self._state['phi'] = 0
         self._state['orientation'] = 0
-        ''' return to line deetection and following the line '''
-        self._bot.linetracker._autopilot(True)
 
     def check_location(self) -> bool:
         """
@@ -277,7 +273,7 @@ class ParkingLearner:
         If the action is set to 'utilize', the robot will use the filled q-table to find the best steps to park.
         If the action is set to 'explore', the robot will try some random actions to find a way to park and fill the q-table.
 
-        Parameters
+        Parameter
         ----------
         distance: float
             The distance between the robot and tha parking lot in cm.
@@ -294,7 +290,7 @@ class ParkingLearner:
         if self._action == 'explore':
             self._exploration_counter += 1
         # Limits the number of explorations to 250.000 explorations.
-        if self._exploration_counte == 250000 and self._action == 'explore':
+        if self._exploration_counter == 250000 and self._action == 'explore':
             self.set_action_utilize()
         while self._parking:
             # Decides to utilize the filled q-table oder explore and fill the q-table.

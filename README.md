@@ -3,6 +3,7 @@ Created by my self:
 - meassrue.py
 - parking_learner.py
 - parkindirection.py
+- programm_types.py
 - test.py
 
 Copied fiels from swarmrobot, based on this repo: https://github.com/1Basileus/Swarmrobotlib
@@ -22,6 +23,7 @@ Modified fiels from swarmrobot based on this repo: https://github.com/1Basileus/
 - intersection_detection.py
 - navigation.py
 - parking_space_detection.py
+- swarmrobot.py
 
 Modified hardware:
 - switched ports B and C

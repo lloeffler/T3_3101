@@ -3,64 +3,175 @@ import time
 
 from swarmrobot import SwarmRobot
 
-def right1(bot):
-    bot.drive_steer(0.25)
+def right1(bot: SwarmRobot):
+    """
+    Steers to 25% to the right.
+
+    Parameter
+    ----------
+    bot: SwarmRobot
+        A instance of the robot.
+    """
+    bot.set_drive_steer(0.25)
     time.sleep(0.5)
 
-def right2(bot):
-    bot.drive_steer(0.5)
+def right2(bot: SwarmRobot):
+    """
+    Steers to 50% to the right.
+    
+    Parameter
+    ----------
+    bot: SwarmRobot
+        A instance of the robot.
+    """
+    bot.set_drive_steer(0.5)
     time.sleep(0.5)
 
-def right3(bot):
-    bot.drive_steer(0.75)
+def right3(bot: SwarmRobot):
+    """
+    Steers to 75% to the right.
+    
+    Parameter
+    ----------
+    bot: SwarmRobot
+        A instance of the robot.
+    """
+    bot.set_drive_steer(0.75)
     time.sleep(0.5)
 
-def right4(bot):
-    bot.drive_steer(1)
+def right4(bot: SwarmRobot):
+    """
+    Steers to 100% to the right.
+    
+    Parameter
+    ----------
+    bot: SwarmRobot
+        A instance of the robot.
+    """
+    bot.set_drive_steer(1)
     time.sleep(0.5)
 
-def left1(bot):
-    bot.drive_steer(-0.25)
+def left1(bot: SwarmRobot):
+    """
+    Steers to 25% to the left.
+    
+    Parameter
+    ----------
+    bot: SwarmRobot
+        A instance of the robot.
+    """
+    bot.set_drive_steer(-0.25)
     time.sleep(0.5)
 
-def left2(bot):
-    bot.drive_steer(-0.5)
+def left2(bot: SwarmRobot):
+    """
+    Steers to 50% to the left.
+    
+    Parameter
+    ----------
+    bot: SwarmRobot
+        A instance of the robot.
+    """
+    bot.set_drive_steer(-0.5)
     time.sleep(0.5)
 
-def left3(bot):
-    bot.drive_steer(-0.75)
+def left3(bot: SwarmRobot):
+    """
+    Steers to 75% to the left.
+    
+    Parameter
+    ----------
+    bot: SwarmRobot
+        A instance of the robot.
+    """
+    bot.set_drive_steer(-0.75)
     time.sleep(0.5)
 
-def left4(bot):
-    bot.drive_steer(-1)
+def left4(bot: SwarmRobot):
+    """
+    Steers to 100% to the left.
+    
+    Parameter
+    ----------
+    bot: SwarmRobot
+        A instance of the robot.
+    """
+    bot.set_drive_steer(-1)
     time.sleep(0.5)
 
-def straight(bot):
-    bot.drive_steer(0)
+def straight(bot: SwarmRobot):
+    """
+    Steers straight.
+    
+    Parameter
+    ----------
+    bot: SwarmRobot
+        A instance of the robot.
+    """
+    bot.set_drive_steer(0)
     time.sleep(0.5)
 
-def drive(bot, dspeed):
+def drive(bot: SwarmRobot, dspeed:int):
+    """
+    Ask the user how long/many seconds the robot should drive with the current speed.
+
+    Parameter
+    ----------
+    bot: SwarmRobot
+        A instance of the robot.
+    dspeed: int
+        The current (drive) speed.
+        The robot drives forward if dspeed is greate than 0.
+        The robot drives backward if dspeed is less than 0.
+    """
     print("enter how long to drive with power:")
     print(dspeed)
     sec = input(">")
-    bot.drive_power(dspeed)
+    bot.set_drive_steer(dspeed)
     time.sleep(int(sec))
-    bot.drive_power(0)
+    bot.set_drive_steer(0)
     time.sleep(0.5)
 
-def reset(bot):
-    bot.drive_power(0)
-    time.sleep(0.5)
+def reset(bot: SwarmRobot) -> int:
+    """
+    Stops the robot.
+    Resets the steering of the robot.
+    
+    Parameter
+    ----------
+    bot: SwarmRobot
+        A instance of the robot.
+
+    Returns
+    -------
+    int:
+        The default speed of 18.
+    """
     bot.stop_all()
     time.sleep(0.5)
-    bot.drive_steer(0.25)
+    bot.set_drive_steer(0)
+    time.sleep(0.5)
+    #bot.set_drive_steer(0.25)
     time.sleep(0.5)
     return 18
 
-def set_speed():
-    return int(input("enter speed between -100 and +100\n18 equals between 8.5 and 10 cm per second\n>"))
+def set_speed(speed: int = 18):
+    """
+    Asks the user for the speed to be set.
+    The entered speed has to be between -100 and +100 and not 0.
+    
+    Returns
+    -------
+    int:
+        The default speed of 18.
+    """
+    new_speed = int(input("enter speed between -100 and +100\n18 equals between 8.5 and 10 cm per second\n>"))
+    return new_speed if new_speed >= -100 and new_speed <= 100 else speed
 
 def help():
+    """
+    Prints commands aka help.
+    """
     print("commands:\n")
     print("left1 -> left steer 0.25\tright1 -> right steer 0.25")
     print("left2 -> left steer 0.5\tright2 -> right steer 0.5")
@@ -79,12 +190,13 @@ speed = 18
 
 bot.calibrate()
 
-bot.drive_steer(0)
+bot.set_drive_steer(0)
 
 help()
 
 user_input = input("enter something\n>")
 
+# Behavior based on user input.
 while user_input != "end":
     print(user_input)
     if user_input == "right1":
@@ -108,7 +220,7 @@ while user_input != "end":
     if user_input == "reset":
         speed = reset(bot=bot)
     if user_input == "set_speed":
-        speed = set_speed()
+        speed = set_speed(speed=speed)
     if user_input == "help":
         help()
     if user_input == "straight":

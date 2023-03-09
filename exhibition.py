@@ -9,6 +9,7 @@ import numpy as np
 from swarmrobot import SwarmRobot
 from parking_learner import ParkingLearner
 from parkingdirection import Parkingdirection
+from programm_type import ProgrammType
 
 
 class Exhibition:
@@ -110,7 +111,7 @@ class Exhibition:
 
     def __init__(self):
         # Create instance of the robot.
-        self._bot = SwarmRobot()
+        self._bot = SwarmRobot(programm_type=ProgrammType.PARKING)
         # Loads configuration.
         self.load_config()
         self.laod_qtable_pair(
@@ -157,7 +158,7 @@ class Exhibition:
         """
         The main function, which handles inputs.
 
-        Parameters
+        Parameter
         ----------
         administartor_mode: bool = False
             If administrationmode is active, True, the exit command will be shown, by default False.
@@ -191,7 +192,7 @@ class Exhibition:
         """
         Prints main menu.
 
-        Parameters
+        Parameter
         ----------
         administartor_mode: bool = False
             If administrationmode is active, True, the exit command will be shown, by default False.
@@ -204,7 +205,7 @@ class Exhibition:
         """
         Prints settings menu.
 
-        Parameters
+        Parameter
         ----------
         administartor_mode: bool = False
             If administrationmode is active, True, the q-table settings will be shown, by default False.
@@ -222,7 +223,7 @@ class Exhibition:
         """
         Handles user input for settings menu.
 
-        Parameters
+        Parameter
         ----------
         administartor_mode: bool = False
             If administrationmode is active, True, the q-table settings will be enabled, by default False.
@@ -331,7 +332,7 @@ class Exhibition:
         Loads q-table pair from file into self._qtable_pair.
         Creates a new q-table pari if file with q-table pair not exsist.
 
-        Parameters
+        Parameter
         ----------
         name: str
             Name of the file containg the q-table pair.
@@ -386,9 +387,7 @@ class Exhibition:
     def start(self):
         """
         Let drive the robot for about 15 cm and then start the automated parking.
-        1Basileus /
-Swarmrobotlib
-aka der andere quellen ordner, ist besser. Mülli bescheid geben!
+        1Basileus / Swarmrobotlib
         """
         # Setup automatic Linedetection
         self._bot.set_autopilot_state(active = True)

@@ -2,12 +2,13 @@ from motor import CalibratedMotor, Motor
 from pidcontroller import PIDController
 from line_tracking import LineTracker
 from navigation import Navigator
+from programm_type import ProgrammType
 from intersection_detection import IntersectionDetection
 from threading import Thread, Event
 import cv2
 
 class SwarmRobot:
-    def __init__(self):
+    def __init__(self, programm_type: ProgrammType = ProgrammType.AUTOMATIC):
         self._drive_motor = Motor(Motor._bp.PORT_B)
         self._steer_motor = CalibratedMotor(Motor._bp.PORT_D, calpow=40)
         self._fork_lift_motor = CalibratedMotor(Motor._bp.PORT_C, calpow=50)
@@ -31,6 +32,7 @@ class SwarmRobot:
         self._line_tracker = LineTracker(self._camera.get(cv2.CAP_PROP_FRAME_WIDTH), self._camera.get(cv2.CAP_PROP_FRAME_HEIGHT), preview=False, debug=False)
 
         # Navigation
+        self._programm_type = programm_type
         self._navigation_process = None
         self._navigation_active = False
         self._navigator = Navigator(self._camera.get(cv2.CAP_PROP_FRAME_WIDTH), self._camera.get(cv2.CAP_PROP_FRAME_HEIGHT), self, preview=True, debug=False)
@@ -54,6 +56,17 @@ class SwarmRobot:
     def set_drive_steer(self, pnew):
         pos = self._steer_motor.position_from_factor(pnew)
         self._steer_motor.set_position(pos)
+    
+    def set_programm_type(self, programmtype: ProgrammType):
+        """
+        Sets new programmtype.
+
+        Parameter
+        ----------
+        programmtype: ProgrammType
+            The new programm type, defines what programm the robot executes.
+        """
+        self._programm_type = programmtype
 
     def calibrate(self, calibrate_forklift=False, verbose=False):
         print('Calibrating steering')

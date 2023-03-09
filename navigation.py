@@ -1,3 +1,4 @@
+from swarmrobot import SwarmRobot
 from intersection_detection import IntersectionDetection
 from qr_detection import QrDetection
 from bar_code_detection import BarCodeDetection
@@ -6,6 +7,7 @@ from turn_assistant import TurnAssistant
 from parking_space_detection import ParkingSpaceDetection
 from parking_learner import ParkingLearner
 from parkingdirection import Parkingdirection
+from programm_type import ProgrammType
 
 from scipy.ndimage import gaussian_filter
 from skimage.restoration import denoise_nl_means, estimate_sigma
@@ -19,7 +21,7 @@ class Navigator:
     """
     Macht navigation durhc den linien parkour anhand der barcodes.
     """
-    def __init__(self, width, height, bot, kernel_size=(5,5), preview=False, debug=False, qtable: np.ndarray = None, alpha: float = 1, y: float = 0.95, parkingdirection: Parkingdirection = Parkingdirection.FORWARD):    
+    def __init__(self, width, height, bot: SwarmRobot, kernel_size=(5,5), preview=False, debug=False, qtable: np.ndarray = None, alpha: float = 1, y: float = 0.95, parkingdirection: Parkingdirection = Parkingdirection.FORWARD):    
         # Define Region of interest
         self.resolution = (int(width), int(height))
         w = self.resolution[0]//3
@@ -86,7 +88,9 @@ class Navigator:
                     self._detected = True
                     # Start parking procedure
                     self.turn_intersection('parking')
-                    sys.exit()#                                                     if messe park programm true soll er ein stück weiter fahren. eventuell rum drehen.
+                    if self.bot._programm_type is ProgrammType.PARKING:
+                        self.bot.set_programm_type(ProgrammType.ENDPARKING)
+                    sys.exit()
                 else:
                 
                     lable = ""
