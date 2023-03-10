@@ -88,9 +88,7 @@ class Navigator:
                     self._detected = True
                     # Start parking procedure
                     self.turn_intersection('parking')
-                    if self.bot._programm_type is ProgrammType.PARKING:
-                        self.bot.set_programm_type(ProgrammType.ENDPARKING)
-                    sys.exit()
+                    return
                 else:
                 
                     lable = ""
@@ -136,7 +134,7 @@ class Navigator:
         elif direction == "g":
             self.ta.turn_0_deg()
         elif direction == "parking":
-            self.parking_learner.start_parking()#            parking_learner.start_parking(positionen relativ zum parkplatz übergeben)
+            self.parking_learner.start_parking()
         elif direction == "stop":
             self.bot.stop_all()
 

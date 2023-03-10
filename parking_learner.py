@@ -5,6 +5,7 @@ import numpy as np
 
 from swarmrobot import SwarmRobot
 from parkingdirection import Parkingdirection
+from programm_type import ProgrammType
 
 
 class ParkingLearner:
@@ -56,7 +57,7 @@ class ParkingLearner:
             for q in self._qtable:
                 q = np.ndarray(shape=(9, 20), dtype=float)
         self._exploration_counter = 0
-        self._turning_radius = [0, 1, 2, 3]
+        self._turning_radius = [0, 1, 2, 3] # Meassure and calculate the turning radia!
 
     def change_parking_direction(self, new_parking_direction: Parkingdirection = Parkingdirection.FORWARD, new_qtable: np.ndarray = None) -> np.ndarray:
         """
@@ -237,6 +238,8 @@ class ParkingLearner:
         self._state['rho'] = 0
         self._state['phi'] = 0
         self._state['orientation'] = 0
+        if self._bot._programm_type == ProgrammType.PARKING:
+            self._bot.set_programm_type(ProgrammType.ENDPARKING)
 
     def check_location(self) -> bool:
         """

@@ -396,8 +396,13 @@ class Exhibition:
         #bot._setup_navigation()
         self._bot.set_intsecdet_state(active=True)
         # Set velocity of Bot
-        self._bot.set_power_lvl(29)
+        self._bot.set_power_lvl(18)
         self._bot.change_drive_power(self._bot.power_lvl)
+        while self._bot._programm_type != ProgrammType.DONE:
+            time.sleep(1)
+            if self._bot._programm_type == ProgrammType.ENDPARKING:
+                self._bot.set_programm_type = ProgrammType.DONE
+                time.sleep(2)
         self._bot.stop_all()
 
 if __name__ == '__main__':
