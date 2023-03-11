@@ -1,5 +1,5 @@
-import time
 import random
+from time import sleep
 
 import numpy as np
 
@@ -57,7 +57,8 @@ class ParkingLearner:
             for q in self._qtable:
                 q = np.ndarray(shape=(9, 20), dtype=float)
         self._exploration_counter = 0
-        self._turning_radius = [0, 1, 2, 3] # Meassure and calculate the turning radia!
+        # Meassure and calculate the turning radia!
+        self._turning_radius = [0, 1, 2, 3]
 
     def change_parking_direction(self, new_parking_direction: Parkingdirection = Parkingdirection.FORWARD, new_qtable: np.ndarray = None) -> np.ndarray:
         """
@@ -206,10 +207,11 @@ class ParkingLearner:
         boolean: True if the robot is less equals 60 cm from the parking lot away.
         """
         self._bot.set_drive_steer(direction)
-        time.sleep(0.5)
-        self._bot.set_power_lvl(20) if length > 0 else self._bot.set_power_lvl(-20)
-        time.sleep(abs(length))
-        self._bot.set_power_lvl(0)
+        sleep(0.5)
+        self._bot.set_drive_power(
+            20) if length > 0 else self._bot.set_drive_power(-20)
+        sleep(abs(length))
+        self._bot.set_drive_power(0)
         return self.update_state(direction=direction, lenght=length)
 
     def start_parking(self, distance: int = 15, angle: int = 0, orientation: int = 18):
@@ -226,7 +228,14 @@ class ParkingLearner:
             The angle, that describes in what direction the front of the robot is, relativ to the parking lot entrance. By default 180 degrees saved as 18.
         """
         self._bot.stop_all()
+        self._bot.stop_all()
+        sleep(0.5)
+        self._bot.set_drive_steer(-0.25)
+        sleep(0.5)
+        self._bot.set_drive_steer(0.25)
+        sleep(0.5)
         self._bot.set_drive_steer(0)
+        sleep(0.5)
         self._parking = True
         self.parking(distance, angle, orientation)
 
@@ -305,7 +314,7 @@ class ParkingLearner:
                 # Stays in the parking lot for 30 seconds, after a succesfully parking manover.
                 if self.check_location():
                     self._parking = False
-                    time.sleep(10)
+                    sleep(10)
             # Fills q-Table.
             if self._action == 'explore':
                 direction = round(random.randint(-10, 11)/10, 1)
