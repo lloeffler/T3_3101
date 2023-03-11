@@ -7,10 +7,10 @@ import cv2
 
 class SwarmRobot:
     def __init__(self, programm_type: ProgrammType = ProgrammType.AUTOMATIC):
-        self._drive_motor = Motor(Motor._bp.PORT_B)
+        self._fork_lift_motor = CalibratedMotor(Motor._bp.PORT_A, calpow=50)
+        self._fork_tilt_motor = CalibratedMotor(Motor._bp.PORT_B, calpow=40)
+        self._drive_motor = Motor(Motor._bp.PORT_C)
         self._steer_motor = CalibratedMotor(Motor._bp.PORT_D, calpow=40)
-        self._fork_lift_motor = CalibratedMotor(Motor._bp.PORT_C, calpow=50)
-        self._fork_tilt_motor = CalibratedMotor(Motor._bp.PORT_A, calpow=40)
 
         # Camera
         self._camera = cv2.VideoCapture(0)
