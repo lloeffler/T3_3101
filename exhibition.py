@@ -1,8 +1,8 @@
-import json
-import re
-import time
 import sys
-import os.path
+from json import loads
+from os.path import isfile
+from re import compile
+from time import sleep
 
 import numpy as np
 
@@ -121,7 +121,7 @@ class Exhibition:
             bot=self._bot, qtable=self._qtable_pair[18], alpha=self.config['alpha'], y=self.config['y'], parkingdirection=self.config['dircetion'])
         print('Calibrate robot')
         # Waits a second before calibrating the robot.
-        time.sleep(1)
+        sleep(1)
         self._bot.calibrate(True, True)
 
     def load_config(self):
@@ -130,13 +130,13 @@ class Exhibition:
         """
         config_string = ''
         # Checks if configuration file exsist.
-        if os.path.isfile('./exhibition_parking.conf'):
+        if isfile('./exhibition_parking.conf'):
             # Reads configration file.
             with open("./exhibition_parking.conf") as config_file:
                 config_string = config_file.read()
         # Checks if configuration file mathces to the needed format and sets configuration if so.
-        if re.compile("\{'language': '[english|german]', 'qtable_name': '[A-Za-z0-9]+', 'alpha': \d+\.\d+, 'y': \d+\.\d+, 'direction': [FORWARD|BACKWARD]\}").match(config_string):
-            self.config = json.loads(config_string)
+        if compile("\{'language': '[english|german]', 'qtable_name': '[_-\.\w]+', 'alpha': \d+\.\d+, 'y': \d+\.\d+, 'direction': [FORWARD|BACKWARD]\}").match(config_string):
+            self.config = loads(config_string)
         # If config does not match to the nedded format, de default configuration is loaded.
         else:
             self.config = {
@@ -340,7 +340,7 @@ class Exhibition:
         self.config['qtable_name'] = name
         path = f"./{name}.npz"
         # Checks if file exists with q-table pair exists
-        if os.path.isfile(path):
+        if isfile(path):
             # Loads q-table pair from file.
             with np.load(path) as data:
                 self._qtable_pair[18] = data[Parkingdirection.FORWARD.name]
@@ -398,25 +398,31 @@ class Exhibition:
         # Set velocity of Bot
         self._bot.set_power_lvl(18)
         self._bot.change_drive_power(self._bot.power_lvl)
+        # Checks every second the program status. 
         while self._bot._programm_type != ProgrammType.DONE:
-            time.sleep(1)
+            sleep(1)
             if self._bot._programm_type == ProgrammType.ENDPARKING:
                 self._bot.set_programm_type = ProgrammType.DONE
-                time.sleep(2)
+                sleep(2)
         self._bot.stop_all()
 
 if __name__ == '__main__':
     try:
+        # Checks for administrator_mode in comandline arguments.
         administartor_mode = True if 'administartor_mode' in sys.argv[
             1:] or 'administartormode' in sys.argv[1:] else False
+        # Generates exhibition instance.
         runner = Exhibition()
+        # Executes exhibition application.
         runner.main(administartor_mode)
     except Exception as exception:
         try:
+            # If any error is catched, it is tried to write into an error log file.
             log_file = open("error.log", "a")
             log_file.write(exception.__traceback__)
             log_file.close()
         except Exception as inner_exception:
+            # If the logging into a file failes, the error is printed to the command line.
             print('Outer Exception:')
             print(exception.__traceback__)
             print('Inner Exception')

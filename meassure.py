@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import time
+from time import sleep
 
 from swarmrobot import SwarmRobot
 
@@ -13,7 +13,7 @@ def right1(bot: SwarmRobot):
         A instance of the robot.
     """
     bot.set_drive_steer(0.25)
-    time.sleep(0.5)
+    sleep(0.5)
 
 def right2(bot: SwarmRobot):
     """
@@ -25,7 +25,7 @@ def right2(bot: SwarmRobot):
         A instance of the robot.
     """
     bot.set_drive_steer(0.5)
-    time.sleep(0.5)
+    sleep(0.5)
 
 def right3(bot: SwarmRobot):
     """
@@ -37,7 +37,7 @@ def right3(bot: SwarmRobot):
         A instance of the robot.
     """
     bot.set_drive_steer(0.75)
-    time.sleep(0.5)
+    sleep(0.5)
 
 def right4(bot: SwarmRobot):
     """
@@ -49,7 +49,7 @@ def right4(bot: SwarmRobot):
         A instance of the robot.
     """
     bot.set_drive_steer(1)
-    time.sleep(0.5)
+    sleep(0.5)
 
 def left1(bot: SwarmRobot):
     """
@@ -61,7 +61,7 @@ def left1(bot: SwarmRobot):
         A instance of the robot.
     """
     bot.set_drive_steer(-0.25)
-    time.sleep(0.5)
+    sleep(0.5)
 
 def left2(bot: SwarmRobot):
     """
@@ -73,7 +73,7 @@ def left2(bot: SwarmRobot):
         A instance of the robot.
     """
     bot.set_drive_steer(-0.5)
-    time.sleep(0.5)
+    sleep(0.5)
 
 def left3(bot: SwarmRobot):
     """
@@ -85,7 +85,7 @@ def left3(bot: SwarmRobot):
         A instance of the robot.
     """
     bot.set_drive_steer(-0.75)
-    time.sleep(0.5)
+    sleep(0.5)
 
 def left4(bot: SwarmRobot):
     """
@@ -97,7 +97,7 @@ def left4(bot: SwarmRobot):
         A instance of the robot.
     """
     bot.set_drive_steer(-1)
-    time.sleep(0.5)
+    sleep(0.5)
 
 def straight(bot: SwarmRobot):
     """
@@ -109,7 +109,7 @@ def straight(bot: SwarmRobot):
         A instance of the robot.
     """
     bot.set_drive_steer(0)
-    time.sleep(0.5)
+    sleep(0.5)
 
 def drive(bot: SwarmRobot, dspeed:int):
     """
@@ -128,9 +128,9 @@ def drive(bot: SwarmRobot, dspeed:int):
     print(dspeed)
     sec = input(">")
     bot.set_drive_steer(dspeed)
-    time.sleep(int(sec))
+    sleep(int(sec))
     bot.set_drive_steer(0)
-    time.sleep(0.5)
+    sleep(0.5)
 
 def reset(bot: SwarmRobot) -> int:
     """
@@ -148,11 +148,11 @@ def reset(bot: SwarmRobot) -> int:
         The default speed of 18.
     """
     bot.stop_all()
-    time.sleep(0.5)
+    sleep(0.5)
     bot.set_drive_steer(0)
-    time.sleep(0.5)
+    sleep(0.5)
     #bot.set_drive_steer(0.25)
-    time.sleep(0.5)
+    sleep(0.5)
     return 18
 
 def set_speed(speed: int = 18):
@@ -188,7 +188,7 @@ bot = SwarmRobot()
 
 speed = 18
 
-bot.calibrate()
+bot.calibrate(True, True)
 
 bot.set_drive_steer(0)
 
