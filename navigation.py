@@ -7,7 +7,6 @@ from turn_assistant import TurnAssistant
 from parking_space_detection import ParkingSpaceDetection
 from parking_learner import ParkingLearner
 from parkingdirection import Parkingdirection
-from programm_type import ProgrammType
 
 from scipy.ndimage import gaussian_filter
 from skimage.restoration import denoise_nl_means, estimate_sigma
