@@ -32,7 +32,7 @@ class ParkingLearner:
         bot: SwarmRobot
             A instance of the robot.
         qtable: numpy.ndarray
-            A three demensional numpy.ndarray with shape=(60, 36, 36), containing two dimensional numpy.ndarray with shape=(9, 20).
+            A three demensional numpy.ndarray with shape=(60, 36, 36), containing two dimensional numpy.ndarray with shape=(5, 20).
         alpha: float 
             The exploration rate.
         y: float 
@@ -55,10 +55,11 @@ class ParkingLearner:
         self._parking_direction = parkingdirection
         if not qtable:
             for q in self._qtable:
-                q = np.ndarray(shape=(9, 20), dtype=float)
+                q = np.ndarray(shape=(5, 20), dtype=float)
         self._exploration_counter = 0
         # Meassure and calculate the turning radia!
-        self._turning_radius = [0, 1, 2, 3]
+        # Turning radia  for 0.5 and 1.0 steering.
+        self._turning_radius = [0, 1]
 
     def change_parking_direction(self, new_parking_direction: Parkingdirection = Parkingdirection.FORWARD, new_qtable: np.ndarray = None) -> np.ndarray:
         """
@@ -83,6 +84,8 @@ class ParkingLearner:
             for q in self._qtable:
                 q = np.ndarray(shape=(9, 20), dtype=float)
         return old_q_table
+
+    # region conversions
 
     def cart2pol(self, x: float, y: float):
         """
@@ -121,6 +124,39 @@ class ParkingLearner:
         x = rho * np.cos(phi)
         y = rho * np.sin(phi)
         return (x, y)
+
+    def index2direction(self, index: int = 2) -> float:
+        """
+        Converts an index of the q-sub-table to a direction float.
+
+        Parameter
+        ---------
+        index: int
+            The index of the q-subt-table, corresponding a direction.
+
+        Returns
+        -------
+        float: The turning drirection, based on the index parameter. By default the direction is straight, so 0.0.
+        """
+        directions = [-1.0, -0.5, 0.0, 0.5, 1.0]
+        return directions[index]
+
+    def index2dlength(self, index: int = 10) -> int:
+        """
+        Converts an index of the q-sub-table to a lenght int.
+
+        Parameter
+        ---------
+        index: int
+            The index of the q-subt-table, corresponding a length.
+
+        Returns
+        -------
+        int: The length the robot drives forward or backward, based on the index parameter. By default the direction is straight, so 1.
+        """
+        return index - 10 if index < 10 else index - 9
+
+    # endregion
 
     def set_action_utilize(self):
         """
@@ -228,7 +264,6 @@ class ParkingLearner:
             The angle, that describes in what direction the front of the robot is, relativ to the parking lot entrance. By default 180 degrees saved as 18.
         """
         self._bot.stop_all()
-        self._bot.stop_all()
         sleep(0.5)
         self._bot.set_drive_steer(-0.25)
         sleep(0.5)
@@ -310,25 +345,25 @@ class ParkingLearner:
             if self._action == 'utilize':
                 [action_direction, action_lenght] = np.unravel_index(self._qtable[self._state['rho'], self._state['phi'], self._state['orientation']].argmax(
                 ), np.unravel_index(self._qtable[self._state['rho'], self._state['phi'], self._state['orientation']].shape))
-                is_in_range = self.action(action_direction, action_lenght)
+                is_in_range = self.action(self.index2direction(
+                    action_direction), self.index2dlength(action_lenght))
                 # Stays in the parking lot for 30 seconds, after a succesfully parking manover.
                 if self.check_location():
                     self._parking = False
                     sleep(10)
             # Fills q-Table.
             if self._action == 'explore':
-                direction = round(random.randint(-10, 11)/10, 1)
-                length = 0
-                while length == 0:
-                    length = random.randint(-10, 11)
+                direction_index = random.randint(0, 5)
+                length_index = random.randint(0, 20)
                 old_state = {
                     'rho': self._state['rho'],
                     'phi': self._state['phi'],
                     'orientation': self._state['orientation']
                 }
-                is_in_range = self.action(direction, length)
-                self._qtable[self._state['rho'], self._state['phi'], self._state['orientation']][direction, length] = (1 - self._aplha) * self._qtable([old_state['rho'], old_state['phi'], old_state['orientation']], [
-                    direction, length]) + self._aplha * (self.reward([old_state['rho'], old_state['phi'], old_state['orientation']], [direction, length]) + self._y * max(self._qtable[self._state['rho'], self._state['phi'], self._state['orientation']]))
+                is_in_range = self.action(self.index2direction(
+                    direction_index), self.index2dlength(length_index))
+                self._qtable[old_state['rho'], old_state['phi'], old_state['orientation']][direction_index, length_index] = (1 - self._alpha) * self._qtable[[old_state['rho'], old_state['phi'], old_state['orientation']], [
+                    self.index2direction(direction_index), self.index2dlength(length_index)]] + self._alpha * (self.get_reward() + self._y * max(self._qtable[self._state['rho'], self._state['phi'], self._state['orientation']]))
             # Aborts parking, if the robot is to far away from the parking lot.
             if is_in_range:
                 self._parking = False
