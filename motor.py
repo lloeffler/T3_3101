@@ -1,4 +1,4 @@
-from brickpi3 import *
+from brickpi3 import BrickPi3
 
 class Motor:
     _bp = BrickPi3()
@@ -43,7 +43,7 @@ class Motor:
         self._bp.set_motor_power(self._port, pnew)
 
     def stop(self):
-        self.change_power(0)
+        self.set_power(0)
         
     def rotate_motor(self, degree):
         self._bp.set_motor_position_relative(self._port, degree)

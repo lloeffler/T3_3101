@@ -59,7 +59,7 @@ class ParkingLearner:
         self._exploration_counter = 0
         # Meassure and calculate the turning radia!
         # Turning radia  for 0.5 and 1.0 steering.
-        self._turning_radius = [0, 1]
+        self._turning_radius = [0.0, 37.0]
 
     def change_parking_direction(self, new_parking_direction: Parkingdirection = Parkingdirection.FORWARD, new_qtable: np.ndarray = None) -> np.ndarray:
         """
@@ -177,16 +177,16 @@ class ParkingLearner:
         self._action = 'explore'
         self._exploration_counter = exploration_counter
 
-    def update_state(self, direction: float, lenght: int) -> bool:
+    def update_state(self, direction_index: int, lenght_index: int) -> bool:
         """
         Calculates and sets new realtive position to parking lot as state.
 
         Parameter
         ----------
-        direction: float 
-            Steering impact from -1 to +1 in 0.1 steps.
-        length: int
-            How long the robot wil drive in cm.
+        direction_index: int 
+            Index of the steering impact from 0 to 5
+        length_index: int
+            Index of how long the robot wil drive.
 
         Returns
         -------
@@ -194,27 +194,26 @@ class ParkingLearner:
         """
         [x, y] = self.pol2cart(
             self._state['rho'], np.deg2rad(self._state['phi']))
-        if direction == 0:
+        if direction_index == 2:
             # Robot drives straight forward.
             [delta_x, delta_y] = self.pol2cart(
-                lenght, np.deg2rad(self._state['orientation']))
+                lenght_index, np.deg2rad(self._state['orientation']))
             x_t = x + delta_x
             y_t = y + delta_y
             orientation_t = self._state['orientation']
         else:
             # Robot drives a curve.
             # Calculating centre of rotation (x_m, y_m) of the turning circle.
-            [x_m_delta, y_m_delta] = self.pol2cart(self._turning_radius[abs(direction)], np.deg2rad(self._state['orientation']) + (
-                1.5 * np.pi)) if direction > 0 else self.pol2cart(self._turning_radius[abs(direction)], np.deg2rad(self._state['orientation']) + (0.5 * np.pi))
+            [x_m_delta, y_m_delta] = self.pol2cart(self._turning_radius[abs(direction_index)], np.deg2rad(self._state['orientation']) + (1.5 * np.pi)) if self.index2direction(direction_index) > 0 else self.pol2cart(self._turning_radius[abs(direction_index)], np.deg2rad(self._state['orientation']) + (0.5 * np.pi))
             x_m = x + x_m_delta
             y_m = y + y_m_delta
             # Calculating perimeter of the turningcicle.
             turning_perimeter = 2 * np.pi * \
-                self._turning_radius[abs(direction)]
-            turning_radiant = 2 * np.pi * (-lenght/turning_perimeter)
+                self._turning_radius[abs(direction_index)]
+            turning_radiant = 2 * np.pi * (-self.index2dlength(lenght_index)/turning_perimeter)
             # Calculating new robot coordinates.
             [x_delta_t, y_delta_t] = self.pol2cart(self._turning_radius[abs(
-                direction)], (np.deg2rad(self._state['orientation']) + np.pi + turning_radiant))
+                direction_index)], (np.deg2rad(self._state['orientation']) + np.pi + turning_radiant))
             # Calculates new robot orientation
             orientation_t = np.deg2rad(
                 self._state['orientation']) + turning_radiant
@@ -227,28 +226,28 @@ class ParkingLearner:
         self._state['orientation'] = np.rint(np.rad2deg(orientation_t)/10)
         return rho_t <= 60
 
-    def action(self, direction: float, length: int) -> bool:
+    def action(self, direction_index: int, length_index: int) -> bool:
         """
         Moves Robot and calculate its new position relative to the parking lot.
 
         Parameter
         ----------
-        direction: float 
-            Steering impact from -1 to +1 in 0.1 steps.
-        length: int
-            How long the robot wil drive in cm.
+        direction_index: int 
+            Index of the steering impact from 0 to 5
+        length_index: int
+            Index of how long the robot wil drive.
 
         Returns
         -------
         boolean: True if the robot is less equals 60 cm from the parking lot away.
         """
-        self._bot.set_drive_steer(direction)
+        self._bot.set_drive_steer(self.index2direction(direction_index))
         sleep(0.5)
         self._bot.set_drive_power(
-            20) if length > 0 else self._bot.set_drive_power(-20)
-        sleep(abs(length))
+            20) if length_index > 9 else self._bot.set_drive_power(-20)
+        sleep(abs(self.index2dlength(length_index)))
         self._bot.set_drive_power(0)
-        return self.update_state(direction=direction, lenght=length)
+        return self.update_state(direction_index=direction_index, lenght_index=length_index)
 
     def start_parking(self, distance: int = 15, angle: int = 0, orientation: int = 18):
         """
@@ -343,27 +342,26 @@ class ParkingLearner:
             # Decides to utilize the filled q-table oder explore and fill the q-table.
             # Uses q-table to find a way to park.
             if self._action == 'utilize':
-                [action_direction, action_lenght] = np.unravel_index(self._qtable[self._state['rho'], self._state['phi'], self._state['orientation']].argmax(
+                [action_direction_index, action_lenght_index] = np.unravel_index(self._qtable[self._state['rho'], self._state['phi'], self._state['orientation']].argmax(
                 ), np.unravel_index(self._qtable[self._state['rho'], self._state['phi'], self._state['orientation']].shape))
-                is_in_range = self.action(self.index2direction(
-                    action_direction), self.index2dlength(action_lenght))
+                is_in_range = self.action(
+                    action_direction_index, action_lenght_index)
                 # Stays in the parking lot for 30 seconds, after a succesfully parking manover.
                 if self.check_location():
                     self._parking = False
                     sleep(10)
             # Fills q-Table.
             if self._action == 'explore':
-                direction_index = random.randint(0, 5)
-                length_index = random.randint(0, 20)
+                action_direction_index = random.randint(0, 5)
+                action_lenght_index = random.randint(0, 20)
                 old_state = {
                     'rho': self._state['rho'],
                     'phi': self._state['phi'],
                     'orientation': self._state['orientation']
                 }
-                is_in_range = self.action(self.index2direction(
-                    direction_index), self.index2dlength(length_index))
-                self._qtable[old_state['rho'], old_state['phi'], old_state['orientation']][direction_index, length_index] = (1 - self._alpha) * self._qtable[[old_state['rho'], old_state['phi'], old_state['orientation']], [
-                    self.index2direction(direction_index), self.index2dlength(length_index)]] + self._alpha * (self.get_reward() + self._y * max(self._qtable[self._state['rho'], self._state['phi'], self._state['orientation']]))
+                is_in_range = self.action(action_direction_index, action_lenght_index)
+                self._qtable[old_state['rho'], old_state['phi'], old_state['orientation']][action_direction_index, action_lenght_index] = (1 - self._alpha) * self._qtable[[old_state['rho'], old_state['phi'], old_state['orientation']], [
+                    action_direction_index, action_lenght_index]] + self._alpha * (self.get_reward() + self._y * max(self._qtable[self._state['rho'], self._state['phi'], self._state['orientation']]))
             # Aborts parking, if the robot is to far away from the parking lot.
             if is_in_range:
                 self._parking = False
