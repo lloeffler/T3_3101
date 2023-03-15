@@ -57,9 +57,8 @@ class ParkingLearner:
             for q in self._qtable:
                 q = np.ndarray(shape=(5, 20), dtype=float)
         self._exploration_counter = 0
-        # Meassure and calculate the turning radia!
         # Turning radia  for 0.5 and 1.0 steering.
-        self._turning_radius = [0.0, 37.0]
+        self._turning_radius = [68.0, 37.0]
 
     def change_parking_direction(self, new_parking_direction: Parkingdirection = Parkingdirection.FORWARD, new_qtable: np.ndarray = None) -> np.ndarray:
         """
