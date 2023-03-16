@@ -250,10 +250,10 @@ class Exhibition:
         """
         print(self.language_package[self.config['language']]
               ['settings']['direction']['heading'])
-        print(
-            f"{self.language_package[self.config['language']]['settings']['direction']['current']} {self.language_package[self.config['language']]['settings']['direction'][self._parking_learner._parking_direction.value]}.")
-        print(
-            f"{self.language_package[self.config['language']]['settings']['direction']['command']}.")
+        print("{} {}.".format(self.language_package[self.config['language']]['settings']['direction']['current'],
+              self.language_package[self.config['language']]['settings']['direction'][self._parking_learner._parking_direction.value]))
+        print("{}.".format(
+            self.language_package[self.config['language']]['settings']['direction']['command']))
 
     def direction_settings(self):
         """
@@ -285,8 +285,8 @@ class Exhibition:
         """
         print(self.language_package[self.config['language']]
               ['settings']['qtable']['heading'])
-        print(
-            f"{self.language_package[self.config['language']]['settings']['qtable']['command']}.")
+        print("{}.".format(
+            self.language_package[self.config['language']]['settings']['qtable']['command']))
         print(self.language_package[self.config['language']]['back'])
 
     def qtable_settings(self):
@@ -349,7 +349,7 @@ class Exhibition:
             Name of the file containg the q-table pair.
         """
         self.config['qtable_name'] = name
-        path = f"./{name}.npz"
+        path = "./{}.npz".format(name)
         # Checks if file exists with q-table pair exists
         if isfile(path):
             # Loads q-table pair from file.
@@ -375,8 +375,7 @@ class Exhibition:
         """
         print(
             self.language_package[self.config['language']]['settings']['qtable']['save']['heading'])
-        print(
-            f"{self.language_package[self.config['language']]['settings']['qtable']['save']['current']}{self.config['qtable_name']}")
+        print("{}{}".format(self.language_package[self.config['language']]['settings']['qtable']['save']['current'], self.config['qtable_name']))
         print(self.language_package[self.config['language']]
               ['settings']['qtable']['save']['command'])
 
