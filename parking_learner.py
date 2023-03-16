@@ -155,6 +155,22 @@ class ParkingLearner:
         """
         return index - 10 if index < 10 else index - 9
 
+    def length2sec(self, lenght: int = 0) -> float:
+        """
+        Converts a length in cm to a time driven with a driving power of 20.
+
+        Parameter
+        ---------
+        length: int
+            The lenght to be driven in cm.
+
+        Returns
+        -------
+        float: The time to be waited, while the robot drives.
+        """
+        absolute_length = abs(lenght)
+        return absolute_length / 5
+
     # endregion
 
     def set_action_utilize(self):
@@ -203,13 +219,15 @@ class ParkingLearner:
         else:
             # Robot drives a curve.
             # Calculating centre of rotation (x_m, y_m) of the turning circle.
-            [x_m_delta, y_m_delta] = self.pol2cart(self._turning_radius[abs(direction_index)], np.deg2rad(self._state['orientation']) + (1.5 * np.pi)) if self.index2direction(direction_index) > 0 else self.pol2cart(self._turning_radius[abs(direction_index)], np.deg2rad(self._state['orientation']) + (0.5 * np.pi))
+            [x_m_delta, y_m_delta] = self.pol2cart(self._turning_radius[abs(direction_index)], np.deg2rad(self._state['orientation']) + (1.5 * np.pi)) if self.index2direction(
+                direction_index) > 0 else self.pol2cart(self._turning_radius[abs(direction_index)], np.deg2rad(self._state['orientation']) + (0.5 * np.pi))
             x_m = x + x_m_delta
             y_m = y + y_m_delta
             # Calculating perimeter of the turningcicle.
             turning_perimeter = 2 * np.pi * \
                 self._turning_radius[abs(direction_index)]
-            turning_radiant = 2 * np.pi * (-self.index2dlength(lenght_index)/turning_perimeter)
+            turning_radiant = 2 * np.pi * \
+                (-self.index2dlength(lenght_index)/turning_perimeter)
             # Calculating new robot coordinates.
             [x_delta_t, y_delta_t] = self.pol2cart(self._turning_radius[abs(
                 direction_index)], (np.deg2rad(self._state['orientation']) + np.pi + turning_radiant))
@@ -242,9 +260,10 @@ class ParkingLearner:
         """
         self._bot.set_drive_steer(self.index2direction(direction_index))
         sleep(0.5)
+        sleep_time = self.length2sec(self.index2dlength(length_index))
         self._bot.set_drive_power(
             20) if length_index > 9 else self._bot.set_drive_power(-20)
-        sleep(abs(self.index2dlength(length_index)))
+        sleep(sleep_time)
         self._bot.set_drive_power(0)
         return self.update_state(direction_index=direction_index, lenght_index=length_index)
 
@@ -358,7 +377,8 @@ class ParkingLearner:
                     'phi': self._state['phi'],
                     'orientation': self._state['orientation']
                 }
-                is_in_range = self.action(action_direction_index, action_lenght_index)
+                is_in_range = self.action(
+                    action_direction_index, action_lenght_index)
                 self._qtable[old_state['rho'], old_state['phi'], old_state['orientation']][action_direction_index, action_lenght_index] = (1 - self._alpha) * self._qtable[[old_state['rho'], old_state['phi'], old_state['orientation']], [
                     action_direction_index, action_lenght_index]] + self._alpha * (self.get_reward() + self._y * max(self._qtable[self._state['rho'], self._state['phi'], self._state['orientation']]))
             # Aborts parking, if the robot is to far away from the parking lot.
