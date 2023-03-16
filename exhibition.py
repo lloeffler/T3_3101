@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+import traceback
 from json import loads
 from os.path import isfile
 from re import compile
@@ -11,6 +12,7 @@ from swarmrobot import SwarmRobot
 from parking_learner import ParkingLearner
 from parkingdirection import Parkingdirection
 from programm_type import ProgrammType
+from print_logo import PrintLogo
 
 
 class Exhibition:
@@ -41,12 +43,14 @@ class Exhibition:
             'back': 'Enter "back" to go to the previous menu.',
             'exit': 'Enter "exit" or quit to leave to application.',
             'config': 'Enter "yes" to save the current configuration.\nEnter "no" to leave the application without saving the current configuration.',
+            'qtable': 'Enter "yes" to save the current qtable.\nEnter "no" to leave the application without saving the current qtable.',
             'wrong_input': 'Error: Wrong input, please enter one of the mentioned options.',
             'settings': {
                 'heading': 'Settings',
                 'commands': {
                     'direction': 'Enter "direction" to change the parking direciton.',
-                    'qtable': 'Enter "q", "table" or "q-table" to open the q-table settings.'
+                    'qtable': 'Enter "q", "table" or "q-table" to open the q-table settings.',
+                    'action': 'Enter "action" to change the parking-learner action.'
                 },
                 'direction': {
                     'heading': 'Parking direction',
@@ -70,19 +74,27 @@ class Exhibition:
                         'command': 'Are you sure, you want to save the current q-table and override the saved one?\nEnter "yes" to confirm.\nEnter "no" the abort.'
                     }
                 },
+                'action': {
+                    'heading': 'Parking-Learner action',
+                    'command': 'Enter "explore" to change the parking-learner action and let the robot learn how to park.\nEnter "utilize" to change the parking-learner action and utilize the q-table.',
+                    'explore': 'Enter how many tries the robot can learn ho to park. If greater or eqals 250.000, the robot will not change to utilize automaticly.\nNo input, decimals or negative numbers resets number of tries.',
+                    'confirmation': 'is set now as parking-learner action.'
+                }
             }
         },
         'german': {
             'command': 'Geben Sie "start" ein, um den Einparkvorgang zu starten.\nGeben Sie "Einstellungen" ein, um das Einstellungsmenü zu öffnen.\nGeben Sie "englisch" ein um die Sprache zu ändern. Enter "english" to change the language.',
             'back': 'Geben Sie "zurück" ein, um zum vorherigen Menü zu gelangen.',
             'exit': 'Geben Sie "exit" oder "quit" ein um die Anwendung zu verlassen.',
-            'config': 'Geben Sie "ja" ein, um die aktuelle Konfiguration zu speichern.\nGeben sie "nein" ein, um die Anwendung ohne speichern der Konfiguration zu verlassen.',
+            'config': 'Geben Sie "ja" ein, um die aktuelle Konfiguration zu speichern.\nGeben sie "nein" ein, um die Anwendung ohne Speichern der Konfiguration zu verlassen.',
+            'qtable': 'Geben Sie "ja" ein, um die aktuelle Q-Tabelle zu speichern.\nGeben sie "nein" ein, um die Anwendung ohne Speichern der Q-Tabelle zu verlassen.',
             'wrong_input': 'Fehler: Falsche Eingabe, bitte geben Sie eine der genannten Auswahlmöglichkeiten ein.',
             'settings': {
                 'heading': 'Einstellungen',
                 'commands': {
                     'direction': 'Geben Sie "Richtung" ein, um die Einparkrichtung zu ändern.',
-                    'qtable': 'Geben Sie "q", "Tabelle" or "Q-Tabelle" ein, um die Einstellungen der Q-Tabelle zu öffnen.'
+                    'qtable': 'Geben Sie "q", "Tabelle" or "Q-Tabelle" ein, um die Einstellungen der Q-Tabelle zu öffnen.',
+                    'action': 'Geben Sie "action" ein, um die Action des Parklerners zu ändern.'
                 },
                 'direction': {
                     'heading': 'Einparkrichtung',
@@ -105,6 +117,12 @@ class Exhibition:
                         'current': 'Die aktuelle Q-Tabelle heißt ',
                         'command': 'Sind Sie sicher, dass sie die akutelle Q-Tabelle speichern und überschreiben möchten?\nGeben Sie "ja" zum Bestätigen ein.\nGeben Sie "nein" zum Abbrechen ein.'
                     }
+                },
+                'action': {
+                    'heading': 'Parklerner Action',
+                    'command': 'Geben Sie "explore" ein, um den Roboter einparken lernen zu lassen.\nGeben Sie "utilize" ein, um die bisher gelernte Q-Tabelle auszunutzen.',
+                    'explore': 'Geben Sie ein, wie viele Versuche der Roboter hat, um einparken zu lernen. Bei 250.000 oder mehr, ändert sich die Action nicht mehr automatisch.\nKeine Eingabe, Dezimalzahlen oder negative Zahlen setzen die Anzahl der Versuche zurück.',
+                    'confirmation': 'ist jetzt als Action des Parklerners eingestellt.'
                 }
             }
         }
@@ -113,31 +131,32 @@ class Exhibition:
     def __init__(self):
         # Create instance of the robot.
         self._bot = SwarmRobot(programm_type=ProgrammType.PARKING)
-        # Loads configuration.
-        self.load_config()
-        self.laod_qtable_pair(
-            name=self.config['qtable_name'])
-        # Creates instance of parking_learner.
-        self._parking_learner = ParkingLearner(
-            bot=self._bot, qtable=self._qtable_pair[18], alpha=self.config['alpha'], y=self.config['y'], parkingdirection=self.config['dircetion'])
         print('Calibrate robot')
         # Waits a second before calibrating the robot.
         sleep(1)
-        self._bot.calibrate(True, True)
+        self._bot.calibrate(False, True)
+        # Loads configuration.
+        self.load_config()
+        self._qtable_pair = {}
+        self.laod_qtable_pair(name=self.config['qtable_name'])
+        # Creates instance of parking_learner.
+        self._parking_learner = ParkingLearner(
+            bot=self._bot, qtable=self._qtable_pair[self.config['dircetion'].value], alpha=self.config['alpha'], y=self.config['y'], parkingdirection=self.config['dircetion'])
 
     def load_config(self):
         """
         Load configuration from a config file named exhibition_parking.conf.
         """
+        print('Load configuration')
         config_string = ''
         # Checks if configuration file exsist.
         if isfile('./exhibition_parking.conf'):
             # Reads configration file.
             with open("./exhibition_parking.conf") as config_file:
                 config_string = config_file.read()
-        # Checks if configuration file mathces to the needed format and sets configuration if so.
-        if compile("\{'language': '[english|german]', 'qtable_name': '[_-\.\w]+', 'alpha': \d+\.\d+, 'y': \d+\.\d+, 'direction': [FORWARD|BACKWARD]\}").match(config_string):
-            self.config = loads(config_string)
+            # Checks if configuration file mathces to the needed format and sets configuration if so.
+            if compile("\{'language': '[english|german]', 'qtable_name': '[\_\-\.\w]+', 'alpha': \d+\.\d+, 'y': \d+\.\d+, 'direction': [FORWARD|BACKWARD]\}").match(config_string):
+                self.config = loads(config_string)
         # If config does not match to the nedded format, de default configuration is loaded.
         else:
             self.config = {
@@ -145,7 +164,8 @@ class Exhibition:
                 'qtable_name': 'default',
                 'alpha': 1.0,
                 'y': 0.95,
-                'direction': Parkingdirection.FORWARD
+                'direction': Parkingdirection.FORWARD,
+                'color': True
             }
 
     def save_config(self):
@@ -180,6 +200,7 @@ class Exhibition:
                     self.language_package[self.config['language']]['wrong_input'])
             self.print_menu(administartor_mode)
             user_input = input('> ').lower()
+        # Asks user at quitting the application, to save the current configuration.
         print(self.language_package[self.config['language']]['config'])
         user_input = input('> ').lower()
         while user_input != 'yes' and user_input != 'ja' and user_input != 'no' and user_input != 'nein':
@@ -189,6 +210,16 @@ class Exhibition:
             user_input = input('> ').lower()
         if user_input == 'yes' or user_input == 'ja':
             self.save_config()
+        # Asks user at quitting the application, to save the current q-table.
+        print(self.language_package[self.config['language']]['qtable'])
+        user_input = input('> ').lower()
+        while user_input != 'yes' and user_input != 'ja' and user_input != 'no' and user_input != 'nein':
+            print(
+                self.language_package[self.config['language']]['wrong_input'])
+            print(self.language_package[self.config['language']]['qtable'])
+            user_input = input('> ').lower()
+        if user_input == 'yes' or user_input == 'ja':
+            self.save_qtable()
         print('Bye')
 
     def print_menu(self, administartor_mode: bool = False):
@@ -200,6 +231,7 @@ class Exhibition:
         administartor_mode: bool = False
             If administrationmode is active, True, the exit command will be shown, by default False.
         """
+        PrintLogo.print_color() if self.config['color'] else PrintLogo.print_bw()
         print(self.language_package[self.config['language']]['command'])
         if administartor_mode:
             print(self.language_package[self.config['language']]['exit'])
@@ -238,6 +270,8 @@ class Exhibition:
                 self.direction_settings()
             elif (user_input == 'q' or user_input == 'table' or user_input == 'q-table' or user_input == 'tabelle' or user_input == 'q-tabelle') and administartor_mode:
                 self.qtable_settings()
+            elif user_input == 'action':
+                self.action_settings()
             else:
                 print(
                     self.language_package[self.config['language']]['wrong_input'])
@@ -348,26 +382,29 @@ class Exhibition:
         name: str
             Name of the file containg the q-table pair.
         """
+        print('Load q-table')
         self.config['qtable_name'] = name
         path = "./{}.npz".format(name)
-        # Checks if file exists with q-table pair exists
+        # Checks if file exists with q-table pair exists.
         if isfile(path):
             # Loads q-table pair from file.
             with np.load(path) as data:
                 self._qtable_pair[18] = data[Parkingdirection.FORWARD.name]
                 self._qtable_pair[0] = data[Parkingdirection.BACKWARD.name]
         else:
-            # Creates ne q-table pair
+            # Creates ne q-table pair.
             self._qtable_pair[18] = np.ndarray(
                 shape=(60, 36, 36), dtype=np.ndarray)
             self._qtable_pair[0] = np.ndarray(
                 shape=(60, 36, 36), dtype=np.ndarray)
-            for table in self._qtable_pair:
-                for q in table:
-                    q = np.ndarray(shape=(9, 20), dtype=float)
-        # Sets new q-table in parking_learner
-        self._parking_learner.change_parking_direction(
-            new_parking_direction=self._parking_learner._parking_direction, new_qtable=self._qtable_pair[self._parking_learner._parking_direction.value])
+            for q in self._qtable_pair[0]:
+                q = np.zeros(shape=(9, 20), dtype=float)
+            for q in self._qtable_pair[18]:
+                q = np.zeros(shape=(9, 20), dtype=float)
+        # Sets new q-table in parking_learner.
+        if self._parking_learner != None:
+            self._parking_learner.change_parking_direction(
+                new_parking_direction=self._parking_learner._parking_direction, new_qtable=self._qtable_pair[self._parking_learner._parking_direction.value])
 
     def print_save_qtable_menu(self):
         """
@@ -375,7 +412,8 @@ class Exhibition:
         """
         print(
             self.language_package[self.config['language']]['settings']['qtable']['save']['heading'])
-        print("{}{}".format(self.language_package[self.config['language']]['settings']['qtable']['save']['current'], self.config['qtable_name']))
+        print("{}{}".format(self.language_package[self.config['language']]
+              ['settings']['qtable']['save']['current'], self.config['qtable_name']))
         print(self.language_package[self.config['language']]
               ['settings']['qtable']['save']['command'])
 
@@ -394,6 +432,42 @@ class Exhibition:
         if user_input == 'yes' or user_input == 'ja':
             np.savez_compressed(self.config['qtable_name'], forward=self._qtable_pair[Parkingdirection.FORWARD.value],
                                 backward=self._qtable_pair[Parkingdirection.FORWARD.value])
+
+    def print_action_settings_menu(self):
+        """
+        Prints menu to change parking_learner action.
+        """
+        print(self.language_package[self.config['language']]
+              ['settings']['action']['heading'])
+        print(self.language_package[self.config['language']]
+              ['settings']['action']['command'])
+        print(self.language_package[self.config['language']]['back'])
+
+    def action_settings(self):
+        """
+        Handles user input.
+        Changes parking_learner.action
+        """
+        self.print_action_settings_menu()
+        user_input = input('> ').lower()
+        while user_input != 'back' and user_input != 'zurück':
+            if user_input == 'utilize':
+                self._parking_learner.set_action_utilize()
+                print("'{}' {}".format(self._parking_learner._action,
+                      self.language_package[self.config['language']]['settings']['action']['confirmation']))
+            elif user_input == 'explore':
+                print(
+                    self.language_package[self.config['language']]['settings']['action']['explore'])
+                user_input = input('> ').lower()
+                if user_input.isnumeric():
+                    entered_number = abs(int(user_input))
+                    exploration_counter = 250000 - entered_number if entered_number < 250000 else 250001
+                else:
+                    exploration_counter = 0
+                self._parking_learner.set_action_explore(
+                    exploration_counter=exploration_counter)
+                print("'{}' {}".format(self._parking_learner._action,
+                      self.language_package[self.config['language']]['settings']['action']['confirmation']))
 
     def start(self):
         """
@@ -431,11 +505,12 @@ if __name__ == '__main__':
         try:
             # If any error is catched, it is tried to write into an error log file.
             log_file = open("error.log", "a")
-            log_file.write(exception.__traceback__)
+            log_file.write("{}\nTraceback:\n{}".format(
+                str(exception), traceback.format_exc()))
             log_file.close()
         except Exception as inner_exception:
             # If the logging into a file failes, the error is printed to the command line.
             print('Outer Exception:')
-            print(exception.__traceback__)
+            traceback.print_exception()
             print('Inner Exception')
-            print(inner_exception.__traceback__)
+            traceback.print_exception()

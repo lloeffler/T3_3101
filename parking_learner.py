@@ -179,7 +179,7 @@ class ParkingLearner:
         """
         self._action = 'utilize'
 
-    def set_action_utilize(self, exploration_counter=0):
+    def set_action_explore(self, exploration_counter=0):
         """
         Sets self._action to 'explore', to change behavior and resets self._exploration_counter.
 
