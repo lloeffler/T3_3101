@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sys
 from json import loads
 from os.path import isfile
@@ -145,7 +146,7 @@ class Exhibition:
                 'alpha': 1.0,
                 'y': 0.95,
                 'direction': Parkingdirection.FORWARD
-                }
+            }
 
     def save_config(self):
         """
@@ -175,14 +176,16 @@ class Exhibition:
             elif user_input == 'german' or user_input == 'deutsch':
                 self.config['language'] = 'german'
             else:
-                print(f"{self.language_package[self.config['language']]['wrong_input']}")
+                print(
+                    self.language_package[self.config['language']]['wrong_input'])
             self.print_menu(administartor_mode)
             user_input = input('> ').lower()
-        print(f"{self.language_package[self.config['language']]['config']}")
+        print(self.language_package[self.config['language']]['config'])
         user_input = input('> ').lower()
         while user_input != 'yes' and user_input != 'ja' and user_input != 'no' and user_input != 'nein':
-            print(f"{self.language_package[self.config['language']]['wrong_input']}")
-            print(f"{self.language_package[self.config['language']]['config']}")
+            print(
+                self.language_package[self.config['language']]['wrong_input'])
+            print(self.language_package[self.config['language']]['config'])
             user_input = input('> ').lower()
         if user_input == 'yes' or user_input == 'ja':
             self.save_config()
@@ -197,9 +200,9 @@ class Exhibition:
         administartor_mode: bool = False
             If administrationmode is active, True, the exit command will be shown, by default False.
         """
-        print(f"{self.language_package[self.config['language']]['command']}")
+        print(self.language_package[self.config['language']]['command'])
         if administartor_mode:
-            print(f"{self.language_package[self.config['language']]['exit']}")
+            print(self.language_package[self.config['language']]['exit'])
 
     def print_settings_menu(self, administartor_mode: bool = False):
         """
@@ -211,13 +214,13 @@ class Exhibition:
             If administrationmode is active, True, the q-table settings will be shown, by default False.
         """
         print(
-            f"{self.language_package[self.config['language']]['settings']['heading']}")
+            self.language_package[self.config['language']]['settings']['heading'])
         print(
-            f"{self.language_package[self.config['language']]['settings']['commands']['direction']}")
+            self.language_package[self.config['language']]['settings']['commands']['direction'])
         if administartor_mode:
             print(
-                f"{self.language_package[self.config['language']]['settings']['commands']['qtable']}")
-        print(f"{self.language_package[self.config['language']]['back']}")
+                self.language_package[self.config['language']]['settings']['commands']['qtable'])
+        print(self.language_package[self.config['language']]['back'])
 
     def settings(self, administartor_mode: bool = False):
         """
@@ -236,7 +239,8 @@ class Exhibition:
             elif (user_input == 'q' or user_input == 'table' or user_input == 'q-table' or user_input == 'tabelle' or user_input == 'q-tabelle') and administartor_mode:
                 self.qtable_settings()
             else:
-                print(f"{self.language_package[self.config['language']]['wrong_input']}")
+                print(
+                    self.language_package[self.config['language']]['wrong_input'])
             self.print_settings_menu(administartor_mode)
             user_input = input('> ').lower()
 
@@ -244,10 +248,12 @@ class Exhibition:
         """
         Prints direction settings menu.
         """
-        print(f"{self.language_package[self.config['language']]['settings']['direction']['heading']}")
+        print(self.language_package[self.config['language']]
+              ['settings']['direction']['heading'])
         print(
             f"{self.language_package[self.config['language']]['settings']['direction']['current']} {self.language_package[self.config['language']]['settings']['direction'][self._parking_learner._parking_direction.value]}.")
-        print(f"{self.language_package[self.config['language']]['settings']['direction']['command']}.")
+        print(
+            f"{self.language_package[self.config['language']]['settings']['direction']['command']}.")
 
     def direction_settings(self):
         """
@@ -268,7 +274,8 @@ class Exhibition:
                 self.config['direction'] = Parkingdirection.BACKWARD.name
                 break
             else:
-                print(f"{self.language_package[self.config['language']]['wrong_input']}")
+                print(
+                    self.language_package[self.config['language']]['wrong_input'])
             self.print_direciton_settings_menu()
             user_input = input('> ').lower()
 
@@ -276,9 +283,11 @@ class Exhibition:
         """
         Prints q-table settings menu.
         """
-        print(f"{self.language_package[self.config['language']]['settings']['qtable']['heading']}")
-        print(f"{self.language_package[self.config['language']]['settings']['qtable']['command']}.")
-        print(f"{self.language_package[self.config['language']]['back']}")
+        print(self.language_package[self.config['language']]
+              ['settings']['qtable']['heading'])
+        print(
+            f"{self.language_package[self.config['language']]['settings']['qtable']['command']}.")
+        print(self.language_package[self.config['language']]['back'])
 
     def qtable_settings(self):
         """
@@ -300,22 +309,23 @@ class Exhibition:
         Loads q-table pair or creates a new one.
         """
         print(
-            f"{self.language_package[self.config['language']]['settings']['qtable']['load']['heading']}")
+            self.language_package[self.config['language']]['settings']['qtable']['load']['heading'])
         print(
-            f"{self.language_package[self.config['language']]['settings']['qtable']['load']['command']}")
+            self.language_package[self.config['language']]['settings']['qtable']['load']['command'])
         user_input = input('> ').lower()
         if user_input != 'abort' and user_input != 'abbrechen' and user_input != '':
             filename = user_input
             # Ask user to save the current q-table.
             print(
-                f"{self.language_package[self.config['language']]['settings']['qtable']['load']['save']}")
+                self.language_package[self.config['language']]['settings']['qtable']['load']['save'])
             user_input = input('> ').lower()
             while user_input != 'yes' and user_input != 'ja' or user_input != 'no' and user_input != 'nein':
                 if user_input == 'abort' or user_input == 'abbrechen':
                     return
-                print(f"{self.language_package[self.config['language']]['wrong_input']}")
                 print(
-                    f"{self.language_package[self.config['language']]['settings']['qtable']['load']['save']}")
+                    self.language_package[self.config['language']]['wrong_input'])
+                print(
+                    self.language_package[self.config['language']]['settings']['qtable']['load']['save'])
                 user_input = input('> ').lower()
             # Calls save q-table function.
             if user_input == 'yes' or user_input == 'ja':
@@ -324,7 +334,8 @@ class Exhibition:
             self.laod_qtable_pair(name=filename)
         # Recursive while loop if nothing is entered as name.
         if user_input == '':
-            print(f"{self.language_package[self.config['language']]['wrong_input']}")
+            print(
+                self.language_package[self.config['language']]['wrong_input'])
             self.load_qtable()
 
     def laod_qtable_pair(self, name: str):
@@ -363,11 +374,11 @@ class Exhibition:
         Prints q-table save menu.
         """
         print(
-            f"{self.language_package[self.config['language']]['settings']['qtable']['save']['heading']}")
+            self.language_package[self.config['language']]['settings']['qtable']['save']['heading'])
         print(
             f"{self.language_package[self.config['language']]['settings']['qtable']['save']['current']}{self.config['qtable_name']}")
-        print(
-            f"{self.language_package[self.config['language']]['settings']['qtable']['save']['command']}")
+        print(self.language_package[self.config['language']]
+              ['settings']['qtable']['save']['command'])
 
     def save_qtable(self):
         """
@@ -377,34 +388,36 @@ class Exhibition:
         self.print_save_qtable_menu()
         user_input = input('> ').lower()
         while user_input != 'yes' and user_input != 'ja' and user_input != 'no' and user_input != 'nein':
-            print(f"{self.language_package[self.config['language']]['wrong_input']}")
+            print(
+                self.language_package[self.config['language']]['wrong_input'])
             self.print_save_qtable_menu()
         # Saves the current q-table pair, if the question was confirmed.
         if user_input == 'yes' or user_input == 'ja':
             np.savez_compressed(self.config['qtable_name'], forward=self._qtable_pair[Parkingdirection.FORWARD.value],
                                 backward=self._qtable_pair[Parkingdirection.FORWARD.value])
-            
+
     def start(self):
         """
         Let drive the robot for about 15 cm and then start the automated parking.
         1Basileus / Swarmrobotlib
         """
         # Setup automatic Linedetection
-        self._bot.set_autopilot_state(active = True)
+        self._bot.set_autopilot_state(active=True)
         # Setup Navigation
-        self._bot.set_navigaton_state(active = True)
-        #bot._setup_navigation()
+        self._bot.set_navigaton_state(active=True)
+        # bot._setup_navigation()
         self._bot.set_intsecdet_state(active=True)
         # Set velocity of Bot
         self._bot.set_power_lvl(18)
         self._bot.change_drive_power(self._bot.power_lvl)
-        # Checks every second the program status. 
+        # Checks every second the program status.
         while self._bot._programm_type != ProgrammType.DONE:
             sleep(1)
             if self._bot._programm_type == ProgrammType.ENDPARKING:
                 self._bot.set_programm_type = ProgrammType.DONE
                 sleep(2)
         self._bot.stop_all()
+
 
 if __name__ == '__main__':
     try:
@@ -426,4 +439,4 @@ if __name__ == '__main__':
             print('Outer Exception:')
             print(exception.__traceback__)
             print('Inner Exception')
-            print(f"{inner_exception.__traceback__}")
+            print(inner_exception.__traceback__)
