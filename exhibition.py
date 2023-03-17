@@ -139,6 +139,7 @@ class Exhibition:
         # Loads configuration.
         self.load_config()
         self._qtable_pair = {}
+        self._parking_learner = None
         self.laod_qtable_pair(name=self.config['qtable_name'])
         # Creates instance of parking_learner.
         self._parking_learner = ParkingLearner(
