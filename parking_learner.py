@@ -33,15 +33,15 @@ class ParkingLearner:
             A instance of the robot.
         qtable: numpy.ndarray
             A three demensional numpy.ndarray with shape=(60, 36, 36), containing two dimensional numpy.ndarray with shape=(5, 20).
-        alpha: float 
+        alpha: float
             The exploration rate.
-        y: float 
+        y: float
             The other expploration rate.
         parkingdirection: Parkingdirection
             The direction of parking the robot, either FORAWARD or BACKWARD.
         """
         self._bot = bot
-        self._qtable = qtable or np.ndarray(
+        self._qtable = qtable if qtable.any() else np.ndarray(
             shape=(60, 36, 36), dtype=np.ndarray)
         self._state = {
             'rho': 0,
@@ -49,11 +49,11 @@ class ParkingLearner:
             'orientation': 0
         }
         self._parking = False
-        self._action = 'utilize' if qtable else 'explore'
+        self._action = 'utilize' if qtable.any() else 'explore'
         self._alpha = alpha
         self._y = y
         self._parking_direction = parkingdirection
-        if not qtable:
+        if not qtable.any():
             for q in self._qtable:
                 q = np.ndarray(shape=(5, 20), dtype=float)
         self._exploration_counter = 0

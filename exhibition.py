@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 import sys
 import traceback
-from json import loads
-from os.path import isfile
+from json import loads, dumps
 from re import compile
 from time import sleep
+from os.path import isfile
+from os import system, name
 
 import numpy as np
 
@@ -141,7 +142,8 @@ class Exhibition:
         self.laod_qtable_pair(name=self.config['qtable_name'])
         # Creates instance of parking_learner.
         self._parking_learner = ParkingLearner(
-            bot=self._bot, qtable=self._qtable_pair[self.config['dircetion'].value], alpha=self.config['alpha'], y=self.config['y'], parkingdirection=self.config['dircetion'])
+            bot=self._bot, qtable=self._qtable_pair[self.config['direction'].value], alpha=self.config['alpha'], y=self.config['y'], parkingdirection=self.config['direction'])
+        print('Initialazion exhibition done.')
 
     def load_config(self):
         """
@@ -155,8 +157,12 @@ class Exhibition:
             with open("./exhibition_parking.conf") as config_file:
                 config_string = config_file.read()
             # Checks if configuration file mathces to the needed format and sets configuration if so.
-            if compile("\{'language': '[english|german]', 'qtable_name': '[\_\-\.\w]+', 'alpha': \d+\.\d+, 'y': \d+\.\d+, 'direction': [FORWARD|BACKWARD]\}").match(config_string):
+            if compile("\{'language': '[english|german]', 'qtable_name': '[\_\-\.\w]+', 'alpha': \d+\.\d+, 'y': \d+\.\d+, 'direction': [FORWARD|BACKWARD], 'color': [True|False]\}").match(config_string):
                 self.config = loads(config_string)
+                print('Loaded configuration:')
+            else:
+                print('Configurationfile does not match to the needed format or content. Please check your configurationfile.')
+                raise Exception('Missmatching configfile')
         # If config does not match to the nedded format, de default configuration is loaded.
         else:
             self.config = {
@@ -167,13 +173,15 @@ class Exhibition:
                 'direction': Parkingdirection.FORWARD,
                 'color': True
             }
+            print('Loaded default configuration:')
+        print(dumps(self.config, sort_keys=True))
 
     def save_config(self):
         """
         Saves configuration to a config file named exhibition_parking.conf.
         """
         with open(file="./exhibition_parking.conf", mode='w') as config_file:
-            config_file.write(str(self.config))
+            config_file.write(dumps(self.config, sort_keys=True))
 
     def main(self, administartor_mode: bool = False):
         """
@@ -222,6 +230,12 @@ class Exhibition:
             self.save_qtable()
         print('Bye')
 
+    def clear(self):
+        """
+        Clears comand line output
+        """
+        system('cls' if name == 'nt' else 'clear')
+
     def print_menu(self, administartor_mode: bool = False):
         """
         Prints main menu.
@@ -231,6 +245,7 @@ class Exhibition:
         administartor_mode: bool = False
             If administrationmode is active, True, the exit command will be shown, by default False.
         """
+        self.clear()
         PrintLogo.print_color() if self.config['color'] else PrintLogo.print_bw()
         print(self.language_package[self.config['language']]['command'])
         if administartor_mode:
