@@ -263,8 +263,7 @@ class Exhibition:
             If administrationmode is active, True, the exit command will be shown, by default False.
         """
         self.clear()
-        PrintLogo.print_color(
-        ) if self.config['color'] else PrintLogo.print_bw()
+        PrintLogo.print_color(PrintLogo) if self.config['color'] else PrintLogo.print_bw(PrintLogo)
         print(self.language_package[self.config['language']]['command'])
         if administrator_mode:
             print(self.language_package[self.config['language']]['exit'])
