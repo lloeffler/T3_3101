@@ -95,7 +95,7 @@ class Exhibition:
                 'commands': {
                     'direction': 'Geben Sie "Richtung" ein, um die Einparkrichtung zu aendern.',
                     'qtable': 'Geben Sie "q", "Tabelle" or "Q-Tabelle" ein, um die Einstellungen der Q-Tabelle zu oeffnen.',
-                    'action': 'Geben Sie "action" ein, um die Action des Parklerners zu aendern.'
+                    'action': 'Geben Sie "Action" ein, um die Action des Parklerners zu aendern.'
                 },
                 'direction': {
                     'heading': 'Einparkrichtung',
@@ -302,7 +302,7 @@ class Exhibition:
         user_input = input('> ').lower()
         while user_input != 'back' and user_input != 'zurueck':
             if user_input == 'direction' or user_input == 'richtung':
-                self.direction_settings()
+                self.parking_direction_settings()
             elif (user_input == 'q' or user_input == 'table' or user_input == 'q-table' or user_input == 'tabelle' or user_input == 'q-tabelle') and administartor_mode:
                 self.qtable_settings()
             elif user_input == 'action':
@@ -324,7 +324,7 @@ class Exhibition:
         print("{}.".format(
             self.language_package[self.config['language']]['settings']['direction']['command']))
 
-    def direction_settings(self):
+    def parking_direction_settings(self):
         """
         Handles user input for direction settings.
         Sets parking direction and matching q-table par for forward an backward parking.
@@ -530,8 +530,8 @@ class Exhibition:
 if __name__ == '__main__':
     try:
         # Checks for administrator_mode in comandline arguments.
-        administartor_mode = True if 'administartor_mode' in sys.argv[
-            1:] or 'administartormode' in sys.argv[1:] else False
+        administartor_mode = True if 'administrator_mode' in sys.argv[
+            1:] or 'administratormode' in sys.argv[1:] else False
         # Generates exhibition instance.
         runner = Exhibition()
         # Executes exhibition application.

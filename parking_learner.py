@@ -40,8 +40,9 @@ class ParkingLearner:
         parkingdirection: Parkingdirection
             The direction of parking the robot, either FORAWARD or BACKWARD.
         """
+        qtable_is_numpy_array = qtable.__class__ == 'numpy.ndarray'
         self._bot = bot
-        self._qtable = qtable if qtable.any() else np.ndarray(
+        self._qtable = qtable if qtable_is_numpy_array else np.ndarray(
             shape=(60, 36, 36), dtype=np.ndarray)
         self._state = {
             'rho': 0,
@@ -49,11 +50,11 @@ class ParkingLearner:
             'orientation': 0
         }
         self._parking = False
-        self._action = 'utilize' if qtable.any() else 'explore'
+        self._action = 'utilize' if qtable_is_numpy_array else 'explore'
         self._alpha = alpha
         self._y = y
         self._parking_direction = parkingdirection
-        if not qtable.any():
+        if qtable_is_numpy_array:
             for q in self._qtable:
                 q = np.ndarray(shape=(5, 20), dtype=float)
         self._exploration_counter = 0
