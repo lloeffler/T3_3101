@@ -258,7 +258,8 @@ class ParkingLearner:
         -------
         boolean: True if the robot is less equals 60 cm from the parking lot away.
         """
-        self._bot.set_drive_steer(self.index2direction(direction_index))
+        self._bot.set_drive_steer(self.index2direction(direction_index)) if self.index2direction(
+            direction_index) != 0 else self._bot.straight()
         sleep(0.5)
         sleep_time = self.length2sec(self.index2dlength(length_index))
         self._bot.set_drive_power(

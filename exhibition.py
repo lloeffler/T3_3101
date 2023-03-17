@@ -282,6 +282,8 @@ class Exhibition:
             self.language_package[self.config['language']]['settings']['heading'])
         print(
             self.language_package[self.config['language']]['settings']['commands']['direction'])
+        print(
+            self.language_package[self.config['language']]['settings']['commands']['action'])
         if administartor_mode:
             print(
                 self.language_package[self.config['language']]['settings']['commands']['qtable'])

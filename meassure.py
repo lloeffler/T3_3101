@@ -163,13 +163,7 @@ def reset(bot: SwarmRobot) -> int:
         The default speed of 20.
     """
     bot.stop_all()
-    sleep(0.5)
-    bot.set_drive_steer(-0.25)
-    sleep(0.5)
-    bot.set_drive_steer(0.25)
-    sleep(0.5)
-    bot.set_drive_steer(0)
-    sleep(0.5)
+    straight(bot)
     return 20
 
 
