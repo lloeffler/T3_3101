@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import traceback
-from json import loads, dumps
+from json import loads
 from re import compile
 from time import sleep
 from os.path import isfile
@@ -40,7 +40,7 @@ class Exhibition:
     """
     language_package = {
         'english': {
-            'command': 'Enter "start" to start the parking.\nEnter "settings" to open the settings menu.\nEnter "german" to change the language. Geben Sie "deutsch" ein um die Sprache zu ändern.',
+            'command': 'Enter "start" to start the parking.\nEnter "settings" to open the settings menu.\nEnter "german" to change the language. Geben Sie "deutsch" ein um die Sprache zu aendern.',
             'back': 'Enter "back" to go to the previous menu.',
             'exit': 'Enter "exit" or quit to leave to application.',
             'config': 'Enter "yes" to save the current configuration.\nEnter "no" to leave the application without saving the current configuration.',
@@ -84,25 +84,25 @@ class Exhibition:
             }
         },
         'german': {
-            'command': 'Geben Sie "start" ein, um den Einparkvorgang zu starten.\nGeben Sie "Einstellungen" ein, um das Einstellungsmenü zu öffnen.\nGeben Sie "englisch" ein um die Sprache zu ändern. Enter "english" to change the language.',
-            'back': 'Geben Sie "zurück" ein, um zum vorherigen Menü zu gelangen.',
+            'command': 'Geben Sie "start" ein, um den Einparkvorgang zu starten.\nGeben Sie "Einstellungen" ein, um das Einstellungsmenue zu oeffnen.\nGeben Sie "englisch" ein um die Sprache zu aendern. Enter "english" to change the language.',
+            'back': 'Geben Sie "zurueck" ein, um zum vorherigen Menue zu gelangen.',
             'exit': 'Geben Sie "exit" oder "quit" ein um die Anwendung zu verlassen.',
             'config': 'Geben Sie "ja" ein, um die aktuelle Konfiguration zu speichern.\nGeben sie "nein" ein, um die Anwendung ohne Speichern der Konfiguration zu verlassen.',
             'qtable': 'Geben Sie "ja" ein, um die aktuelle Q-Tabelle zu speichern.\nGeben sie "nein" ein, um die Anwendung ohne Speichern der Q-Tabelle zu verlassen.',
-            'wrong_input': 'Fehler: Falsche Eingabe, bitte geben Sie eine der genannten Auswahlmöglichkeiten ein.',
+            'wrong_input': 'Fehler: Falsche Eingabe, bitte geben Sie eine der genannten Auswahlmoeglichkeiten ein.',
             'settings': {
                 'heading': 'Einstellungen',
                 'commands': {
-                    'direction': 'Geben Sie "Richtung" ein, um die Einparkrichtung zu ändern.',
-                    'qtable': 'Geben Sie "q", "Tabelle" or "Q-Tabelle" ein, um die Einstellungen der Q-Tabelle zu öffnen.',
-                    'action': 'Geben Sie "action" ein, um die Action des Parklerners zu ändern.'
+                    'direction': 'Geben Sie "Richtung" ein, um die Einparkrichtung zu aendern.',
+                    'qtable': 'Geben Sie "q", "Tabelle" or "Q-Tabelle" ein, um die Einstellungen der Q-Tabelle zu oeffnen.',
+                    'action': 'Geben Sie "action" ein, um die Action des Parklerners zu aendern.'
                 },
                 'direction': {
                     'heading': 'Einparkrichtung',
                     'current': 'Die aktuelle Einparkrichtung ist ',
-                    18: 'vorwärts',
-                    0: 'rückwärts',
-                    'command': 'Um die Einparkrichtung zu ändern, entweder "vorwärts" oder "rückwärts" eingeben.'
+                    18: 'vorwaerts',
+                    0: 'rueckwaerts',
+                    'command': 'Um die Einparkrichtung zu aendern, entweder "vorwaerts" oder "rueckwaerts" eingeben.'
                 },
                 'qtable': {
                     'heading': 'Q-Tabellen Einstellungen',
@@ -110,19 +110,19 @@ class Exhibition:
                     'load': {
                         'heading': 'Neue Q-Tabelle laden',
                         'command': 'Geben Sie den Namen der Q-Tabelle ein, um diese zu laden.\nWenn die eingegebene Q-Tabelle nicht existiert, wird eine neue angelegt.\nGeben Sie "abbrechen" zum Abbrechen ein.',
-                        'save': 'Möchten Sie die aktuelle Q-Tabelle speichern?\nGeben Sie "ja" ein, um zu speichern.\nGeben Sie "nein" ein, um ohne zu speichern fortzufahren.',
+                        'save': 'Moechten Sie die aktuelle Q-Tabelle speichern?\nGeben Sie "ja" ein, um zu speichern.\nGeben Sie "nein" ein, um ohne zu speichern fortzufahren.',
                         'not_found': 'Es wurde keine Q-Tabelle mit diesem Namen gefunden. Eine neue Q-Tabelle wird erstellt.'
                     },
                     'save': {
                         'heading': 'Speichern der aktuellen Q-Tabelle',
                         'current': 'Die aktuelle Q-Tabelle heißt ',
-                        'command': 'Sind Sie sicher, dass sie die akutelle Q-Tabelle speichern und überschreiben möchten?\nGeben Sie "ja" zum Bestätigen ein.\nGeben Sie "nein" zum Abbrechen ein.'
+                        'command': 'Sind Sie sicher, dass sie die akutelle Q-Tabelle speichern und ueberschreiben moechten?\nGeben Sie "ja" zum Bestaetigen ein.\nGeben Sie "nein" zum Abbrechen ein.'
                     }
                 },
                 'action': {
                     'heading': 'Parklerner Action',
                     'command': 'Geben Sie "explore" ein, um den Roboter einparken lernen zu lassen.\nGeben Sie "utilize" ein, um die bisher gelernte Q-Tabelle auszunutzen.',
-                    'explore': 'Geben Sie ein, wie viele Versuche der Roboter hat, um einparken zu lernen. Bei 250.000 oder mehr, ändert sich die Action nicht mehr automatisch.\nKeine Eingabe, Dezimalzahlen oder negative Zahlen setzen die Anzahl der Versuche zurück.',
+                    'explore': 'Geben Sie ein, wie viele Versuche der Roboter hat, um einparken zu lernen. Bei 250.000 oder mehr, aendert sich die Action nicht mehr automatisch.\nKeine Eingabe, Dezimalzahlen oder negative Zahlen setzen die Anzahl der Versuche zurueck.',
                     'confirmation': 'ist jetzt als Action des Parklerners eingestellt.'
                 }
             }
@@ -161,7 +161,8 @@ class Exhibition:
                 self.config = loads(config_string)
                 print('Loaded configuration:')
             else:
-                print('Configurationfile does not match to the needed format or content. Please check your configurationfile.')
+                print(
+                    'Configurationfile does not match to the needed format or content. Please check your configurationfile.')
                 raise Exception('Missmatching configfile')
         # If config does not match to the nedded format, de default configuration is loaded.
         else:
@@ -174,14 +175,29 @@ class Exhibition:
                 'color': True
             }
             print('Loaded default configuration:')
-        print(dumps(self.config, sort_keys=True))
+        print(self.config_to_string(pretty=True))
 
     def save_config(self):
         """
         Saves configuration to a config file named exhibition_parking.conf.
         """
         with open(file="./exhibition_parking.conf", mode='w') as config_file:
-            config_file.write(dumps(self.config, sort_keys=True))
+            config_file.write((self.config_to_string))
+
+    def config_to_string(self, pretty: bool = False) -> str:
+        """
+        Converts the configuration into a string.
+
+        Parameter
+        ---------
+        pretty: bool
+            If the String should be formatted or not.
+
+        Returns
+        -------
+        str: The config as sorted json-string.
+        """
+        return "{0}{1}'language': '{2}',{1}'qtable_name': '{3}',{1}'alpha': {4},{1}'y': {5},{1}'direction': {6},{1}'color': {7}{8}{9}".format('{', '\n\t' if pretty else '', self.config['language'], self.config['qtable_name'], self.config['alpha'], self.config['y'], self.config['direction'], self.config['color'], '\n' if pretty else '', '}')
 
     def main(self, administartor_mode: bool = False):
         """
@@ -246,7 +262,8 @@ class Exhibition:
             If administrationmode is active, True, the exit command will be shown, by default False.
         """
         self.clear()
-        PrintLogo.print_color() if self.config['color'] else PrintLogo.print_bw()
+        PrintLogo.print_color(
+        ) if self.config['color'] else PrintLogo.print_bw()
         print(self.language_package[self.config['language']]['command'])
         if administartor_mode:
             print(self.language_package[self.config['language']]['exit'])
@@ -280,7 +297,7 @@ class Exhibition:
         """
         self.print_settings_menu(administartor_mode)
         user_input = input('> ').lower()
-        while user_input != 'back' and user_input != 'zurück':
+        while user_input != 'back' and user_input != 'zurueck':
             if user_input == 'direction' or user_input == 'richtung':
                 self.direction_settings()
             elif (user_input == 'q' or user_input == 'table' or user_input == 'q-table' or user_input == 'tabelle' or user_input == 'q-tabelle') and administartor_mode:
@@ -311,13 +328,13 @@ class Exhibition:
         """
         self.print_direciton_settings_menu()
         user_input = input('> ').lower()
-        while user_input != 'back' and user_input != 'zurück':
-            if user_input == 'forward' or user_input == 'vorwärts':
+        while user_input != 'back' and user_input != 'zurueck':
+            if user_input == 'forward' or user_input == 'vorwaerts':
                 self._parking_learner.change_parking_direction(
                     new_parking_direction=Parkingdirection.FORWARD, new_qtable=self._qtable_pair[Parkingdirection.FORWARD.value])
                 self.config['direction'] = Parkingdirection.FORWARD.name
                 break
-            elif user_input == 'backward' or user_input == 'rückwärts':
+            elif user_input == 'backward' or user_input == 'rueckwaerts':
                 self._parking_learner.change_parking_direction(
                     new_parking_direction=Parkingdirection.BACKWARD, new_qtable=self._qtable_pair[Parkingdirection.BACKWARD.value])
                 self.config['direction'] = Parkingdirection.BACKWARD.name
@@ -345,7 +362,7 @@ class Exhibition:
         """
         self.print_qtable_settings_menu()
         user_input = input('> ').lower()
-        while user_input != 'back' and user_input != 'zurück':
+        while user_input != 'back' and user_input != 'zurueck':
             if user_input == 'load' or user_input == 'laden':
                 self.load_qtable()
             if user_input == 'save' or user_input == 'speichern':
@@ -465,7 +482,7 @@ class Exhibition:
         """
         self.print_action_settings_menu()
         user_input = input('> ').lower()
-        while user_input != 'back' and user_input != 'zurück':
+        while user_input != 'back' and user_input != 'zurueck':
             if user_input == 'utilize':
                 self._parking_learner.set_action_utilize()
                 print("'{}' {}".format(self._parking_learner._action,
