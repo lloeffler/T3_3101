@@ -263,7 +263,8 @@ class Exhibition:
             If administrationmode is active, True, the exit command will be shown, by default False.
         """
         self.clear()
-        PrintLogo.print_color(PrintLogo) if self.config['color'] else PrintLogo.print_bw(PrintLogo)
+        PrintLogo.print_color(
+            PrintLogo) if self.config['color'] else PrintLogo.print_bw(PrintLogo)
         print(self.language_package[self.config['language']]['command'])
         if administrator_mode:
             print(self.language_package[self.config['language']]['exit'])
@@ -508,13 +509,13 @@ class Exhibition:
         Let drive the robot for about 15 cm and then start the automated parking.
         1Basileus / Swarmrobotlib
         """
-        # Setup automatic Linedetection
+        # Setup automatic Linedetection.
         self._bot.set_autopilot_state(active=True)
-        # Setup Navigation
+        # Setup Navigation.
         self._bot.set_navigaton_state(active=True)
-        # bot._setup_navigation()
+        # Setup intersection detection.
         self._bot.set_intsecdet_state(active=True)
-        # Set velocity of Bot
+        # Set velocity of Bot.
         self._bot.set_power_lvl(18)
         self._bot.change_drive_power(self._bot.power_lvl)
         # Checks every second the program status.
@@ -523,6 +524,15 @@ class Exhibition:
             if self._bot._programm_type == ProgrammType.ENDPARKING:
                 self._bot.set_programm_type = ProgrammType.DONE
                 sleep(2)
+        # Stops Robot.
+        self._bot.stop_all()
+        # Stops autopilot.
+        self._bot.set_autopilot_state(active=False)
+        # Stops Navigation.
+        self._bot.set_navigaton_state(active=False)
+        # Stops intersection detection.
+        self._bot.set_intsecdet_state(active=False)
+        # Stops Robot.
         self._bot.stop_all()
 
 

@@ -1,3 +1,5 @@
+import traceback
+
 from time import sleep
 
 from motor import CalibratedMotor, Motor
@@ -115,6 +117,9 @@ class SwarmRobot:
                                 self.set_drive_steer(self.steer)
             except KeyboardInterrupt:
                 self.stop_all()
+            except Exception as exception:
+                # Logs error to error log file or prints to console.
+                self.log_error(exception)
             finally:
                 self.stop_all()
 
@@ -153,6 +158,9 @@ class SwarmRobot:
                             self._navigator.navigate(frame, event)
             except KeyboardInterrupt:
                 self.stop_all()
+            except Exception as exception:
+                # Logs error to error log file or prints to console.
+                self.log_error(exception)
             finally:
                 self.stop_all()
 
@@ -186,6 +194,9 @@ class SwarmRobot:
                                 frame)
             except KeyboardInterrupt:
                 self.stop_all()
+            except Exception as exception:
+                # Logs error to error log file or prints to console.
+                self.log_error(exception)
             finally:
                 self.stop_all()
 
@@ -203,3 +214,25 @@ class SwarmRobot:
 
     def set_power_lvl(self, lvl):
         self.power_lvl = lvl
+
+    def log_error(self, exception: Exception):
+        """
+        Tries to append error log file with exception.
+        If not possible to write to file, prints Traceback to console.
+
+        Parameter
+        ---------
+        exception: Exception
+        """
+        try:
+            # If any error is catched, it is tried to write into an error log file.
+            log_file = open("error.log", "a")
+            log_file.write("{}\nTraceback:\n{}".format(
+                str(exception), traceback.format_exc()))
+            log_file.close()
+        except Exception:
+            # If the logging into a file failes, the error is printed to the command line.
+            print('Outer Exception:')
+            traceback.print_exception()
+            print('Inner Exception')
+            traceback.print_exception()

@@ -1,5 +1,6 @@
 from brickpi3 import BrickPi3
 
+
 class Motor:
     _bp = BrickPi3()
     STATUS_POWER = 1
@@ -21,9 +22,12 @@ class Motor:
 
         STEP_SIZE = 25.0
         pcur = self.status()[self.STATUS_POWER]
+        print('current power: {}'.format(pcur))
         # delta < 0: slow down; 0 < delta: accelerate
         delta = pnew - pcur
+        print('accelerate about {} power'.format(delta))
         steps = math.ceil(abs(delta)/STEP_SIZE)
+        print('accelerate in {} steps'.format(steps))
 
         if steps == 0:
             return
@@ -33,20 +37,23 @@ class Motor:
         for _ in range(steps):
             pcur += inc
             self._bp.set_motor_power(self._port, pcur)
+            print('current power: {}'.format(pcur))
             time.sleep(0.25)
         self._bp.set_motor_power(self._port, pnew)
+        print('current power: {}'.format(self.status()[self.STATUS_POWER]))
 
     def set_power(self, pnew):
-        if 100< abs(pnew):
+        if 100 < abs(pnew):
             return
 
         self._bp.set_motor_power(self._port, pnew)
 
     def stop(self):
         self.set_power(0)
-        
+
     def rotate_motor(self, degree):
         self._bp.set_motor_position_relative(self._port, degree)
+
 
 class CalibratedMotor(Motor):
     def __init__(self, port, pmin=None, pmax=None, calpow=20):
@@ -71,7 +78,8 @@ class CalibratedMotor(Motor):
 
         CALIBRATE_SLEEP = 0.75
 
-        if verbose: print('Moving to pmin')
+        if verbose:
+            print('Moving to pmin')
         self.set_power(-self._calpow)
         encprev, encnow = 0, None
         while encprev != encnow:
@@ -80,9 +88,11 @@ class CalibratedMotor(Motor):
             encnow = self._bp.get_motor_encoder(self._port)
         self._pmin = encnow
         self.set_power(0)
-        if verbose: print('pmin = {}', self._pmin)
+        if verbose:
+            print('pmin = {}', self._pmin)
 
-        if verbose: print('Moving to pmax')
+        if verbose:
+            print('Moving to pmax')
         self.set_power(self._calpow)
         encprev, encnow = 0, None
         while encprev != encnow:
@@ -91,13 +101,15 @@ class CalibratedMotor(Motor):
             encnow = self._bp.get_motor_encoder(self._port)
         self._pmax = encnow
         self.set_power(0)
-        if verbose: print('pmax = {}', self._pmax)
+        if verbose:
+            print('pmax = {}', self._pmax)
 
         if self._pmax == self._pmin:
             raise Exception('motor {} does not move'.format(self._port))
 
         self._pinit = (self._pmax + self._pmin) * 0.5
-        if verbose: print('pinit = {}', self._pinit)
+        if verbose:
+            print('pinit = {}', self._pinit)
         time.sleep(0.5)
         self.to_init_position()
 
@@ -106,7 +118,8 @@ class CalibratedMotor(Motor):
 
         CALIBRATE_SLEEP = 0.75
 
-        if verbose: print('Moving to pmin')
+        if verbose:
+            print('Moving to pmin')
         self.set_power(-self._calpow)
         encprev, encnow = 0, None
         while encprev != encnow:
@@ -115,24 +128,28 @@ class CalibratedMotor(Motor):
             encnow = self._bp.get_motor_encoder(self._port)
         self._pmin = encnow
         self.set_power(0)
-        if verbose: print('pmin = {}', self._pmin)
+        if verbose:
+            print('pmin = {}', self._pmin)
         self._pmax = self._pmin + offset
-        if verbose: print('pmax = {}', self._pmax)
+        if verbose:
+            print('pmax = {}', self._pmax)
 
         self._pinit = (self._pmax + self._pmin) * 0.5
-        if verbose: print('pinit = {}', self._pinit)
+        if verbose:
+            print('pinit = {}', self._pinit)
         time.sleep(0.5)
         self.to_init_position()
 
-
     def set_position(self, pnew):
         if (self._pmin and self._pmax) and not (self._pmin <= pnew <= self._pmax):
-            raise Exception('position ({} < {} < {}) is invalid for motor {}'.format(self._pmin, pnew, self._pmax, self._port))
+            raise Exception('position ({} < {} < {}) is invalid for motor {}'.format(
+                self._pmin, pnew, self._pmax, self._port))
         self._bp.set_motor_position(self._port, pnew)
 
     def to_init_position(self):
         if self._pinit == None:
-            raise Exception('initial position for motor {} not known'.format(self._port))
+            raise Exception(
+                'initial position for motor {} not known'.format(self._port))
         self.set_position(self._pinit)
 
     def position_from_factor(self, factor):
