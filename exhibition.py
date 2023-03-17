@@ -200,22 +200,22 @@ class Exhibition:
         """
         return "{0}{1}'language': '{2}',{1}'qtable_name': '{3}',{1}'alpha': {4},{1}'y': {5},{1}'direction': {6},{1}'color': {7}{8}{9}".format('{', '\n\t' if pretty else '', self.config['language'], self.config['qtable_name'], self.config['alpha'], self.config['y'], self.config['direction'], self.config['color'], '\n' if pretty else '', '}')
 
-    def main(self, administartor_mode: bool = False):
+    def main(self, administrator_mode: bool = False):
         """
         The main function, which handles inputs.
 
         Parameter
         ----------
-        administartor_mode: bool = False
+        administrator_mode: bool = False
             If administrationmode is active, True, the exit command will be shown, by default False.
         """
-        self.print_menu(administartor_mode)
+        self.print_menu(administrator_mode)
         user_input = input('> ').lower()
         while user_input != 'quit' and user_input != 'exit':
             if user_input == 'start':
                 self.start()
             elif user_input == 'settings' or user_input == 'einstellungen':
-                self.settings()
+                self.settings(administrator_mode)
             elif user_input == 'english' or user_input == 'englisch':
                 self.config['language'] = 'english'
             elif user_input == 'german' or user_input == 'deutsch':
@@ -223,7 +223,7 @@ class Exhibition:
             else:
                 print(
                     self.language_package[self.config['language']]['wrong_input'])
-            self.print_menu(administartor_mode)
+            self.print_menu(administrator_mode)
             user_input = input('> ').lower()
         # Asks user at quitting the application, to save the current configuration.
         print(self.language_package[self.config['language']]['config'])
@@ -253,29 +253,29 @@ class Exhibition:
         """
         system('cls' if name == 'nt' else 'clear')
 
-    def print_menu(self, administartor_mode: bool = False):
+    def print_menu(self, administrator_mode: bool = False):
         """
         Prints main menu.
 
         Parameter
         ----------
-        administartor_mode: bool = False
+        administrator_mode: bool = False
             If administrationmode is active, True, the exit command will be shown, by default False.
         """
         self.clear()
         PrintLogo.print_color(
         ) if self.config['color'] else PrintLogo.print_bw()
         print(self.language_package[self.config['language']]['command'])
-        if administartor_mode:
+        if administrator_mode:
             print(self.language_package[self.config['language']]['exit'])
 
-    def print_settings_menu(self, administartor_mode: bool = False):
+    def print_settings_menu(self, administrator_mode: bool = False):
         """
         Prints settings menu.
 
         Parameter
         ----------
-        administartor_mode: bool = False
+        administrator_mode: bool = False
             If administrationmode is active, True, the q-table settings will be shown, by default False.
         """
         print(
@@ -284,33 +284,33 @@ class Exhibition:
             self.language_package[self.config['language']]['settings']['commands']['direction'])
         print(
             self.language_package[self.config['language']]['settings']['commands']['action'])
-        if administartor_mode:
+        if administrator_mode:
             print(
                 self.language_package[self.config['language']]['settings']['commands']['qtable'])
         print(self.language_package[self.config['language']]['back'])
 
-    def settings(self, administartor_mode: bool = False):
+    def settings(self, administrator_mode: bool = False):
         """
         Handles user input for settings menu.
 
         Parameter
         ----------
-        administartor_mode: bool = False
+        administrator_mode: bool = False
             If administrationmode is active, True, the q-table settings will be enabled, by default False.
         """
-        self.print_settings_menu(administartor_mode)
+        self.print_settings_menu(administrator_mode)
         user_input = input('> ').lower()
         while user_input != 'back' and user_input != 'zurueck':
             if user_input == 'direction' or user_input == 'richtung':
                 self.parking_direction_settings()
-            elif (user_input == 'q' or user_input == 'table' or user_input == 'q-table' or user_input == 'tabelle' or user_input == 'q-tabelle') and administartor_mode:
+            elif (user_input == 'q' or user_input == 'table' or user_input == 'q-table' or user_input == 'tabelle' or user_input == 'q-tabelle') and administrator_mode:
                 self.qtable_settings()
             elif user_input == 'action':
                 self.action_settings()
             else:
                 print(
                     self.language_package[self.config['language']]['wrong_input'])
-            self.print_settings_menu(administartor_mode)
+            self.print_settings_menu(administrator_mode)
             user_input = input('> ').lower()
 
     def print_direciton_settings_menu(self):
@@ -530,12 +530,12 @@ class Exhibition:
 if __name__ == '__main__':
     try:
         # Checks for administrator_mode in comandline arguments.
-        administartor_mode = True if 'administrator_mode' in sys.argv[
+        administrator_mode = True if 'administrator_mode' in sys.argv[
             1:] or 'administratormode' in sys.argv[1:] else False
         # Generates exhibition instance.
         runner = Exhibition()
         # Executes exhibition application.
-        runner.main(administartor_mode)
+        runner.main(administrator_mode)
     except Exception as exception:
         try:
             # If any error is catched, it is tried to write into an error log file.

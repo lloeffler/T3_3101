@@ -1,5 +1,5 @@
 class PrintLogo:
-    def print_color():
+    def print_color(self):
         """
         Prints DHBW logo as ascii art in black and white.
         """
@@ -23,7 +23,7 @@ class PrintLogo:
               /////                                  Duale Hochschule
               ///                                    Baden-Wuerttemberg\n'''.format(red, light_red, light_grey), reset)
         
-    def print_bw():
+    def print_bw(self):
         """
         Prints DHBW logo as ascii art in black and white.
         """
