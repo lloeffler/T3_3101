@@ -16,6 +16,8 @@ import numpy as np
 import time
 import sys
 
+import traceback
+
 
 class Navigator:
     """
@@ -51,65 +53,79 @@ class Navigator:
         self._detected = False
 
     def navigate(self, image, event):
-        if self.preview:
-            cv.imshow('preview', image)
-        self._event = event
-        # Detect Intersection in image
-        intersection = self.bot.intersection
-        # When intersection is detected and wsn't allready detected
-        if len(intersection) > 0 and self._detected == False:
-            # Pause line tracking
-            self._event.set()
-            self.bot.change_drive_power(0)
+        try:
+            if self.preview:
+                cv.imshow('preview', image)
+            self._event = event
+            # Detect Intersection in image
+            intersection = self.bot.intersection
+            # When intersection is detected and wsn't allready detected
+            if len(intersection) > 0 and self._detected == False:
+                # Pause line tracking
+                self._event.set()
+                self.bot.change_drive_power(0)
 
-            # calculate where intersection is
-            n = self.int_detector.get_intersection_coordinates(intersection)
-            # Sort intersection points and delete the bad ones
-            # intersection.sort(key=lambda y: y[0])
-            # intersection = list(filter(lambda x: x[0][0]>0 and x[0][0]<2000, intersection))
-            if n >= 0:
-                time.sleep(1)
-                # Get better img while not moving for scanning
-                _, image = self.bot._camera.read()
-                while image is None:
+                # calculate where intersection is
+                n = self.int_detector.get_intersection_coordinates(intersection)
+                # Sort intersection points and delete the bad ones
+                # intersection.sort(key=lambda y: y[0])
+                # intersection = list(filter(lambda x: x[0][0]>0 and x[0][0]<2000, intersection))
+                if n >= 0:
+                    time.sleep(1)
+                    # Get better img while not moving for scanning
                     _, image = self.bot._camera.read()
-                # Get part of image that contains relevant data
-                qr_img = self.int_detector.get_right_upper_corner_intersection(
-                    image, intersection[n])
-                # make image sharper and colours intenser/brighter
-                kernel = np.array([[-1, -1, -1], [-1, 11, -1], [-1, -1, -1]])
-                qr_img = cv.filter2D(qr_img, -1, kernel)
-                qr_img = self.automatic_brightness_and_contrast(qr_img)
+                    while image is None:
+                        _, image = self.bot._camera.read()
+                    # Get part of image that contains relevant data
+                    qr_img = self.int_detector.get_right_upper_corner_intersection(
+                        image, intersection[n])
+                    # make image sharper and colours intenser/brighter
+                    kernel = np.array([[-1, -1, -1], [-1, 11, -1], [-1, -1, -1]])
+                    qr_img = cv.filter2D(qr_img, -1, kernel)
+                    qr_img = self.automatic_brightness_and_contrast(qr_img)
 
-                # Show and save image
-                cv.imshow('qrImg', qr_img)
-                date = "/home/pi/qrImg/qrImg_" + \
-                    datetime.utcnow().strftime(
-                        '%Y-%m-%d %H:%M:%S.%f')[:-3] + ".jpg"
-                cv.imwrite(date, qr_img)
+                    # Show and save image
+                    cv.imshow('qrImg', qr_img)
+                    date = "/home/pi/qrImg/qrImg_" + \
+                        datetime.utcnow().strftime(
+                            '%Y-%m-%d %H:%M:%S.%f')[:-3] + ".jpg"
+                    cv.imwrite(date, qr_img)
 
-                # When it contains parking space
-                is_parking_space = self.parking_detector.detect_red_line(
-                    qr_img)
-                if is_parking_space:
-                    self._detected = True
-                    # Start parking procedure
-                    self.turn_intersection('parking')
-                    return
-                else:
-
-                    lable = ""
-                    # Detect and read barcode
-                    lable, self._detected = self.bar_code_detector.detect_barcode(
+                    # When it contains parking space
+                    is_parking_space = self.parking_detector.detect_red_line(
                         qr_img)
-                    print("Lable: ", lable)
-                    if self._detected:
-                        # Start turning procedure
-                        self.turn_intersection(self.analyse_barcode(lable))
-                        # Unpause line tracking
-                        self._event.clear()
-                        self.bot.change_drive_power(self.bot.power_lvl)
-                self._detected = False
+                    if is_parking_space:
+                        self._detected = True
+                        # Start parking procedure
+                        self.turn_intersection('parking')
+                        return
+                    else:
+
+                        lable = ""
+                        # Detect and read barcode
+                        lable, self._detected = self.bar_code_detector.detect_barcode(
+                            qr_img)
+                        print("Lable: ", lable)
+                        if self._detected:
+                            # Start turning procedure
+                            self.turn_intersection(self.analyse_barcode(lable))
+                            # Unpause line tracking
+                            self._event.clear()
+                            self.bot.change_drive_power(self.bot.power_lvl)
+                    self._detected = False
+        except Exception as exception:
+            try:
+                # If any error is catched, it is tried to write into an error log file.
+                log_file = open("error.log", "a")
+                log_file.write("{}\nTraceback:\n{}".format(
+                    str(exception), traceback.format_exc()))
+                log_file.close()
+            except Exception:
+                # If the logging into a file failes, the error is printed to the command line.
+                print('Outer Exception:')
+                traceback.print_exception()
+                print('Inner Exception')
+                traceback.print_exception()
 
         # If robot waits at intersection, but doesn't see intersection anymore
         # elif self._event.isSet() and len(intersection)==0:

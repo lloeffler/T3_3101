@@ -516,7 +516,7 @@ class Exhibition:
         # Setup intersection detection.
         self._bot.set_intsecdet_state(active=True)
         # Set velocity of Bot.
-        self._bot.set_power_lvl(18)
+        self._bot.set_power_lvl(20)
         self._bot.change_drive_power(self._bot.power_lvl)
         # Checks every second the program status.
         while self._bot._programm_type != ProgrammType.DONE:
