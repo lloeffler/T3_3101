@@ -3,26 +3,26 @@ Created by my self:
 - meassrue.py
 - parking_learner.py
 - parkindirection.py
+- print_logo.py
 - programm_types.py
 - test.py
 
 Copied fiels from swarmrobot, based on this repo: https://github.com/1Basileus/Swarmrobotlib
 - bar_code_detection.py
 - brickpi3.py
-- line_tracking.py
-- motor.py
 - pidcontroller.py
-- qr_test.py
 - qr_detection.py
 - stop.py
-- swarmrobot.py
 - turn_assistant.py
 
 
 Modified fiels from swarmrobot based on this repo: https://github.com/1Basileus/Swarmrobotlib
 - intersection_detection.py
+- line_tracking.py
+- motor.py
 - navigation.py
 - parking_space_detection.py
+- qr_test.py
 - swarmrobot.py
 
 Modified hardware:
