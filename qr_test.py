@@ -1,7 +1,7 @@
-import cv2
+import cv2 as cv
 import math  
 
-#image = cv2.imread('/home/pi/qrImg/qrImg_test5.jpg')
+#image = cv.imread('/home/pi/qrImg/qrImg_test5.jpg')
 
 import numpy as np
 
@@ -30,7 +30,7 @@ def has_square_parent(hierarchy, squares, parent):
 
 
 def get_center(c):
-    m = cv2.moments(c)
+    m = cv.moments(c)
     return [int(m["m10"] / m["m00"]), int(m["m01"] / m["m00"])]
 
 
@@ -88,12 +88,12 @@ def extract(frame, debug=False):
     output = frame.copy()
 
     # Remove noise and unnecessary contours from frame
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    gray = cv2.bilateralFilter(gray, 11, 17, 17)
-    gray = cv2.GaussianBlur(gray, (BLUR_VALUE, BLUR_VALUE), 0)
-    edged = cv2.Canny(gray, 30, 200)
+    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    gray = cv.bilateralFilter(gray, 11, 17, 17)
+    gray = cv.GaussianBlur(gray, (BLUR_VALUE, BLUR_VALUE), 0)
+    edged = cv.Canny(gray, 30, 200)
 
-    _, contours, hierarchy  = cv2.findContours(edged.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    _, contours, hierarchy  = cv.findContours(edged.copy(), cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
     squares = []
     square_indices = []
@@ -101,9 +101,9 @@ def extract(frame, debug=False):
     i = 0
     for c in contours:
         # Approximate the contour
-        peri = cv2.arcLength(c, True)
-        area = cv2.contourArea(c)
-        approx = cv2.approxPolyDP(c, 0.03 * peri, True)
+        peri = cv.arcLength(c, True)
+        area = cv.contourArea(c)
+        approx = cv.approxPolyDP(c, 0.03 * peri, True)
 
         # Find all quadrilateral contours
         if len(approx) == 4:
@@ -120,18 +120,18 @@ def extract(frame, debug=False):
     rectangles = []
     # Determine if squares are QR codes
     for square in squares:
-        area = cv2.contourArea(square)
+        area = cv.contourArea(square)
         center = get_center(square)
-        peri = cv2.arcLength(square, True)
+        peri = cv.arcLength(square, True)
 
         similar = []
         tiny = []
         for other in squares:
             if square[0][0][0] != other[0][0][0]:
                 # Determine if square is similar to other square within AREA_TOLERANCE
-                if math.fabs(area - cv2.contourArea(other)) / max(area, cv2.contourArea(other)) <= AREA_TOLERANCE:
+                if math.fabs(area - cv.contourArea(other)) / max(area, cv.contourArea(other)) <= AREA_TOLERANCE:
                     similar.append(other)
-                elif peri / 4 / 2 > cv2.arcLength(other, True) / 4:
+                elif peri / 4 / 2 > cv.arcLength(other, True) / 4:
                     tiny.append(other)
 
         if len(similar) >= 2:
@@ -147,7 +147,7 @@ def extract(frame, debug=False):
             closest_b = distances[-2]
 
             # Determine if this square is the top left QR code indicator
-            if max(closest_a, closest_b) < cv2.arcLength(square, True) * 2.5 and math.fabs(closest_a - closest_b) / max(closest_a, closest_b) <= DISTANCE_TOLERANCE:
+            if max(closest_a, closest_b) < cv.arcLength(square, True) * 2.5 and math.fabs(closest_a - closest_b) / max(closest_a, closest_b) <= DISTANCE_TOLERANCE:
                 # Determine placement of other indicators (even if code is rotated)
                 angle_a = get_angle(get_center(distances_to_contours[closest_a]), center)
                 angle_b = get_angle(get_center(distances_to_contours[closest_b]), center)
@@ -189,8 +189,8 @@ def extract(frame, debug=False):
                         continue
                     offset = extend(midpoint, offset, peri / 4 / 7)
                     if debug:
-                        cv2.line(output, (farthest_a[0][0], farthest_a[0][1]), (farthest_a[1][0], farthest_a[1][1]), (0, 0, 255), 4)
-                        cv2.line(output, (farthest_b[0][0], farthest_b[0][1]), (farthest_b[1][0], farthest_b[1][1]), (0, 0, 255), 4)
+                        cv.line(output, (farthest_a[0][0], farthest_a[0][1]), (farthest_a[1][0], farthest_a[1][1]), (0, 0, 255), 4)
+                        cv.line(output, (farthest_b[0][0], farthest_b[0][1]), (farthest_b[1][0], farthest_b[1][1]), (0, 0, 255), 4)
 
                 # Append rectangle, offsetting to farthest borders
                 rectangles.append([extend(midpoint, center, diagonal / 2, True), extend(midpoint, get_center(distances_to_contours[closest_b]), diagonal / 2, True), offset, extend(midpoint, get_center(distances_to_contours[closest_a]), diagonal / 2, True)])
@@ -205,7 +205,7 @@ def extract(frame, debug=False):
         # Draw rectangle
         vrx = np.array((rect[0], rect[1], rect[2], rect[3]), np.int32)
         vrx = vrx.reshape((-1, 1, 2))
-        cv2.polylines(output, [vrx], True, (0, 255, 255), 1)
+        cv.polylines(output, [vrx], True, (0, 255, 255), 1)
         # Warp codes and draw them
         wrect = np.zeros((4, 2), dtype="float32")
         wrect[0] = rect[0]
@@ -217,23 +217,23 @@ def extract(frame, debug=False):
             [WARP_DIM - 1, 0],
             [WARP_DIM - 1, WARP_DIM - 1],
             [0, WARP_DIM - 1]], dtype="float32")
-        warp = cv2.warpPerspective(frame, cv2.getPerspectiveTransform(wrect, dst), (WARP_DIM, WARP_DIM))
+        warp = cv.warpPerspective(frame, cv.getPerspectiveTransform(wrect, dst), (WARP_DIM, WARP_DIM))
         # Increase contrast
-        warp = cv2.bilateralFilter(warp, 11, 17, 17)
-        warp = cv2.cvtColor(warp, cv2.COLOR_BGR2GRAY)
-        small = cv2.resize(warp, (SMALL_DIM, SMALL_DIM), 0, 0, interpolation=cv2.INTER_CUBIC)
-        _, small = cv2.threshold(small, 100, 255, cv2.THRESH_BINARY)
+        warp = cv.bilateralFilter(warp, 11, 17, 17)
+        warp = cv.cvtColor(warp, cv.COLOR_BGR2GRAY)
+        small = cv.resize(warp, (SMALL_DIM, SMALL_DIM), 0, 0, interpolation=cv.INTER_CUBIC)
+        _, small = cv.threshold(small, 100, 255, cv.THRESH_BINARY)
         codes.append(small)
         if debug:
-            cv2.imshow("Warped: " + str(i), small)
+            cv.imshow("Warped: " + str(i), small)
 
     if debug:
         # Draw debug information onto frame before outputting it
-        cv2.drawContours(output, squares, -1, (5, 5, 5), 2)
-        cv2.drawContours(output, main_corners, -1, (0, 0, 128), 2)
-        cv2.drawContours(output, east_corners, -1, (0, 128, 0), 2)
-        cv2.drawContours(output, south_corners, -1, (128, 0, 0), 2)
-        cv2.drawContours(output, tiny_squares, -1, (128, 128, 0), 2)
+        cv.drawContours(output, squares, -1, (5, 5, 5), 2)
+        cv.drawContours(output, main_corners, -1, (0, 0, 128), 2)
+        cv.drawContours(output, east_corners, -1, (0, 128, 0), 2)
+        cv.drawContours(output, south_corners, -1, (128, 0, 0), 2)
+        cv.drawContours(output, tiny_squares, -1, (128, 128, 0), 2)
 
     return codes, output
 

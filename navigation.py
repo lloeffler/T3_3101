@@ -52,6 +52,9 @@ class Navigator:
         self._event = ""
         self._detected = False
 
+        # number of failed tries
+        self.failed_tries = 0
+
     def navigate(self, image, event):
         try:
             if self.preview:
@@ -66,7 +69,8 @@ class Navigator:
                 self.bot.change_drive_power(0)
 
                 # calculate where intersection is
-                n = self.int_detector.get_intersection_coordinates(intersection)
+                n = self.int_detector.get_intersection_coordinates(
+                    intersection)
                 # Sort intersection points and delete the bad ones
                 # intersection.sort(key=lambda y: y[0])
                 # intersection = list(filter(lambda x: x[0][0]>0 and x[0][0]<2000, intersection))
@@ -80,7 +84,8 @@ class Navigator:
                     qr_img = self.int_detector.get_right_upper_corner_intersection(
                         image, intersection[n])
                     # make image sharper and colours intenser/brighter
-                    kernel = np.array([[-1, -1, -1], [-1, 11, -1], [-1, -1, -1]])
+                    kernel = np.array(
+                        [[-1, -1, -1], [-1, 11, -1], [-1, -1, -1]])
                     qr_img = cv.filter2D(qr_img, -1, kernel)
                     qr_img = self.automatic_brightness_and_contrast(qr_img)
 
@@ -164,7 +169,14 @@ class Navigator:
 
     # Automatic brightness and contrast optimization with optional histogram clipping
     def automatic_brightness_and_contrast(self, image, clip_hist_percent=1):
-        gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+        # Convert to grayscale
+        try:
+            gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+        except Exception as exception:
+            self.failed_tries += 1
+            if self.failed_tries > 5:
+                raise exception
+            return
 
         # Calculate grayscale histogram
         hist = cv.calcHist([gray], [0], None, [256], [0, 256])
@@ -197,7 +209,7 @@ class Navigator:
 
         '''
         # Calculate new histogram with desired range and show histogram 
-        new_hist = cv2.calcHist([gray],[0],None,[256],[minimum_gray,maximum_gray])
+        new_hist = cv.calcHist([gray],[0],None,[256],[minimum_gray,maximum_gray])
         plt.plot(hist)
         plt.plot(new_hist)
         plt.xlim([0,256])

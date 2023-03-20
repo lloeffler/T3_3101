@@ -1,5 +1,5 @@
 import numpy as np
-import cv2
+import cv2 as cv
 from collections import defaultdict
 import sys
 from datetime import datetime
@@ -7,7 +7,7 @@ from datetime import datetime
 
 class IntersectionDetection:
 
-    def __init__(self, width, height, bot, kernel_size=(5,5), preview=False, debug=False):
+    def __init__(self, width, height, bot, kernel_size=(5, 5), preview=False, debug=False):
         # Define Region of interest
         self.resolution = (int(width), int(height))
         w = self.resolution[0]//3
@@ -21,8 +21,11 @@ class IntersectionDetection:
         self.kernel_size = kernel_size
         self.preview = preview
         self.debug = debug
-        
+
         self._bot = bot
+
+        # number of failed tries
+        self.failed_tries = 0
 
     def segment_by_angle_kmeans(self, lines, k=2, **kwargs):
         """
@@ -33,25 +36,27 @@ class IntersectionDetection:
         """
 
         # Define criteria = (type, max_iter, epsilon)
-        default_criteria_type = cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER
+        default_criteria_type = cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER
         criteria = kwargs.get('criteria', (default_criteria_type, 10, 1.0))
 
-        flags = kwargs.get('flags', cv2.KMEANS_RANDOM_CENTERS)
+        flags = kwargs.get('flags', cv.KMEANS_RANDOM_CENTERS)
         attempts = kwargs.get('attempts', 10)
 
         # Get angles in [0, pi] radians
         angles = np.array([line[0][1] for line in lines])
 
         # Multiply the angles by two and find coordinates of that angle on the Unit Circle
-        pts = np.array([[np.cos(2 * angle), np.sin(2 * angle)] for angle in angles], dtype=np.float32)
+        pts = np.array([[np.cos(2 * angle), np.sin(2 * angle)]
+                       for angle in angles], dtype=np.float32)
 
         # Run k-means
         if sys.version_info[0] == 2:
             # python 2.x
-            ret, labels, centers = cv2.kmeans(pts, k, criteria, attempts, flags)
+            ret, labels, centers = cv.kmeans(pts, k, criteria, attempts, flags)
         else:
             # python 3.x, syntax has changed.
-            labels, centers = cv2.kmeans(pts, k, None, criteria, attempts, flags)[1:]
+            labels, centers = cv.kmeans(
+                pts, k, None, criteria, attempts, flags)[1:]
 
         labels = labels.reshape(-1)  # Transpose to row vector
 
@@ -61,7 +66,7 @@ class IntersectionDetection:
             segmented[labels[i]].append(line)
 
         segmented = list(segmented.values())
-        #print("Segmented lines into two groups: %d, %d" % (len(segmented[0]), len(segmented[1])))
+        # print("Segmented lines into two groups: %d, %d" % (len(segmented[0]), len(segmented[1])))
 
         return segmented
 
@@ -114,47 +119,58 @@ class IntersectionDetection:
     #             y1 = int(y0 + 1000 * (a))
     #             x2 = int(x0 - 1000 * (-b))
     #             y2 = int(y0 - 1000 * (a))
-    #             cv2.line(img, (x1, y1), (x2, y2), color, 1)
+    #             cv.line(img, (x1, y1), (x2, y2), color, 1)
 
     def detect_intersection(self, img):
 
         height, width, _ = img.shape
         height_crop = int(height / 4)
         width_crop = int(width / 4)
-        resized = img[height - height_crop:height, width_crop:width - width_crop, :]
+        resized = img[height - height_crop:height,
+                      width_crop:width - width_crop, :]
 
-        gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
+        # Convert to grayscale
+        try:
+            gray = cv.cvtColor(resized, cv.COLOR_BGR2GRAY)
+        except Exception as exception:
+            self.failed_tries += 1
+            if self.failed_tries > 5:
+                raise exception
+            return
 
-        _, thresh = cv2.threshold(gray, 40, 255, cv2.THRESH_BINARY_INV)     # extract black areas
-        eroded = cv2.dilate(thresh, None, iterations=1)                     # do some image processing
-        eroded = cv2.erode(eroded, None, iterations=3)
-        dilated = cv2.dilate(eroded, None, iterations=2)
+        # extract black areas
+        _, thresh = cv.threshold(gray, 40, 255, cv.THRESH_BINARY_INV)
+        # do some image processing
+        eroded = cv.dilate(thresh, None, iterations=1)
+        eroded = cv.erode(eroded, None, iterations=3)
+        dilated = cv.dilate(eroded, None, iterations=2)
 
-        blur = cv2.medianBlur(dilated, 5)
+        blur = cv.medianBlur(dilated, 5)
 
         # Make binary image
-        adapt_type = cv2.ADAPTIVE_THRESH_GAUSSIAN_C
-        thresh_type = cv2.THRESH_BINARY_INV
-        bin_img = cv2.adaptiveThreshold(blur, 255, adapt_type, thresh_type, 11, 2)
+        adapt_type = cv.ADAPTIVE_THRESH_GAUSSIAN_C
+        thresh_type = cv.THRESH_BINARY_INV
+        bin_img = cv.adaptiveThreshold(
+            blur, 255, adapt_type, thresh_type, 11, 2)
 
         # Detect lines
         rho = 2
         theta = np.pi / 180
         thresh = 350
-        lines = cv2.HoughLines(bin_img, rho, theta, thresh)
+        lines = cv.HoughLines(bin_img, rho, theta, thresh)
 
-        #print("Found lines: %d" % (len(lines)))
+        # print("Found lines: %d" % (len(lines)))
         intersections = []
         if lines is not None:
-        # Cluster line angles into 2 groups (vertical and horizontal)
+            # Cluster line angles into 2 groups (vertical and horizontal)
             segmented = self.segment_by_angle_kmeans(lines, 2)
 
         # Find the intersections of each vertical line with each horizontal line
             intersections = self.segmented_intersections(segmented)
 
         self._bot.intersection = intersections
-        #print(datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3])
-    
+        # print(datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3])
+
     def get_right_upper_corner_intersection(self, img, intersection):
         if img is not None:
             height, width, _ = img.shape
@@ -166,13 +182,13 @@ class IntersectionDetection:
             w = intersection[0][1] + width_crop + 110
             crop_img = img[y:y+h, x:x+w]
             return crop_img
-    
+
     def get_intersection_coordinates(self, intersection):
-        n=0
+        n = 0
         for val in intersection:
-            if((intersection[0][0][0]+2)>0 and (intersection[0][0][1]+2)>0):
+            if ((intersection[0][0][0]+2) > 0 and (intersection[0][0][1]+2) > 0):
                 return n
-            n=n+1
+            n = n+1
         return -1
 
     # img_with_segmented_lines = np.copy(img)
@@ -191,10 +207,10 @@ class IntersectionDetection:
     # for point in intersections:
     #     pt = (point[0][0], point[0][1])
     #     length = 5
-    #     cv2.line(img_with_segmented_lines, (pt[0], pt[1] - length), (pt[0], pt[1] + length), (255, 0, 255),
+    #     cv.line(img_with_segmented_lines, (pt[0], pt[1] - length), (pt[0], pt[1] + length), (255, 0, 255),
     #              1)  # vertical line
-    #     cv2.line(img_with_segmented_lines, (pt[0] - length, pt[1]), (pt[0] + length, pt[1]), (255, 0, 255), 1)
+    #     cv.line(img_with_segmented_lines, (pt[0] - length, pt[1]), (pt[0] + length, pt[1]), (255, 0, 255), 1)
     #
-    # cv2.imshow("Segmented lines", img_with_segmented_lines)
-    # cv2.waitKey()
-    # cv2.imwrite("intersection_points.jpg", img_with_segmented_lines)
+    # cv.imshow("Segmented lines", img_with_segmented_lines)
+    # cv.waitKey()
+    # cv.imwrite("intersection_points.jpg", img_with_segmented_lines)

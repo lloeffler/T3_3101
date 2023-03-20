@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 import sys
 import traceback
 from json import loads
@@ -130,6 +130,7 @@ class Exhibition:
     }
 
     def __init__(self):
+        print("Python versoin: {}".format(sys.version))
         # Create instance of the robot.
         self._bot = SwarmRobot(programm_type=ProgrammType.PARKING)
         print('Calibrate robot')
@@ -517,7 +518,7 @@ class Exhibition:
         self._bot.set_intsecdet_state(active=True)
         # Set velocity of Bot.
         self._bot.set_power_lvl(20)
-        self._bot.change_drive_power(self._bot.power_lvl)
+        self._bot.set_drive_power(self._bot.power_lvl)
         # Checks every second the program status.
         while self._bot._programm_type != ProgrammType.DONE:
             sleep(1)

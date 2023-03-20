@@ -118,6 +118,7 @@ class SwarmRobot:
             except KeyboardInterrupt:
                 self.stop_all()
             except Exception as exception:
+                self.stop_all()
                 # Logs error to error log file or prints to console.
                 self.log_error(exception)
             finally:
@@ -159,6 +160,7 @@ class SwarmRobot:
             except KeyboardInterrupt:
                 self.stop_all()
             except Exception as exception:
+                self.stop_all()
                 # Logs error to error log file or prints to console.
                 self.log_error(exception)
             finally:
@@ -195,6 +197,7 @@ class SwarmRobot:
             except KeyboardInterrupt:
                 self.stop_all()
             except Exception as exception:
+                self.stop_all()
                 # Logs error to error log file or prints to console.
                 self.log_error(exception)
             finally:
