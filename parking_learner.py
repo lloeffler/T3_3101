@@ -307,10 +307,14 @@ class ParkingLearner:
     def check_location(self) -> bool:
         """
         Checks if the right parking position is reached.
-        return bool: true if calculated pisition is correct, proofed by optical detection.
+
+        Returns
+        -------
+        bool: true if calculated position is correct, proofed by optical detection.
         """
+        orientation = 18 if self._parking_direction == Parkingdirection.FORWARD else 0
         calculated = (self._state['rho'] ==
-                      0 and self._state['orientation'] == 0)
+                      0 and self._state['orientation'] == orientation)
         ''' somthing with opencv, check if parking lot entrance is in lower x% and in the middle of the picture.
          if actual position and calculated position not true, recalculate current position, based on seen parking lot position. '''
         return calculated
@@ -384,6 +388,73 @@ class ParkingLearner:
                 self._qtable[old_state['rho'], old_state['phi'], old_state['orientation']][action_direction_index, action_lenght_index] = (1 - self._alpha) * self._qtable[[old_state['rho'], old_state['phi'], old_state['orientation']], [
                     action_direction_index, action_lenght_index]] + self._alpha * (self.get_reward() + self._y * max(self._qtable[self._state['rho'], self._state['phi'], self._state['orientation']]))
             # Aborts parking, if the robot is to far away from the parking lot.
-            if is_in_range:
+            if not is_in_range:
                 self._parking = False
         self.end_parking()
+
+    # region simulation
+
+    def simulated_check_location(self) -> bool:
+        """
+        Checks if the right parking position is calculated.
+
+        Returns
+        -------
+        bool: true if calculated position is correct.
+        """
+        orientation = 18 if self._parking_direction == Parkingdirection.FORWARD else 0
+        return (self._state['rho'] == 0 and self._state['orientation'] == orientation)
+
+    def simulated_action(self, direction_index: int, length_index: int) -> bool:
+        """
+        Calculate its new position relative to the parking lot.
+
+        Parameter
+        ----------
+        direction_index: int 
+            Index of the steering impact from 0 to 5
+        length_index: int
+            Index of how long the robot wil drive.
+
+        Returns
+        -------
+        boolean: True if the robot is less equals 60 cm from the parking lot away.
+        """
+        return self.update_state(direction_index=direction_index, lenght_index=length_index)
+
+    def simulated_parking(self, distance: float, angle: float, orientation: float):
+        """
+        Simulates parking the robot.
+        Behavies always like exploring.
+
+        Parameter
+        ----------
+        distance: float
+            The distance between the robot and tha parking lot in cm.
+        angle: float
+            The angle how much the parking lot is left or right from the robot in rad.
+        orientation: float
+            How much the robot is turned relativ to the parking lot in rad.
+        """
+        self._state['rho'] = distance
+        self._state['phi'] = angle
+        self._state['orientation'] = orientation
+        is_in_range = True
+        while self._parking:
+            action_direction_index = random.randint(0, 5)
+            action_lenght_index = random.randint(0, 20)
+            old_state = {
+                'rho': self._state['rho'],
+                'phi': self._state['phi'],
+                'orientation': self._state['orientation']
+            }
+            # Simulates action
+            is_in_range = self.simulated_action(
+                action_direction_index, action_lenght_index)
+            # Fills q-Table.
+            self._qtable[old_state['rho'], old_state['phi'], old_state['orientation']][action_direction_index, action_lenght_index] = (1 - self._alpha) * self._qtable[[old_state['rho'], old_state['phi'], old_state['orientation']], [
+                action_direction_index, action_lenght_index]] + self._alpha * (self.get_reward() + self._y * max(self._qtable[self._state['rho'], self._state['phi'], self._state['orientation']]))
+            if not is_in_range:
+                self._parking = False
+
+    # endregion

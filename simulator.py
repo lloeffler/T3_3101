@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import sys
 import traceback
+import datetime
 
 from json import loads
 from re import compile
@@ -10,36 +11,16 @@ from os import system, name
 
 import numpy as np
 
-from swarmrobot import SwarmRobot
 from parking_learner import ParkingLearner
 from parkingdirection import Parkingdirection
-from programm_type import ProgrammType
 from print_logo import PrintLogo
-from turn_assistant import TurnAssistant
 
 
-class Exhibition:
+class Simulator:
     """
-    A small aplication for the 'Hanover Messe', to demonstrate a parking swarm robot. The parking will be self learnd by the robot with q-learning.
-
-    Attributes
-    ----------
-    language_package: dictionary
-        Contains menu translaiton in english and german.
-    config: dict
-        A dictionary containing the current configuration.
-            {
-                'language': str, the current language, by default english.
-                'qtable_name': str, the name of the current q-table, by default 'default'.
-                'alpha': float, the current exploration rate, by default 1.
-                'y': float, the other current exploration rate, by default 0.95.
-                'direction': Parkingdirection, the current parking direction, by default Parkingdirection.FORWARD.
-            }
-    _qtable_pair: List/dict
-        The current q-tables for parking forward an backward.
-        A q-table is a three demensional numpy.ndarray with shape=(60, 36, 36), containing two dimensional numpy.ndarray with shape=(9, 20).
-        The q-table contains the potential reward of every combination of state (relativ position of the robot to the parking lot) and action (lenght and direction driving).
+    A clas to simulate the exhibiton parking application.
     """
+
     language_package = {
         'english': {
             'command': 'Enter "start" to start the parking.\nEnter "settings" to open the settings menu.\nEnter "german" to change the language. Geben Sie "deutsch" ein um die Sprache zu aendern.',
@@ -134,11 +115,7 @@ class Exhibition:
     def __init__(self):
         print("Python versoin: {}".format(sys.version))
         # Create instance of the robot.
-        self._bot = SwarmRobot(programm_type=ProgrammType.PARKING)
-        print('Calibrate robot')
-        # Waits a second before calibrating the robot.
-        sleep(1)
-        self._bot.calibrate(False, True)
+        self._bot = None
         # Loads configuration.
         self.load_config()
         self._qtable_pair = {}
@@ -147,8 +124,6 @@ class Exhibition:
         # Creates instance of parking_learner.
         self._parking_learner = ParkingLearner(
             bot=self._bot, qtable=self._qtable_pair[self.config['direction'].value], alpha=self.config['alpha'], y=self.config['y'], parkingdirection=self.config['direction'])
-        # Createst instance of turn assistant.
-        self._turn_assistant = TurnAssistant(bot=self._bot)
         print('Initialazion exhibition done.')
 
     def load_config(self):
@@ -205,22 +180,17 @@ class Exhibition:
         """
         return "{0}{1}'language': '{2}',{1}'qtable_name': '{3}',{1}'alpha': {4},{1}'y': {5},{1}'direction': {6},{1}'color': {7}{8}{9}".format('{', '\n\t' if pretty else '', self.config['language'], self.config['qtable_name'], self.config['alpha'], self.config['y'], self.config['direction'], self.config['color'], '\n' if pretty else '', '}')
 
-    def main(self, administrator_mode: bool = False, park_slot_detection: bool = False):
+    def main(self):
         """
         The main function, which handles inputs.
-
-        Parameter
-        ----------
-        administrator_mode: bool = False
-            If administrationmode is active, True, the exit command will be shown, by default False.
         """
-        self.print_menu(administrator_mode)
+        self.print_menu()
         user_input = input('> ').lower()
         while user_input != 'quit' and user_input != 'exit':
             if user_input == 'start':
-                self.start(park_slot_detection)
+                self.start()
             elif user_input == 'settings' or user_input == 'einstellungen':
-                self.settings(administrator_mode)
+                self.settings()
             elif user_input == 'english' or user_input == 'englisch':
                 self.config['language'] = 'english'
             elif user_input == 'german' or user_input == 'deutsch':
@@ -228,7 +198,7 @@ class Exhibition:
             else:
                 print(
                     self.language_package[self.config['language']]['wrong_input'])
-            self.print_menu(administrator_mode)
+            self.print_menu()
             user_input = input('> ').lower()
         # Asks user at quitting the application, to save the current configuration.
         print(self.language_package[self.config['language']]['config'])
@@ -258,30 +228,19 @@ class Exhibition:
         """
         system('cls' if name == 'nt' else 'clear')
 
-    def print_menu(self, administrator_mode: bool = False):
+    def print_menu(self):
         """
         Prints main menu.
-
-        Parameter
-        ----------
-        administrator_mode: bool = False
-            If administrationmode is active, True, the exit command will be shown, by default False.
         """
         self.clear()
         PrintLogo.print_color(
             PrintLogo) if self.config['color'] else PrintLogo.print_bw(PrintLogo)
         print(self.language_package[self.config['language']]['command'])
-        if administrator_mode:
-            print(self.language_package[self.config['language']]['exit'])
+        print(self.language_package[self.config['language']]['exit'])
 
-    def print_settings_menu(self, administrator_mode: bool = False):
+    def print_settings_menu(self):
         """
         Prints settings menu.
-
-        Parameter
-        ----------
-        administrator_mode: bool = False
-            If administrationmode is active, True, the q-table settings will be shown, by default False.
         """
         print(
             self.language_package[self.config['language']]['settings']['heading'])
@@ -289,33 +248,27 @@ class Exhibition:
             self.language_package[self.config['language']]['settings']['commands']['direction'])
         print(
             self.language_package[self.config['language']]['settings']['commands']['action'])
-        if administrator_mode:
-            print(
-                self.language_package[self.config['language']]['settings']['commands']['qtable'])
+        print(
+            self.language_package[self.config['language']]['settings']['commands']['qtable'])
         print(self.language_package[self.config['language']]['back'])
 
-    def settings(self, administrator_mode: bool = False):
+    def settings(self):
         """
         Handles user input for settings menu.
-
-        Parameter
-        ----------
-        administrator_mode: bool = False
-            If administrationmode is active, True, the q-table settings will be enabled, by default False.
         """
-        self.print_settings_menu(administrator_mode)
+        self.print_settings_menu()
         user_input = input('> ').lower()
         while user_input != 'back' and user_input != 'zurueck':
             if user_input == 'direction' or user_input == 'richtung':
                 self.parking_direction_settings()
-            elif (user_input == 'q' or user_input == 'table' or user_input == 'q-table' or user_input == 'tabelle' or user_input == 'q-tabelle') and administrator_mode:
+            elif (user_input == 'q' or user_input == 'table' or user_input == 'q-table' or user_input == 'tabelle' or user_input == 'q-tabelle'):
                 self.qtable_settings()
             elif user_input == 'action':
                 self.action_settings()
             else:
                 print(
                     self.language_package[self.config['language']]['wrong_input'])
-            self.print_settings_menu(administrator_mode)
+            self.print_settings_menu()
             user_input = input('> ').lower()
 
     def print_direciton_settings_menu(self):
@@ -479,108 +432,32 @@ class Exhibition:
         """
         print(self.language_package[self.config['language']]
               ['settings']['action']['heading'])
-        print(self.language_package[self.config['language']]
-              ['settings']['action']['command'])
         print(self.language_package[self.config['language']]['back'])
 
-    def action_settings(self):
+    def start(self):
         """
-        Handles user input.
-        Changes parking_learner.action
+        Start simulation parking process to learn and fill a q-table.
         """
-        self.print_action_settings_menu()
-        user_input = input('> ').lower()
-        while user_input != 'back' and user_input != 'zurueck':
-            if user_input == 'utilize':
-                self._parking_learner.set_action_utilize()
-                print("'{}' {}".format(self._parking_learner._action,
-                      self.language_package[self.config['language']]['settings']['action']['confirmation']))
-            elif user_input == 'explore':
-                print(
-                    self.language_package[self.config['language']]['settings']['action']['explore'])
-                user_input = input('> ').lower()
-                if user_input.isnumeric():
-                    entered_number = abs(int(user_input))
-                    exploration_counter = 250000 - entered_number if entered_number < 250000 else 250001
-                else:
-                    exploration_counter = 0
-                self._parking_learner.set_action_explore(
-                    exploration_counter=exploration_counter)
-                print("'{}' {}".format(self._parking_learner._action,
-                      self.language_package[self.config['language']]['settings']['action']['confirmation']))
-
-    def start(self, park_slot_detection: bool = False):
-        """
-        Let drive the robot for about 15 cm and then start the automated parking.
-        1Basileus / Swarmrobotlib
-
-        Parameter
-        ---------
-        park_slot_detection: bool
-            If the parking slot detection is automated, while the robot follows a line or a exhibition specific programm runs for the 'Hanover Messe'.
-        """
-        if park_slot_detection:
-            # Setup automatic Linedetection.
-            self._bot.set_autopilot_state(active=True)
-            # Setup Navigation.
-            self._bot.set_navigaton_state(active=True)
-            # Setup intersection detection.
-            self._bot.set_intsecdet_state(active=True)
-            # Set velocity of Bot.
-            self._bot.set_power_lvl(20)
-            self._bot.set_drive_power(self._bot.power_lvl)
-            # Checks every second the program status.
-            while self._bot._programm_type != ProgrammType.DONE:
-                sleep(1)
-                if self._bot._programm_type == ProgrammType.ENDPARKING:
-                    self._bot.set_programm_type = ProgrammType.DONE
-                    sleep(2)
-            # Stops Robot.
-            self._bot.stop_all()
-            # Stops autopilot.
-            self._bot.set_autopilot_state(active=False)
-            # Stops Navigation.
-            self._bot.set_navigaton_state(active=False)
-            # Stops intersection detection.
-            self._bot.set_intsecdet_state(active=False)
-            # Stops Robot.
-            self._bot.stop_all()
-        else:
-            # Calculates time to sleep to drive 15 cm.
-            sleet_time = 15/5
-            # Set velocity of Bot.
-            self._bot.set_power_lvl(20)
-            self._bot.set_drive_power(self._bot.power_lvl)
-            sleep(sleet_time)
-            self._parking_learner.start_parking()
-        # Navigate robot back to starting position.
-        if self._parking_learner._parking_direction == Parkingdirection.FORWARD:
-            # Turns robot, if parked forward.
-            self._turn_assistant.turn_180_deg_on_spot()
-        # Calculates time to sleep to drive 30 cm.
-        sleet_time = 30/5
-        # Drives back to start position.
-        self._bot.set_power_lvl(20)
-        self._bot.set_drive_power(self._bot.power_lvl)
-        sleep(sleet_time)
-        self._bot.stop_all()
-        # Turns robot.
-        self._turn_assistant.turn_180_deg_on_spot()
-        self._bot.set_programm_type = ProgrammType.DONE
+        print("Start simulation")
+        start_time = datetime.datetime.now()
+        for x in range(250000):
+            single_start_execution_time = datetime.datetime.now()
+            print("Running simulation number {}".format(x + 1))
+            self._parking_learner.simulated_parking(
+                distance=15, angle=0.0, orientation=18)
+            single_end_execution_time = datetime.datetime.now()
+            print("Finished simulation number {} in {}".format(
+                x + 1, single_end_execution_time - single_start_execution_time))
+        end_time = datetime.datetime.now()
+        print("Finished similation in {}".format(end_time - start_time))
 
 
 if __name__ == '__main__':
     try:
-        # Checks for administrator_mode in comandline arguments.
-        administrator_mode = True if 'administrator_mode' in sys.argv[
-            1:] or 'administratormode' in sys.argv[1:] else False
-        # Checks for park_slot_detection in comandline arguments.
-        park_slot_detection = True if 'park_slot_detection' in sys.argv[
-            1:] or 'parkslotdetection' in sys.argv[1:] else False
-        # Generates exhibition instance.
-        runner = Exhibition()
-        # Executes exhibition application.
-        runner.main(administrator_mode, park_slot_detection)
+        # Generates simulator instance.
+        runner = Simulator()
+        # Executes simulation.
+        runner.main()
     except Exception as exception:
         try:
             # If any error is catched, it is tried to write into an error log file.
