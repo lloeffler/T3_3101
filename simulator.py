@@ -138,8 +138,9 @@ class Simulator:
             with open("./exhibition_parking.conf") as config_file:
                 config_string = config_file.read()
             # Checks if configuration file mathces to the needed format and sets configuration if so.
-            if compile("\{'language': '[english|german]', 'qtable_name': '[\_\-\.\w]+', 'alpha': \d+\.\d+, 'y': \d+\.\d+, 'direction': [FORWARD|BACKWARD], 'color': [True|False]\}").match(config_string):
+            if compile('\{"language": "(english|german)", "qtable_name": "[\_\-\.\w]+", "alpha": \d+\.\d+, "y": \d+\.\d+, "direction": "(FORWARD|BACKWARD)", "color": "(True|False)"\}').match(config_string):
                 self.config = loads(config_string)
+                self.config['direction'] = Parkingdirection[self.config['direction']]
                 print('Loaded configuration:')
             else:
                 print(
@@ -178,7 +179,7 @@ class Simulator:
         -------
         str: The config as sorted json-string.
         """
-        return "{0}{1}'language': '{2}',{1}'qtable_name': '{3}',{1}'alpha': {4},{1}'y': {5},{1}'direction': {6},{1}'color': {7}{8}{9}".format('{', '\n\t' if pretty else '', self.config['language'], self.config['qtable_name'], self.config['alpha'], self.config['y'], self.config['direction'], self.config['color'], '\n' if pretty else '', '}')
+        return '{0}{1}"language": "{2}",{1}{3}"qtable_name": "{4}",{1}{3}"alpha": {5},{1}{3}"y": {6},{1}{3}"direction": "{7}",{1}{3}"color": "{8}"{9}{10}'.format('{', '\n\t' if pretty else '', self.config['language'], '' if pretty else ' ', self.config['qtable_name'], self.config['alpha'], self.config['y'], self.config['direction'].name, self.config['color'], '\n' if pretty else '', '}')
 
     def main(self):
         """
@@ -293,11 +294,13 @@ class Simulator:
         user_input = input('> ').lower()
         while user_input != 'back' and user_input != 'zurueck':
             if user_input == 'forward' or user_input == 'vorwaerts':
+                self._qtable_pair[self._parking_learner._parking_direction.value] = self._parking_learner._qtable 
                 self._parking_learner.change_parking_direction(
                     new_parking_direction=Parkingdirection.FORWARD, new_qtable=self._qtable_pair[Parkingdirection.FORWARD.value])
                 self.config['direction'] = Parkingdirection.FORWARD.name
                 break
             elif user_input == 'backward' or user_input == 'rueckwaerts':
+                self._qtable_pair[self._parking_learner._parking_direction.value] = self._parking_learner._qtable 
                 self._parking_learner.change_parking_direction(
                     new_parking_direction=Parkingdirection.BACKWARD, new_qtable=self._qtable_pair[Parkingdirection.BACKWARD.value])
                 self.config['direction'] = Parkingdirection.BACKWARD.name
@@ -383,7 +386,7 @@ class Simulator:
         # Checks if file exists with q-table pair exists.
         if isfile(path):
             # Loads q-table pair from file.
-            with np.load(path) as data:
+            with np.load(file=path, allow_pickle=True) as data:
                 self._qtable_pair[18] = data[Parkingdirection.FORWARD.name]
                 self._qtable_pair[0] = data[Parkingdirection.BACKWARD.name]
         else:
@@ -425,8 +428,9 @@ class Simulator:
             self.print_save_qtable_menu()
         # Saves the current q-table pair, if the question was confirmed.
         if user_input == 'yes' or user_input == 'ja':
-            np.savez_compressed(self.config['qtable_name'], forward=self._qtable_pair[Parkingdirection.FORWARD.value],
-                                backward=self._qtable_pair[Parkingdirection.FORWARD.value])
+            self._qtable_pair[self._parking_learner._parking_direction.value] = self._parking_learner._qtable
+            np.savez_compressed(self.config['qtable_name'], FORWARD=self._qtable_pair[Parkingdirection.FORWARD.value],
+                                BACKWARD=self._qtable_pair[Parkingdirection.FORWARD.value])
 
     def print_action_settings_menu(self):
         """
