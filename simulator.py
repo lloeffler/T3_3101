@@ -163,7 +163,7 @@ class Simulator:
         Saves configuration to a config file named exhibition_parking.conf.
         """
         with open(file="./exhibition_parking.conf", mode='w') as config_file:
-            config_file.write((self.config_to_string))
+            config_file.write((self.config_to_string()))
 
     def config_to_string(self, pretty: bool = False) -> str:
         """
@@ -188,7 +188,7 @@ class Simulator:
         user_input = input('> ').lower()
         while user_input != 'quit' and user_input != 'exit':
             if user_input == 'start':
-                self.start()
+                execution_time = self.start()
             elif user_input == 'settings' or user_input == 'einstellungen':
                 self.settings()
             elif user_input == 'english' or user_input == 'englisch':
@@ -198,7 +198,7 @@ class Simulator:
             else:
                 print(
                     self.language_package[self.config['language']]['wrong_input'])
-            self.print_menu()
+            self.print_menu(execution_time)
             user_input = input('> ').lower()
         # Asks user at quitting the application, to save the current configuration.
         print(self.language_package[self.config['language']]['config'])
@@ -228,7 +228,7 @@ class Simulator:
         """
         system('cls' if name == 'nt' else 'clear')
 
-    def print_menu(self):
+    def print_menu(self, execution_time: datetime.timedelta = None):
         """
         Prints main menu.
         """
@@ -237,6 +237,8 @@ class Simulator:
             PrintLogo) if self.config['color'] else PrintLogo.print_bw(PrintLogo)
         print(self.language_package[self.config['language']]['command'])
         print(self.language_package[self.config['language']]['exit'])
+        if execution_time != None:
+            print("Last simulation executed in: {}".format(execution_time))
 
     def print_settings_menu(self):
         """
@@ -437,6 +439,11 @@ class Simulator:
     def start(self):
         """
         Start simulation parking process to learn and fill a q-table.
+
+
+        Returns
+        -------
+        timedelta: The executiontime of the simulation.
         """
         print("Start simulation")
         start_time = datetime.datetime.now()
@@ -450,6 +457,8 @@ class Simulator:
                 x + 1, single_end_execution_time - single_start_execution_time))
         end_time = datetime.datetime.now()
         print("Finished similation in {}".format(end_time - start_time))
+        sleep(2)
+        return end_time - start_time
 
 
 if __name__ == '__main__':

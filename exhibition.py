@@ -188,7 +188,7 @@ class Exhibition:
         Saves configuration to a config file named exhibition_parking.conf.
         """
         with open(file="./exhibition_parking.conf", mode='w') as config_file:
-            config_file.write((self.config_to_string))
+            config_file.write((self.config_to_string()))
 
     def config_to_string(self, pretty: bool = False) -> str:
         """
