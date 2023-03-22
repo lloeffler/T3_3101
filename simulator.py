@@ -454,7 +454,7 @@ class Simulator:
         for x in range(250000):
             single_start_execution_time = datetime.datetime.now()
             print("Running simulation number {}".format(x + 1))
-            self._parking_learner.simulated_parking(
+            self._parking_learner.simulated_start(
                 distance=15, angle=0.0, orientation=18)
             single_end_execution_time = datetime.datetime.now()
             print("Finished simulation number {} in {}".format(
