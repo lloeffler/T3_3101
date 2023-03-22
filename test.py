@@ -1,20 +1,7 @@
-# import numpy as np
+#!/usr/bin/python
+import numpy as np
 
-import math
-
-# Just for testing
-
-rho = 1
-phi = math.radians(90)
-
-x = rho * math.cos(phi)
-y = rho * math.sin(phi)
-
-# x = 0
-# y = 1
-# 
-# rho = math.sqrt(x**2 + y**2)
-# phi = math.atan2(y, x)
-
-print(f"x= {x} y= {y}")
-print(f"rho= {rho} phi= {math.degrees(phi)}")
+with np.load(file='default.npz', allow_pickle=True) as data:
+    test_1 = data['FORWARD']
+    #test_2 = data['BACKWORD']
+    print(test_1.view())
