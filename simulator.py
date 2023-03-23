@@ -124,7 +124,7 @@ class Simulator:
         self.laod_qtable_pair(name=self.config['qtable_name'])
         # Creates instance of parking_learner.
         self._parking_learner = ParkingLearner(
-            bot=self._bot, qtable=self._qtable_pair[Parkingdirection[self.config['direction']].value], alpha=self.config['alpha'], y=self.config['y'], parkingdirection=Parkingdirection[self.config['direction']])
+            bot=self._bot, qtable=self._qtable_pair[self.config['direction'].value], alpha=self.config['alpha'], y=self.config['y'], parkingdirection=self.config['direction'])
         print('Initialazion exhibition done.')
 
     def load_config(self):

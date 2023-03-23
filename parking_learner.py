@@ -242,9 +242,11 @@ class ParkingLearner:
             y_t = y_m + y_delta_t
         # Sets new position as robot state.
         [rho_t, phi_t] = self.cart2pol(x_t, y_t)
+        new_phi = int(np.rint(np.rad2deg(phi_t)/10))
+        new_orientation = int(np.rint(np.rad2deg(orientation_t)/10))
         self._state['rho'] = int(rho_t)
-        self._state['phi'] = int(np.rint(np.rad2deg(phi_t)/10))
-        self._state['orientation'] = int(np.rint(np.rad2deg(orientation_t)/10))
+        self._state['phi'] = 0 if new_phi == 36 else new_phi
+        self._state['orientation'] = 0 if new_orientation == 36 else new_orientation
         return rho_t <= 60.0
 
     def action(self, direction_index: int, length_index: int) -> bool:
