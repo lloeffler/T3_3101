@@ -139,7 +139,7 @@ class Simulator:
             with open("./exhibition_parking.conf") as config_file:
                 config_string = config_file.read()
             # Checks if configuration file mathces to the needed format and sets configuration if so.
-            if compile('\{"language": "(english|german)", "qtable_name": "[\_\-\.\w]+", "alpha": \d+\.\d+, "y": \d+\.\d+, "direction": "(FORWARD|BACKWARD)", "color": "(True|False)"\}').match(config_string):
+            if compile('\{"language": "(english|german)", "qtable_name": "[\_\-\.\w]+", "alpha": \d+\.\d+, "y": \d+\.\d+, "direction": "(FORWARD|BACKWARD)", "action": "(explore|utilize)", "color": "(True|False)"\}').match(config_string):
                 self.config = loads(config_string)
                 self.config['direction'] = Parkingdirection[self.config['direction']]
                 print('Loaded configuration:')
@@ -150,12 +150,13 @@ class Simulator:
         # If config does not match to the nedded format, de default configuration is loaded.
         else:
             self.config = {
-                'language': 'english',
-                'qtable_name': 'default',
-                'alpha': 1.0,
-                'y': 0.95,
-                'direction': Parkingdirection.FORWARD,
-                'color': True
+                "language": "english",
+                "qtable_name": "default",
+                "alpha": 1.0,
+                "y": 0.95,
+                "direction": "{}".format(Parkingdirection.FORWARD.name),
+                "action": "explore",
+                "color": True
             }
             print('Loaded default configuration:')
         print(self.config_to_string(pretty=True))
@@ -180,7 +181,7 @@ class Simulator:
         -------
         str: The config as sorted json-string.
         """
-        return '{0}{1}"language": "{2}",{1}{3}"qtable_name": "{4}",{1}{3}"alpha": {5},{1}{3}"y": {6},{1}{3}"direction": "{7}",{1}{3}"color": "{8}"{9}{10}'.format('{', '\n\t' if pretty else '', self.config['language'], '' if pretty else ' ', self.config['qtable_name'], self.config['alpha'], self.config['y'], self.config['direction'].name, self.config['color'], '\n' if pretty else '', '}')
+        return '{0}{1}"language": "{2}",{1}{3}"qtable_name": "{4}",{1}{3}"alpha": {5},{1}{3}"y": {6},{1}{3}"direction": "{7}",{1}{3}"action": "{8}",{1}{3}"color": "{9}"{10}{11}'.format('{', '\n\t' if pretty else '', self.config['language'], '' if pretty else ' ', self.config['qtable_name'], self.config['alpha'], self.config['y'], self.config['direction'], self._parking_learner._action, self.config['color'], '\n' if pretty else '', '}')
 
     def main(self, random_start: bool = False):
         """
@@ -336,20 +337,34 @@ class Simulator:
         user_input = input('> ').lower()
         while user_input != 'back' and user_input != 'zurueck':
             if user_input == 'load' or user_input == 'laden':
-                self.load_qtable()
+                self.load_qtable_menu()
+                return
             if user_input == 'save' or user_input == 'speichern':
                 self.save_qtable()
+                return
+            self.print_qtable_settings_menu()
+            print(
+                self.language_package[self.config['language']]['wrong_input'])
+            user_input = input('> ').lower()
 
-    def load_qtable(self):
+    def load_qtable_menu(self, wrong_input: bool = False):
         """
         Prints q-table load menu.
         Handles user input.
         Loads q-table pair or creates a new one.
+
+        Parameter
+        ---------
+        wrong_input: bool = False
+            Prints the wrong input message if set, True a wrong input was entered, by default False.
         """
         print(
             self.language_package[self.config['language']]['settings']['qtable']['load']['heading'])
         print(
             self.language_package[self.config['language']]['settings']['qtable']['load']['command'])
+        if wrong_input:
+            print(
+                self.language_package[self.config['language']]['wrong_input'])
         user_input = input('> ').lower()
         if user_input != 'abort' and user_input != 'abbrechen' and user_input != '':
             filename = user_input
@@ -374,7 +389,7 @@ class Simulator:
         if user_input == '':
             print(
                 self.language_package[self.config['language']]['wrong_input'])
-            self.load_qtable()
+            self.load_qtable_menu(wrong_input=True)
 
     def laod_qtable_pair(self, name: str):
         """
@@ -397,14 +412,10 @@ class Simulator:
                 self._qtable_pair[0] = data[Parkingdirection.BACKWARD.name]
         else:
             # Creates ne q-table pair.
-            self._qtable_pair[18] = np.ndarray(
-                shape=(60, 36, 36), dtype=np.ndarray)
-            self._qtable_pair[0] = np.ndarray(
-                shape=(60, 36, 36), dtype=np.ndarray)
-            for q in self._qtable_pair[0]:
-                q = np.zeros(shape=(9, 20), dtype=float)
-            for q in self._qtable_pair[18]:
-                q = np.zeros(shape=(9, 20), dtype=float)
+            self._qtable_pair[18] = np.zeros(
+                shape=(60, 36, 36, 5, 20), dtype=float)
+            self._qtable_pair[0] = np.zeros(
+                shape=(60, 36, 36, 5, 20), dtype=float)
         # Sets new q-table in parking_learner.
         if self._parking_learner != None:
             self._parking_learner.change_parking_direction(
@@ -445,6 +456,42 @@ class Simulator:
         print(self.language_package[self.config['language']]
               ['settings']['action']['heading'])
         print(self.language_package[self.config['language']]['back'])
+
+    def action_settings(self):
+        """
+        Handles user input.
+        Changes parking_learner.action
+        """
+        self.print_action_settings_menu()
+        user_input = input('> ').lower()
+        while user_input != 'back' and user_input != 'zurueck':
+            if user_input == 'utilize':
+                self._parking_learner.set_action_utilize()
+                print("'{}' {}".format(self._parking_learner._action,
+                      self.language_package[self.config['language']]['settings']['action']['confirmation']))
+                sleep(1)
+                return
+            elif user_input == 'explore':
+                print(
+                    self.language_package[self.config['language']]['settings']['action']['explore'])
+                user_input = input('> ').lower()
+                if user_input.isnumeric():
+                    entered_number = abs(int(user_input))
+                    exploration_counter = 250000 - entered_number if entered_number < 250000 else 250001
+                else:
+                    exploration_counter = 0
+                self._parking_learner.set_action_explore(
+                    exploration_counter=exploration_counter)
+                print("'{}' {}".format(self._parking_learner._action,
+                      self.language_package[self.config['language']]['settings']['action']['confirmation']))
+                sleep(1)
+                return
+            elif user_input == "back":
+                return
+            print(
+                self.language_package[self.config['language']]['wrong_input'])
+            self.print_action_settings_menu()
+            user_input = input('> ').lower()
 
     def start(self, random_start: bool = False):
         """

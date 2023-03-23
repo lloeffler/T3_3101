@@ -163,7 +163,7 @@ class Exhibition:
             with open("./exhibition_parking.conf") as config_file:
                 config_string = config_file.read()
             # Checks if configuration file mathces to the needed format and sets configuration if so.
-            if compile('\{"language": "(english|german)", "qtable_name": "[\_\-\.\w]+", "alpha": \d+\.\d+, "y": \d+\.\d+, "direction": "(FORWARD|BACKWARD)", "color": "(True|False)"\}').match(config_string):
+            if compile('\{"language": "(english|german)", "qtable_name": "[\_\-\.\w]+", "alpha": \d+\.\d+, "y": \d+\.\d+, "direction": "(FORWARD|BACKWARD)", "action": "(explore|utilize)", "color": "(True|False)"\}').match(config_string):
                 self.config = loads(config_string)
                 self.config['direction'] = Parkingdirection[self.config['direction']]
                 print('Loaded configuration:')
@@ -174,12 +174,13 @@ class Exhibition:
         # If config does not match to the nedded format, de default configuration is loaded.
         else:
             self.config = {
-                'language': 'english',
-                'qtable_name': 'default',
-                'alpha': 1.0,
-                'y': 0.95,
-                'direction': Parkingdirection.FORWARD,
-                'color': True
+                "language": "english",
+                "qtable_name": "default",
+                "alpha": 1.0,
+                "y": 0.95,
+                "direction": "{}".format(Parkingdirection.FORWARD.name),
+                "action": "explore",
+                "color": True
             }
             print('Loaded default configuration:')
         print(self.config_to_string(pretty=True))
@@ -204,7 +205,7 @@ class Exhibition:
         -------
         str: The config as sorted json-string.
         """
-        return '{0}{1}"language": "{2}",{1}{3}"qtable_name": "{4}",{1}{3}"alpha": {5},{1}{3}"y": {6},{1}{3}"direction": "{7}",{1}{3}"color": "{8}"{9}{10}'.format('{', '\n\t' if pretty else '', self.config['language'], '' if pretty else ' ', self.config['qtable_name'], self.config['alpha'], self.config['y'], self.config['direction'].name, self.config['color'], '\n' if pretty else '', '}')
+        return '{0}{1}"language": "{2}",{1}{3}"qtable_name": "{4}",{1}{3}"alpha": {5},{1}{3}"y": {6},{1}{3}"direction": "{7}",{1}{3}"action": "{8}",{1}{3}"color": "{9}"{10}{11}'.format('{', '\n\t' if pretty else '', self.config['language'], '' if pretty else ' ', self.config['qtable_name'], self.config['alpha'], self.config['y'], self.config['direction'], self._parking_learner._action, self.config['color'], '\n' if pretty else '', '}')
 
     def main(self, administrator_mode: bool = False, park_slot_detection: bool = False):
         """
@@ -215,7 +216,7 @@ class Exhibition:
         administrator_mode: bool = False
             If administrationmode is active, True, the exit command will be shown, by default False.
         """
-        self.print_menu(administrator_mode)
+        self.print_menu(administrator_mode=administrator_mode)
         user_input = input('> ').lower()
         while user_input != 'quit' and user_input != 'exit':
             if user_input == 'start':
@@ -226,17 +227,14 @@ class Exhibition:
                 self.config['language'] = 'english'
             elif user_input == 'german' or user_input == 'deutsch':
                 self.config['language'] = 'german'
-            else:
-                print(
-                    self.language_package[self.config['language']]['wrong_input'])
-            self.print_menu(administrator_mode)
+            self.print_menu(
+                administrator_mode=administrator_mode, wrong_input=True)
             user_input = input('> ').lower()
         # Asks user at quitting the application, to save the current configuration.
         print(self.language_package[self.config['language']]['config'])
         user_input = input('> ').lower()
         while user_input != 'yes' and user_input != 'ja' and user_input != 'no' and user_input != 'nein':
-            print(
-                self.language_package[self.config['language']]['wrong_input'])
+            self.print_wrong_input()
             print(self.language_package[self.config['language']]['config'])
             user_input = input('> ').lower()
         if user_input == 'yes' or user_input == 'ja':
@@ -245,8 +243,7 @@ class Exhibition:
         print(self.language_package[self.config['language']]['qtable'])
         user_input = input('> ').lower()
         while user_input != 'yes' and user_input != 'ja' and user_input != 'no' and user_input != 'nein':
-            print(
-                self.language_package[self.config['language']]['wrong_input'])
+            self.print_wrong_input()
             print(self.language_package[self.config['language']]['qtable'])
             user_input = input('> ').lower()
         if user_input == 'yes' or user_input == 'ja':
@@ -259,7 +256,13 @@ class Exhibition:
         """
         system('cls' if name == 'nt' else 'clear')
 
-    def print_menu(self, administrator_mode: bool = False):
+    def print_wrong_input(self):
+        """
+        Prints wrong input message.
+        """
+        print(self.language_package[self.config['language']]['wrong_input'])
+
+    def print_menu(self, administrator_mode: bool = False, wrong_input: bool = False):
         """
         Prints main menu.
 
@@ -267,11 +270,14 @@ class Exhibition:
         ----------
         administrator_mode: bool = False
             If administrationmode is active, True, the exit command will be shown, by default False.
+        wrong_input: bool = False
         """
         self.clear()
         PrintLogo.print_color(
             PrintLogo) if self.config['color'] else PrintLogo.print_bw(PrintLogo)
         print(self.language_package[self.config['language']]['command'])
+        if wrong_input:
+            self.print_wrong_input()
         if administrator_mode:
             print(self.language_package[self.config['language']]['exit'])
 
@@ -313,10 +319,8 @@ class Exhibition:
                 self.qtable_settings()
             elif user_input == 'action':
                 self.action_settings()
-            else:
-                print(
-                    self.language_package[self.config['language']]['wrong_input'])
             self.print_settings_menu(administrator_mode)
+            self.print_wrong_input()
             user_input = input('> ').lower()
 
     def print_direciton_settings_menu(self):
@@ -350,10 +354,8 @@ class Exhibition:
                     new_parking_direction=Parkingdirection.BACKWARD, new_qtable=self._qtable_pair[Parkingdirection.BACKWARD.value])
                 self.config['direction'] = Parkingdirection.BACKWARD.name
                 break
-            else:
-                print(
-                    self.language_package[self.config['language']]['wrong_input'])
             self.print_direciton_settings_menu()
+            self.print_wrong_input()
             user_input = input('> ').lower()
 
     def print_qtable_settings_menu(self):
@@ -375,20 +377,32 @@ class Exhibition:
         user_input = input('> ').lower()
         while user_input != 'back' and user_input != 'zurueck':
             if user_input == 'load' or user_input == 'laden':
-                self.load_qtable()
+                self.load_qtable_menu()
+                return
             if user_input == 'save' or user_input == 'speichern':
                 self.save_qtable()
+                return
+            self.print_qtable_settings_menu()
+            self.print_wrong_input()
+            user_input = input('> ').lower()
 
-    def load_qtable(self):
+    def load_qtable_menu(self, wrong_input: bool = False):
         """
         Prints q-table load menu.
         Handles user input.
         Loads q-table pair or creates a new one.
+
+        Parameter
+        ---------
+        wrong_input: bool = False
+            Prints the wrong input message if set, True a wrong input was entered, by default False.
         """
         print(
             self.language_package[self.config['language']]['settings']['qtable']['load']['heading'])
         print(
             self.language_package[self.config['language']]['settings']['qtable']['load']['command'])
+        if wrong_input == True:
+            self.print_wrong_input()
         user_input = input('> ').lower()
         if user_input != 'abort' and user_input != 'abbrechen' and user_input != '':
             filename = user_input
@@ -399,8 +413,7 @@ class Exhibition:
             while user_input != 'yes' and user_input != 'ja' or user_input != 'no' and user_input != 'nein':
                 if user_input == 'abort' or user_input == 'abbrechen':
                     return
-                print(
-                    self.language_package[self.config['language']]['wrong_input'])
+                self.print_wrong_input()
                 print(
                     self.language_package[self.config['language']]['settings']['qtable']['load']['save'])
                 user_input = input('> ').lower()
@@ -411,9 +424,7 @@ class Exhibition:
             self.laod_qtable_pair(name=filename)
         # Recursive while loop if nothing is entered as name.
         if user_input == '':
-            print(
-                self.language_package[self.config['language']]['wrong_input'])
-            self.load_qtable()
+            self.load_qtable_menu(wrong_input=True)
 
     def laod_qtable_pair(self, name: str):
         """
@@ -436,14 +447,10 @@ class Exhibition:
                 self._qtable_pair[0] = data[Parkingdirection.BACKWARD.name]
         else:
             # Creates ne q-table pair.
-            self._qtable_pair[18] = np.ndarray(
-                shape=(60, 36, 36), dtype=np.ndarray)
-            self._qtable_pair[0] = np.ndarray(
-                shape=(60, 36, 36), dtype=np.ndarray)
-            for q in self._qtable_pair[0]:
-                q = np.zeros(shape=(9, 20), dtype=float)
-            for q in self._qtable_pair[18]:
-                q = np.zeros(shape=(9, 20), dtype=float)
+            self._qtable_pair[18] = np.zeros(
+                shape=(60, 36, 36, 5, 20), dtype=float)
+            self._qtable_pair[0] = np.zeros(
+                shape=(60, 36, 36, 5, 20), dtype=float)
         # Sets new q-table in parking_learner.
         if self._parking_learner != None:
             self._parking_learner.change_parking_direction(
@@ -468,8 +475,7 @@ class Exhibition:
         self.print_save_qtable_menu()
         user_input = input('> ').lower()
         while user_input != 'yes' and user_input != 'ja' and user_input != 'no' and user_input != 'nein':
-            print(
-                self.language_package[self.config['language']]['wrong_input'])
+            self.print_wrong_input()
             self.print_save_qtable_menu()
         # Saves the current q-table pair, if the question was confirmed.
         if user_input == 'yes' or user_input == 'ja':
@@ -499,6 +505,8 @@ class Exhibition:
                 self._parking_learner.set_action_utilize()
                 print("'{}' {}".format(self._parking_learner._action,
                       self.language_package[self.config['language']]['settings']['action']['confirmation']))
+                sleep(1)
+                return
             elif user_input == 'explore':
                 print(
                     self.language_package[self.config['language']]['settings']['action']['explore'])
@@ -512,6 +520,13 @@ class Exhibition:
                     exploration_counter=exploration_counter)
                 print("'{}' {}".format(self._parking_learner._action,
                       self.language_package[self.config['language']]['settings']['action']['confirmation']))
+                sleep(1)
+                return
+            elif user_input == "back":
+                return
+            self.print_wrong_input()
+            self.print_action_settings_menu()
+            user_input = input('> ').lower()
 
     def start(self, park_slot_detection: bool = False):
         """
