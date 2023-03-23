@@ -294,7 +294,7 @@ class ParkingLearner:
         self._bot.set_drive_steer(0)
         sleep(0.5)
         self._parking = True
-        self.parking(distance, angle, orientation)
+        self.parking(distance=distance, angle=angle, orientation=orientation)
 
     def end_parking(self):
         """
