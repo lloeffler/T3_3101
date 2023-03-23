@@ -195,6 +195,7 @@ class Simulator:
         self.print_menu()
         user_input = input('> ').lower()
         while user_input != 'quit' and user_input != 'exit':
+            execution_time = None
             if user_input == 'start':
                 execution_time = self.start(random_start=random_start)
             elif user_input == 'settings' or user_input == 'einstellungen':

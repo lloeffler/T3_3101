@@ -221,6 +221,7 @@ class Exhibition:
         self.print_menu(administrator_mode=administrator_mode)
         user_input = input('> ').lower()
         while user_input != 'quit' and user_input != 'exit':
+            wrong_input = False
             if user_input == 'start':
                 self.start(park_slot_detection)
             elif user_input == 'settings' or user_input == 'einstellungen':
@@ -229,8 +230,10 @@ class Exhibition:
                 self.config['language'] = 'english'
             elif user_input == 'german' or user_input == 'deutsch':
                 self.config['language'] = 'german'
+            else:
+                wrong_input = True
             self.print_menu(
-                administrator_mode=administrator_mode, wrong_input=True)
+                administrator_mode=administrator_mode, wrong_input=wrong_input)
             user_input = input('> ').lower()
         # Asks user at quitting the application, to save the current configuration.
         print(self.language_package[self.config['language']]['config'])
@@ -315,14 +318,18 @@ class Exhibition:
         self.print_settings_menu(administrator_mode)
         user_input = input('> ').lower()
         while user_input != 'back' and user_input != 'zurueck':
+            wrong_input = False
             if user_input == 'direction' or user_input == 'richtung':
                 self.parking_direction_settings()
             elif (user_input == 'q' or user_input == 'table' or user_input == 'q-table' or user_input == 'tabelle' or user_input == 'q-tabelle') and administrator_mode:
                 self.qtable_settings()
             elif user_input == 'action':
                 self.action_settings()
+            else:
+                wrong_input = True
             self.print_settings_menu(administrator_mode)
-            self.print_wrong_input()
+            if wrong_input:
+                self.print_wrong_input()
             user_input = input('> ').lower()
 
     def print_direciton_settings_menu(self):
@@ -344,6 +351,7 @@ class Exhibition:
         self.print_direciton_settings_menu()
         user_input = input('> ').lower()
         while user_input != 'back' and user_input != 'zurueck':
+            wrong_input = False
             if user_input == 'forward' or user_input == 'vorwaerts':
                 self._qtable_pair[self._parking_learner._parking_direction.value] = self._parking_learner._qtable
                 self._parking_learner.change_parking_direction(
@@ -356,8 +364,11 @@ class Exhibition:
                     new_parking_direction=Parkingdirection.BACKWARD, new_qtable=self._qtable_pair[Parkingdirection.BACKWARD.value])
                 self.config['direction'] = Parkingdirection.BACKWARD.name
                 break
+            else:
+                wrong_input = True
             self.print_direciton_settings_menu()
-            self.print_wrong_input()
+            if wrong_input:
+                self.print_wrong_input()
             user_input = input('> ').lower()
 
     def print_qtable_settings_menu(self):
@@ -378,14 +389,18 @@ class Exhibition:
         self.print_qtable_settings_menu()
         user_input = input('> ').lower()
         while user_input != 'back' and user_input != 'zurueck':
+            wrong_input = False
             if user_input == 'load' or user_input == 'laden':
                 self.load_qtable_menu()
                 return
-            if user_input == 'save' or user_input == 'speichern':
+            elif user_input == 'save' or user_input == 'speichern':
                 self.save_qtable()
                 return
+            else:
+                wrong_input = True
             self.print_qtable_settings_menu()
-            self.print_wrong_input()
+            if wrong_input:
+                self.print_wrong_input()
             user_input = input('> ').lower()
 
     def load_qtable_menu(self, wrong_input: bool = False):
@@ -415,9 +430,9 @@ class Exhibition:
             while user_input != 'yes' and user_input != 'ja' or user_input != 'no' and user_input != 'nein':
                 if user_input == 'abort' or user_input == 'abbrechen':
                     return
-                self.print_wrong_input()
                 print(
                     self.language_package[self.config['language']]['settings']['qtable']['load']['save'])
+                self.print_wrong_input()
                 user_input = input('> ').lower()
             # Calls save q-table function.
             if user_input == 'yes' or user_input == 'ja':
@@ -503,6 +518,7 @@ class Exhibition:
         self.print_action_settings_menu()
         user_input = input('> ').lower()
         while user_input != 'back' and user_input != 'zurueck':
+            wrong_input = False
             if user_input == 'utilize':
                 self._parking_learner.set_action_utilize()
                 self.config['action'] = 'utilize'
@@ -526,10 +542,11 @@ class Exhibition:
                       self.language_package[self.config['language']]['settings']['action']['confirmation']))
                 sleep(1)
                 return
-            elif user_input == "back":
-                return
-            self.print_wrong_input()
+            else:
+                wrong_input = True
             self.print_action_settings_menu()
+            if wrong_input:
+                self.print_wrong_input()
             user_input = input('> ').lower()
 
     def start(self, park_slot_detection: bool = False):
