@@ -5,11 +5,11 @@ class QrDetection:
     """
     Scan and detect QR Code
     """
+
     def __init__(self):
         # QR code detection object
         self.detector = cv2.QRCodeDetector()
-    
-    
+
     def detect_qr(self, img):
         """
         get bounding box coords and data
@@ -20,7 +20,6 @@ class QrDetection:
         data, points, _ = self.detector.detectAndDecode(img)
 
         return data, points
-
 
     def compare_road(self, data, goal):
         """
@@ -39,4 +38,3 @@ class QrDetection:
                     if line.find(goal) is not -1:
                         direction = line.split(":")[1]
         return direction
-

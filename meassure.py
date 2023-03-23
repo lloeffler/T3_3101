@@ -146,6 +146,16 @@ def drive(bot: SwarmRobot, dspeed: int):
     bot.set_drive_power(0)
     sleep(0.5)
 
+def rotate(bot: SwarmRobot):
+    """
+    Ask the user how many degree the motor should rotate.
+    510 degree equals one rotation of the tier.
+    Uses the self._bot._drive_motor.rotate_motor function to drive.
+    """
+    print("enter how many degree the drive motor should rotate,\n510 degree equals one rotation of the tier:")
+    degree = int(input(">"))
+    bot._drive_motor.rotate_motor(degree=degree)
+    sleep(0.5)
 
 def reset(bot: SwarmRobot) -> int:
     """
@@ -193,6 +203,7 @@ def help():
     print("left4 -> left steer 1\tright4 -> right steer 1")
     print("straight -> steer straight")
     print("drive -> enter time to drive in seconds to drive")
+    print("rotate -> enter degree to rotate drive motor to drive")
     print("set_speed -> enter new driving speed")
     print("reset -> resets speed and steering")
     print("end -> quits programm")
@@ -232,6 +243,8 @@ while user_input != "end" and user_input != "exit" and user_input != "quit":
         left4(bot=bot)
     if user_input == "drive":
         drive(bot=bot, dspeed=speed)
+    if user_input == "rotate":
+        rotate(bot=bot)
     if user_input == "reset":
         speed = reset(bot=bot)
     if user_input == "set_speed":

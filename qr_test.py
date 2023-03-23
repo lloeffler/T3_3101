@@ -1,9 +1,10 @@
+import math
+
 import cv2 as cv
-import math  
-
-#image = cv.imread('/home/pi/qrImg/qrImg_test5.jpg')
-
 import numpy as np
+
+# image = cv.imread('/home/pi/qrImg/qrImg_test5.jpg')
+
 
 BLUR_VALUE = 3
 SQUARE_TOLERANCE = 0.15
@@ -77,7 +78,8 @@ def extend(a, b, length, int_represent=False):
     length_ab = math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
     if length_ab * length <= 0:
         return b
-    result = [b[0] + (b[0] - a[0]) / length_ab * length, b[1] + (b[1] - a[1]) / length_ab * length]
+    result = [b[0] + (b[0] - a[0]) / length_ab * length,
+              b[1] + (b[1] - a[1]) / length_ab * length]
     if int_represent:
         return [int(result[0]), int(result[1])]
     else:
@@ -93,7 +95,8 @@ def extract(frame, debug=False):
     gray = cv.GaussianBlur(gray, (BLUR_VALUE, BLUR_VALUE), 0)
     edged = cv.Canny(gray, 30, 200)
 
-    _, contours, hierarchy  = cv.findContours(edged.copy(), cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+    _, contours, hierarchy = cv.findContours(
+        edged.copy(), cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
     squares = []
     square_indices = []
@@ -139,7 +142,8 @@ def extract(frame, debug=False):
             distances_to_contours = {}
             for sim in similar:
                 sim_center = get_center(sim)
-                d = math.hypot(sim_center[0] - center[0], sim_center[1] - center[1])
+                d = math.hypot(sim_center[0] - center[0],
+                               sim_center[1] - center[1])
                 distances.append(d)
                 distances_to_contours[d] = sim
             distances = sorted(distances)
@@ -149,8 +153,10 @@ def extract(frame, debug=False):
             # Determine if this square is the top left QR code indicator
             if max(closest_a, closest_b) < cv.arcLength(square, True) * 2.5 and math.fabs(closest_a - closest_b) / max(closest_a, closest_b) <= DISTANCE_TOLERANCE:
                 # Determine placement of other indicators (even if code is rotated)
-                angle_a = get_angle(get_center(distances_to_contours[closest_a]), center)
-                angle_b = get_angle(get_center(distances_to_contours[closest_b]), center)
+                angle_a = get_angle(get_center(
+                    distances_to_contours[closest_a]), center)
+                angle_b = get_angle(get_center(
+                    distances_to_contours[closest_b]), center)
                 if angle_a < angle_b or (angle_b < -90 and angle_a > 0):
                     east = distances_to_contours[closest_a]
                     south = distances_to_contours[closest_b]
@@ -166,7 +172,8 @@ def extract(frame, debug=False):
                 if len(tiny) > 0:
                     for tin in tiny:
                         tin_center = get_center(tin)
-                        d = math.hypot(tin_center[0] - midpoint[0], tin_center[1] - midpoint[1])
+                        d = math.hypot(
+                            tin_center[0] - midpoint[0], tin_center[1] - midpoint[1])
                         if d < min_dist:
                             min_dist = d
                             t = tin
@@ -177,11 +184,14 @@ def extract(frame, debug=False):
                 if tiny_found:
                     # Easy, corner is just a few blocks away from the tiny indicator
                     tiny_squares.append(t)
-                    offset = extend(midpoint, get_center(t), peri / 4 * 1.41421)
+                    offset = extend(midpoint, get_center(t),
+                                    peri / 4 * 1.41421)
                 else:
                     # No tiny indicator found, must extrapolate corner based off of other corners instead
-                    farthest_a = get_farthest_points(distances_to_contours[closest_a], center)
-                    farthest_b = get_farthest_points(distances_to_contours[closest_b], center)
+                    farthest_a = get_farthest_points(
+                        distances_to_contours[closest_a], center)
+                    farthest_b = get_farthest_points(
+                        distances_to_contours[closest_b], center)
                     # Use sides of indicators to determine fourth corner
                     offset = line_intersection(farthest_a, farthest_b)
                     if offset[0] == -1:
@@ -189,11 +199,14 @@ def extract(frame, debug=False):
                         continue
                     offset = extend(midpoint, offset, peri / 4 / 7)
                     if debug:
-                        cv.line(output, (farthest_a[0][0], farthest_a[0][1]), (farthest_a[1][0], farthest_a[1][1]), (0, 0, 255), 4)
-                        cv.line(output, (farthest_b[0][0], farthest_b[0][1]), (farthest_b[1][0], farthest_b[1][1]), (0, 0, 255), 4)
+                        cv.line(output, (farthest_a[0][0], farthest_a[0][1]), (
+                            farthest_a[1][0], farthest_a[1][1]), (0, 0, 255), 4)
+                        cv.line(output, (farthest_b[0][0], farthest_b[0][1]), (
+                            farthest_b[1][0], farthest_b[1][1]), (0, 0, 255), 4)
 
                 # Append rectangle, offsetting to farthest borders
-                rectangles.append([extend(midpoint, center, diagonal / 2, True), extend(midpoint, get_center(distances_to_contours[closest_b]), diagonal / 2, True), offset, extend(midpoint, get_center(distances_to_contours[closest_a]), diagonal / 2, True)])
+                rectangles.append([extend(midpoint, center, diagonal / 2, True), extend(midpoint, get_center(distances_to_contours[closest_b]),
+                                  diagonal / 2, True), offset, extend(midpoint, get_center(distances_to_contours[closest_a]), diagonal / 2, True)])
                 east_corners.append(east)
                 south_corners.append(south)
                 main_corners.append(square)
@@ -217,11 +230,13 @@ def extract(frame, debug=False):
             [WARP_DIM - 1, 0],
             [WARP_DIM - 1, WARP_DIM - 1],
             [0, WARP_DIM - 1]], dtype="float32")
-        warp = cv.warpPerspective(frame, cv.getPerspectiveTransform(wrect, dst), (WARP_DIM, WARP_DIM))
+        warp = cv.warpPerspective(frame, cv.getPerspectiveTransform(
+            wrect, dst), (WARP_DIM, WARP_DIM))
         # Increase contrast
         warp = cv.bilateralFilter(warp, 11, 17, 17)
         warp = cv.cvtColor(warp, cv.COLOR_BGR2GRAY)
-        small = cv.resize(warp, (SMALL_DIM, SMALL_DIM), 0, 0, interpolation=cv.INTER_CUBIC)
+        small = cv.resize(warp, (SMALL_DIM, SMALL_DIM), 0,
+                          0, interpolation=cv.INTER_CUBIC)
         _, small = cv.threshold(small, 100, 255, cv.THRESH_BINARY)
         codes.append(small)
         if debug:
@@ -236,4 +251,3 @@ def extract(frame, debug=False):
         cv.drawContours(output, tiny_squares, -1, (128, 128, 0), 2)
 
     return codes, output
-

@@ -1,3 +1,13 @@
+import sys
+import time
+import traceback
+
+import cv2 as cv
+import numpy as np
+
+from skimage.restoration import denoise_nl_means, estimate_sigma
+from scipy.ndimage import gaussian_filter
+
 from swarmrobot import SwarmRobot
 from intersection_detection import IntersectionDetection
 from qr_detection import QrDetection
@@ -7,16 +17,6 @@ from turn_assistant import TurnAssistant
 from parking_space_detection import ParkingSpaceDetection
 from parking_learner import ParkingLearner
 from parkingdirection import Parkingdirection
-
-from scipy.ndimage import gaussian_filter
-from skimage.restoration import denoise_nl_means, estimate_sigma
-
-import cv2 as cv
-import numpy as np
-import time
-import sys
-
-import traceback
 
 
 class Navigator:

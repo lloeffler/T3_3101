@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class Parkingdirection(Enum):
     """
     Enumeration to specify, in what direction the robot has to be parked.

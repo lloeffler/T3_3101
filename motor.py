@@ -22,12 +22,9 @@ class Motor:
 
         STEP_SIZE = 25.0
         pcur = self.status()[self.STATUS_POWER]
-        print('current power: {}'.format(pcur))
         # delta < 0: slow down; 0 < delta: accelerate
         delta = pnew - pcur
-        print('accelerate about {} power'.format(delta))
         steps = math.ceil(abs(delta)/STEP_SIZE)
-        print('accelerate in {} steps'.format(steps))
 
         if steps == 0:
             return
@@ -37,10 +34,8 @@ class Motor:
         for _ in range(steps):
             pcur += inc
             self._bp.set_motor_power(self._port, pcur)
-            print('current power: {}'.format(pcur))
             time.sleep(0.25)
         self._bp.set_motor_power(self._port, pnew)
-        print('current power: {}'.format(self.status()[self.STATUS_POWER]))
 
     def set_power(self, pnew):
         if 100 < abs(pnew):

@@ -1,6 +1,7 @@
+import time
+
 import cv2 as cv
 import numpy as numpy
-import time
 
 
 class LineTracker:

@@ -1,8 +1,11 @@
+import sys
+
+from datetime import datetime # Usage is commented.
+
 import numpy as np
 import cv2 as cv
+
 from collections import defaultdict
-import sys
-from datetime import datetime
 
 
 class IntersectionDetection:

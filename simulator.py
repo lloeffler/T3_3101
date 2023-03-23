@@ -3,6 +3,7 @@ import sys
 import traceback
 import datetime
 
+from random import randint
 from json import loads
 from re import compile
 from time import sleep
@@ -181,15 +182,20 @@ class Simulator:
         """
         return '{0}{1}"language": "{2}",{1}{3}"qtable_name": "{4}",{1}{3}"alpha": {5},{1}{3}"y": {6},{1}{3}"direction": "{7}",{1}{3}"color": "{8}"{9}{10}'.format('{', '\n\t' if pretty else '', self.config['language'], '' if pretty else ' ', self.config['qtable_name'], self.config['alpha'], self.config['y'], self.config['direction'].name, self.config['color'], '\n' if pretty else '', '}')
 
-    def main(self):
+    def main(self, random_start: bool = False):
         """
         The main function, which handles inputs.
+
+        Parameter
+        ---------
+        random_start: bool
+            If the commandline argument random_start is set, the start function will generate random start positions.
         """
         self.print_menu()
         user_input = input('> ').lower()
         while user_input != 'quit' and user_input != 'exit':
             if user_input == 'start':
-                execution_time = self.start()
+                execution_time = self.start(random_start=random_start)
             elif user_input == 'settings' or user_input == 'einstellungen':
                 self.settings()
             elif user_input == 'english' or user_input == 'englisch':
@@ -294,13 +300,13 @@ class Simulator:
         user_input = input('> ').lower()
         while user_input != 'back' and user_input != 'zurueck':
             if user_input == 'forward' or user_input == 'vorwaerts':
-                self._qtable_pair[self._parking_learner._parking_direction.value] = self._parking_learner._qtable 
+                self._qtable_pair[self._parking_learner._parking_direction.value] = self._parking_learner._qtable
                 self._parking_learner.change_parking_direction(
                     new_parking_direction=Parkingdirection.FORWARD, new_qtable=self._qtable_pair[Parkingdirection.FORWARD.value])
                 self.config['direction'] = Parkingdirection.FORWARD.name
                 break
             elif user_input == 'backward' or user_input == 'rueckwaerts':
-                self._qtable_pair[self._parking_learner._parking_direction.value] = self._parking_learner._qtable 
+                self._qtable_pair[self._parking_learner._parking_direction.value] = self._parking_learner._qtable
                 self._parking_learner.change_parking_direction(
                     new_parking_direction=Parkingdirection.BACKWARD, new_qtable=self._qtable_pair[Parkingdirection.BACKWARD.value])
                 self.config['direction'] = Parkingdirection.BACKWARD.name
@@ -440,10 +446,16 @@ class Simulator:
               ['settings']['action']['heading'])
         print(self.language_package[self.config['language']]['back'])
 
-    def start(self):
+    def start(self, random_start: bool = False):
         """
         Start simulation parking process to learn and fill a q-table.
 
+        Parameter
+        ---------
+        random_start: bool
+            Says if the startposition is random or default, by default false.
+            If true, the start position is generated randomly.
+            If false, the default start position is used.
 
         Returns
         -------
@@ -452,10 +464,18 @@ class Simulator:
         print("Start simulation")
         start_time = datetime.datetime.now()
         for x in range(250000):
+            if random_start:
+                start_distance = randint(0, 60)
+                start_angle = randint(0, 35)
+                start_orientation = randint(0, 35)
+            else:
+                start_distance = 15
+                start_angle = 0
+                start_orientation = 18
             single_start_execution_time = datetime.datetime.now()
             print("Running simulation number {}".format(x + 1))
             self._parking_learner.simulated_start(
-                distance=15, angle=0.0, orientation=18)
+                distance=start_distance, angle=start_angle, orientation=start_orientation)
             single_end_execution_time = datetime.datetime.now()
             print("Finished simulation number {} in {}".format(
                 x + 1, single_end_execution_time - single_start_execution_time))
@@ -467,10 +487,13 @@ class Simulator:
 
 if __name__ == '__main__':
     try:
+        # Checks for random_start in comandline arguments.
+        random_start = True if 'random_start' in sys.argv[
+            1:] or 'random' in sys.argv[1:] else False
         # Generates simulator instance.
         runner = Simulator()
         # Executes simulation.
-        runner.main()
+        runner.main(random_start=random_start)
     except Exception as exception:
         try:
             # If any error is catched, it is tried to write into an error log file.

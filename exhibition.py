@@ -339,13 +339,13 @@ class Exhibition:
         user_input = input('> ').lower()
         while user_input != 'back' and user_input != 'zurueck':
             if user_input == 'forward' or user_input == 'vorwaerts':
-                self._qtable_pair[self._parking_learner._parking_direction.value] = self._parking_learner._qtable 
+                self._qtable_pair[self._parking_learner._parking_direction.value] = self._parking_learner._qtable
                 self._parking_learner.change_parking_direction(
                     new_parking_direction=Parkingdirection.FORWARD, new_qtable=self._qtable_pair[Parkingdirection.FORWARD.value])
                 self.config['direction'] = Parkingdirection.FORWARD.name
                 break
             elif user_input == 'backward' or user_input == 'rueckwaerts':
-                self._qtable_pair[self._parking_learner._parking_direction.value] = self._parking_learner._qtable 
+                self._qtable_pair[self._parking_learner._parking_direction.value] = self._parking_learner._qtable
                 self._parking_learner.change_parking_direction(
                     new_parking_direction=Parkingdirection.BACKWARD, new_qtable=self._qtable_pair[Parkingdirection.BACKWARD.value])
                 self.config['direction'] = Parkingdirection.BACKWARD.name
@@ -473,7 +473,7 @@ class Exhibition:
             self.print_save_qtable_menu()
         # Saves the current q-table pair, if the question was confirmed.
         if user_input == 'yes' or user_input == 'ja':
-            self._qtable_pair[self._parking_learner._parking_direction.value] = self._parking_learner._qtable 
+            self._qtable_pair[self._parking_learner._parking_direction.value] = self._parking_learner._qtable
             np.savez_compressed(self.config['qtable_name'], FORWARD=self._qtable_pair[Parkingdirection.FORWARD.value],
                                 BACKWARD=self._qtable_pair[Parkingdirection.FORWARD.value])
 

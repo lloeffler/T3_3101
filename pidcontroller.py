@@ -1,5 +1,6 @@
 import math
 
+
 class PIDController:
     # PID constants
     kp = 1
@@ -12,7 +13,7 @@ class PIDController:
 
     centerpoint = 0
 
-    def __init__(self, verbose = False):
+    def __init__(self, verbose=False):
         self._verbose = verbose
 
     def pid(self, value: int) -> float:
@@ -42,7 +43,7 @@ class PIDController:
         if (pidReturn < -1):
             pidReturn = -1
 
-        if(self._verbose):
+        if (self._verbose):
             print("value: " + str(value) + " | error: " + str(error) + " | lastError: " + str(
                 self.lastError) + " | totalError: " + str(self.totalError))
             print("PID: " + str(pidReturn) + " | P: " + str(proportional) + " | I: " + str(integral) + " | D: " + str(

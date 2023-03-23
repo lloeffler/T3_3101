@@ -1,13 +1,14 @@
 import traceback
 
 from time import sleep
+from threading import Thread, Event
+
+import cv2
 
 from motor import CalibratedMotor, Motor
 from pidcontroller import PIDController
 from line_tracking import LineTracker
 from programm_type import ProgrammType
-from threading import Thread, Event
-import cv2
 
 
 class SwarmRobot:

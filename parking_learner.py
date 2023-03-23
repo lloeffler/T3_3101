@@ -1,4 +1,5 @@
 import random
+
 from time import sleep
 
 import numpy as np
@@ -224,14 +225,17 @@ class ParkingLearner:
             turning_index = 1 if direction_index == 1 or direction_index == 3 else 0
             turning_radius = self._turning_radius[turning_index]
             # Calculating centre of rotation (x_m, y_m) of the turning circle.
-            [x_m_delta, y_m_delta] = self.pol2cart(turning_radius, rad_orientation+ (1.5 * np.pi)) if direction > 0 else self.pol2cart(turning_radius, rad_orientation + (0.5 * np.pi))
+            [x_m_delta, y_m_delta] = self.pol2cart(turning_radius, rad_orientation + (
+                1.5 * np.pi)) if direction > 0 else self.pol2cart(turning_radius, rad_orientation + (0.5 * np.pi))
             x_m = x + x_m_delta
             y_m = y + y_m_delta
             # Calculating perimeter of the turningcicle.
             turning_perimeter = 2 * np.pi * turning_radius
-            turning_radiant = 2 * np.pi * (-self.index2dlength(lenght_index)/turning_perimeter)
+            turning_radiant = 2 * np.pi * \
+                (-self.index2dlength(lenght_index)/turning_perimeter)
             # Calculating new robot coordinates.
-            [x_delta_t, y_delta_t] = self.pol2cart(self._turning_radius[turning_index], (rad_orientation + np.pi + turning_radiant))
+            [x_delta_t, y_delta_t] = self.pol2cart(
+                self._turning_radius[turning_index], (rad_orientation + np.pi + turning_radiant))
             # Calculates new robot orientation
             orientation_t = rad_orientation + turning_radiant
             x_t = x_m + x_delta_t
@@ -365,8 +369,10 @@ class ParkingLearner:
             # Decides to utilize the filled q-table oder explore and fill the q-table.
             # Uses q-table to find a way to park.
             if self._action == 'utilize':
-                state_qtable = self._qtable[int(self._state['rho']), int(self._state['phi']), int(self._state['orientation'])]
-                (action_direction_index, action_lenght_index) = np.unravel_index(state_qtable.argmax(), np.unravel_index(state_qtable.shape))
+                state_qtable = self._qtable[int(self._state['rho']), int(
+                    self._state['phi']), int(self._state['orientation'])]
+                (action_direction_index, action_lenght_index) = np.unravel_index(
+                    state_qtable.argmax(), np.unravel_index(state_qtable.shape))
                 is_in_range = self.action(
                     action_direction_index, action_lenght_index)
                 # Stays in the parking lot for 30 seconds, after a succesfully parking manover.
@@ -384,14 +390,17 @@ class ParkingLearner:
                 }
                 is_in_range = self.action(
                     action_direction_index, action_lenght_index)
-                old_q_s_t = self._qtable[int(old_state['rho']), int(old_state['phi']), int(old_state['orientation']), action_direction_index, action_lenght_index]
+                old_q_s_t = self._qtable[int(old_state['rho']), int(old_state['phi']), int(
+                    old_state['orientation']), action_direction_index, action_lenght_index]
                 # Checks if state is out of range, sets possible action q table based on check.
                 if self._state['rho'] <= 60:
-                    possible_actions_qtable = self._qtable[int(self._state['rho']), int(self._state['phi']), int(self._state['orientation'])] 
+                    possible_actions_qtable = self._qtable[int(self._state['rho']), int(
+                        self._state['phi']), int(self._state['orientation'])]
                 else:
                     possible_actions_qtable = [-100.0]
                 # Fills q-Table.
-                self._qtable[int(old_state['rho']), int(old_state['phi']), int(old_state['orientation']), action_direction_index, action_lenght_index] = (1 - self._alpha) * old_q_s_t + self._alpha * (self.get_reward() + self._y * np.amax(possible_actions_qtable))
+                self._qtable[int(old_state['rho']), int(old_state['phi']), int(old_state['orientation']), action_direction_index, action_lenght_index] = (
+                    1 - self._alpha) * old_q_s_t + self._alpha * (self.get_reward() + self._y * np.amax(possible_actions_qtable))
             # Aborts parking, if the robot is to far away from the parking lot.
             if not is_in_range:
                 self._parking = False
@@ -454,15 +463,19 @@ class ParkingLearner:
                 'orientation': self._state['orientation']
             }
             # Simulates action
-            is_in_range = self.simulated_action(action_direction_index, action_lenght_index)
-            old_q_s_t = self._qtable[int(old_state['rho']), int(old_state['phi']), int(old_state['orientation']), action_direction_index, action_lenght_index]
+            is_in_range = self.simulated_action(
+                action_direction_index, action_lenght_index)
+            old_q_s_t = self._qtable[int(old_state['rho']), int(old_state['phi']), int(
+                old_state['orientation']), action_direction_index, action_lenght_index]
             # Checks if state is out of range, sets possible action q table based on check.
             if self._state['rho'] <= 60:
-                possible_actions_qtable = self._qtable[int(self._state['rho']), int(self._state['phi']), int(self._state['orientation'])] 
+                possible_actions_qtable = self._qtable[int(self._state['rho']), int(
+                    self._state['phi']), int(self._state['orientation'])]
             else:
                 possible_actions_qtable = [-100.0]
             # Fills q-Table.
-            self._qtable[int(old_state['rho']), int(old_state['phi']), int(old_state['orientation']), action_direction_index, action_lenght_index] = (1 - self._alpha) * old_q_s_t + self._alpha * (self.get_reward() + self._y * np.amax(possible_actions_qtable))
+            self._qtable[int(old_state['rho']), int(old_state['phi']), int(old_state['orientation']), action_direction_index, action_lenght_index] = (
+                1 - self._alpha) * old_q_s_t + self._alpha * (self.get_reward() + self._y * np.amax(possible_actions_qtable))
             if not is_in_range:
                 self._parking = False
 
