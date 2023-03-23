@@ -265,11 +265,8 @@ class ParkingLearner:
         self._bot.set_drive_steer(self.index2direction(direction_index)) if self.index2direction(
             direction_index) != 0 else self._bot.straight()
         sleep(0.5)
-        sleep_time = self.length2sec(self.index2dlength(length_index))
-        self._bot.set_drive_power(
-            20) if length_index > 9 else self._bot.set_drive_power(-20)
-        sleep(sleep_time)
-        self._bot.set_drive_power(0)
+        drive_length = self.length2sec(self.index2dlength(length_index))
+        self._bot.drive(lenght=drive_length)
         return self.update_state(direction_index=direction_index, lenght_index=length_index)
 
     def start_parking(self, distance: int = 15, angle: int = 0, orientation: int = 18):

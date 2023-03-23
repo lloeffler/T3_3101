@@ -62,6 +62,24 @@ class SwarmRobot:
         pos = self._steer_motor.position_from_factor(pnew)
         self._steer_motor.set_position(pos)
 
+    def drive(self, lenght: int):
+        """
+        Drives the robot drive 'length' cm.
+
+        Parameter
+        ---------
+        length: int
+            The length a robot drives.
+        """
+        # Exit function if length is zero.
+        if lenght == 0:
+            return
+        for i in range(lenght):
+            # A degree of 30 is equals to 1 cm.
+            self._drive_motor.rotate_motor(degree=30)
+        # Stops motor after driving to stop motor noice.
+        self._drive_motor.rotate_motor(degree=0)
+
     def set_programm_type(self, programmtype: ProgrammType):
         """
         Sets new programmtype.

@@ -165,9 +165,10 @@ def autorotate(bot: SwarmRobot):
     """
     print("enter how many degree the drive motor should rotate,\n510 degree equals one rotation of the tier:")
     degree = int(input(">"))
-    degree_sleeptime = degree / 170
-    bot._drive_motor.rotate_motor(degree=degree)
-    sleep(degree_sleeptime)
+    (degree_steps, degree_rest) = divmod(degree, 30)
+    for i in range(degree_steps):
+        bot._drive_motor.rotate_motor(degree=30)
+    bot._drive_motor.rotate_motor(degree=degree_rest)
 
 def reset(bot: SwarmRobot) -> int:
     """

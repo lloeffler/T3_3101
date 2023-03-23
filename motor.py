@@ -47,6 +47,10 @@ class Motor:
         self.set_power(0)
 
     def rotate_motor(self, degree):
+        """
+        Rotates the motor.
+        A degree of 30 is equals to 1 cm.
+        """
         self._bp.set_motor_position_relative(self._port, degree)
 
 

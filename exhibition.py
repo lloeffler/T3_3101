@@ -205,7 +205,7 @@ class Exhibition:
         -------
         str: The config as sorted json-string.
         """
-        return '{0}{1}"language": "{2}",{1}{3}"qtable_name": "{4}",{1}{3}"alpha": {5},{1}{3}"y": {6},{1}{3}"direction": "{7}",{1}{3}"action": "{8}",{1}{3}"color": "{9}"{10}{11}'.format('{', '\n\t' if pretty else '', self.config['language'], '' if pretty else ' ', self.config['qtable_name'], self.config['alpha'], self.config['y'], self.config['direction'], self._parking_learner._action, self.config['color'], '\n' if pretty else '', '}')
+        return '{0}{1}"language": "{2}",{1}{3}"qtable_name": "{4}",{1}{3}"alpha": {5},{1}{3}"y": {6},{1}{3}"direction": "{7}",{1}{3}"action": "{8}",{1}{3}"color": "{9}"{10}{11}'.format('{', '\n\t' if pretty else '', self.config['language'], '' if pretty else ' ', self.config['qtable_name'], self.config['alpha'], self.config['y'], self.config['direction'], self.config['action'], self.config['color'], '\n' if pretty else '', '}')
 
     def main(self, administrator_mode: bool = False, park_slot_detection: bool = False):
         """
@@ -503,6 +503,7 @@ class Exhibition:
         while user_input != 'back' and user_input != 'zurueck':
             if user_input == 'utilize':
                 self._parking_learner.set_action_utilize()
+                self.config['action'] = 'utilize'
                 print("'{}' {}".format(self._parking_learner._action,
                       self.language_package[self.config['language']]['settings']['action']['confirmation']))
                 sleep(1)
@@ -518,6 +519,7 @@ class Exhibition:
                     exploration_counter = 0
                 self._parking_learner.set_action_explore(
                     exploration_counter=exploration_counter)
+                self.config['action'] = 'explore'
                 print("'{}' {}".format(self._parking_learner._action,
                       self.language_package[self.config['language']]['settings']['action']['confirmation']))
                 sleep(1)
@@ -565,23 +567,15 @@ class Exhibition:
             # Stops Robot.
             self._bot.stop_all()
         else:
-            # Calculates time to sleep to drive 15 cm.
-            sleet_time = 15/5
-            # Set velocity of Bot.
-            self._bot.set_power_lvl(20)
-            self._bot.set_drive_power(self._bot.power_lvl)
-            sleep(sleet_time)
+            # Drives 15 cm forward
+            self._bot.drive(lenght=15)
             self._parking_learner.start_parking()
         # Navigate robot back to starting position.
         if self._parking_learner._parking_direction == Parkingdirection.FORWARD:
             # Turns robot, if parked forward.
             self._turn_assistant.turn_180_deg_on_spot()
-        # Calculates time to sleep to drive 30 cm.
-        sleet_time = 30/5
-        # Drives back to start position.
-        self._bot.set_power_lvl(20)
-        self._bot.set_drive_power(self._bot.power_lvl)
-        sleep(sleet_time)
+        #Drives 30 cm forward
+        self._bot.drive(lenght=30)
         self._bot.stop_all()
         # Turns robot.
         self._turn_assistant.turn_180_deg_on_spot()
