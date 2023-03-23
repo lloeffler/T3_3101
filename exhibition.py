@@ -48,6 +48,7 @@ class Exhibition:
             'config': 'Enter "yes" to save the current configuration.\nEnter "no" to leave the application without saving the current configuration.',
             'qtable': 'Enter "yes" to save the current qtable.\nEnter "no" to leave the application without saving the current qtable.',
             'wrong_input': 'Error: Wrong input, please enter one of the mentioned options.',
+            'started': 'Started parking.',
             'settings': {
                 'heading': 'Settings',
                 'commands': {
@@ -92,6 +93,7 @@ class Exhibition:
             'config': 'Geben Sie "ja" ein, um die aktuelle Konfiguration zu speichern.\nGeben sie "nein" ein, um die Anwendung ohne Speichern der Konfiguration zu verlassen.',
             'qtable': 'Geben Sie "ja" ein, um die aktuelle Q-Tabelle zu speichern.\nGeben sie "nein" ein, um die Anwendung ohne Speichern der Q-Tabelle zu verlassen.',
             'wrong_input': 'Fehler: Falsche Eingabe, bitte geben Sie eine der genannten Auswahlmoeglichkeiten ein.',
+            'started': 'Parkvorgang gestartet.',
             'settings': {
                 'heading': 'Einstellungen',
                 'commands': {
@@ -146,7 +148,7 @@ class Exhibition:
         self.laod_qtable_pair(name=self.config['qtable_name'])
         # Creates instance of parking_learner.
         self._parking_learner = ParkingLearner(
-            bot=self._bot, qtable=self._qtable_pair[Parkingdirection[self.config['direction']].value], alpha=self.config['alpha'], y=self.config['y'], parkingdirection=self.config['direction'])
+            bot=self._bot, qtable=self._qtable_pair[Parkingdirection[self.config['direction']].value], alpha=self.config['alpha'], y=self.config['y'], parkingdirection=Parkingdirection[self.config['direction']])
         # Createst instance of turn assistant.
         self._turn_assistant = TurnAssistant(bot=self._bot)
         print('Initialazion exhibition done.')
@@ -569,12 +571,13 @@ class Exhibition:
         else:
             # Drives 15 cm forward
             self._bot.drive(lenght=15)
+            print(self.language_package[self.config['language']]['started'])
             self._parking_learner.start_parking()
         # Navigate robot back to starting position.
         if self._parking_learner._parking_direction == Parkingdirection.FORWARD:
             # Turns robot, if parked forward.
             self._turn_assistant.turn_180_deg_on_spot()
-        #Drives 30 cm forward
+        # Drives 30 cm forward
         self._bot.drive(lenght=30)
         self._bot.stop_all()
         # Turns robot.
