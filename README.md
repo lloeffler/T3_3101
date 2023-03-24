@@ -13,8 +13,6 @@ Copied fiels from swarmrobot, based on this repo: https://github.com/1Basileus/S
 - pidcontroller.py
 - qr_detection.py
 - stop.py
-- turn_assistant.py
-
 
 Modified fiels from swarmrobot based on this repo: https://github.com/1Basileus/Swarmrobotlib
 - intersection_detection.py
@@ -24,6 +22,7 @@ Modified fiels from swarmrobot based on this repo: https://github.com/1Basileus/
 - parking_space_detection.py
 - qr_test.py
 - swarmrobot.py
+- turn_assistant.py
 
 Modified hardware:
 - switched ports B and C

@@ -77,8 +77,10 @@ class SwarmRobot:
         for i in range(lenght):
             # A degree of 30 is equals to 1 cm.
             self._drive_motor.rotate_motor(degree=30)
+            sleep(0.3)
         # Stops motor after driving to stop motor noice.
         self._drive_motor.rotate_motor(degree=0)
+        sleep(0.3)
 
     def set_programm_type(self, programmtype: ProgrammType):
         """

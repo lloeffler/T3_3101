@@ -49,6 +49,7 @@ class Exhibition:
             'qtable': 'Enter "yes" to save the current qtable.\nEnter "no" to leave the application without saving the current qtable.',
             'wrong_input': 'Error: Wrong input, please enter one of the mentioned options.',
             'started': 'Started parking.',
+            'finished': 'Finished parking.',
             'settings': {
                 'heading': 'Settings',
                 'commands': {
@@ -94,6 +95,7 @@ class Exhibition:
             'qtable': 'Geben Sie "ja" ein, um die aktuelle Q-Tabelle zu speichern.\nGeben sie "nein" ein, um die Anwendung ohne Speichern der Q-Tabelle zu verlassen.',
             'wrong_input': 'Fehler: Falsche Eingabe, bitte geben Sie eine der genannten Auswahlmoeglichkeiten ein.',
             'started': 'Parkvorgang gestartet.',
+            'finished': 'Parkvorgang beendet.',
             'settings': {
                 'heading': 'Einstellungen',
                 'commands': {
@@ -590,15 +592,17 @@ class Exhibition:
             self._bot.drive(lenght=15)
             print(self.language_package[self.config['language']]['started'])
             self._parking_learner.start_parking()
-        # Navigate robot back to starting position.
-        if self._parking_learner._parking_direction == Parkingdirection.FORWARD:
-            # Turns robot, if parked forward.
+            print(self.language_package[self.config['language']]['finished'])
+        # Navigate robot back to starting position, if not exploring.
+        if self.config['action'] == 'utilize':
+            if self._parking_learner._parking_direction == Parkingdirection.FORWARD:
+                # Turns robot, if parked forward.
+                self._turn_assistant.turn_180_deg_on_spot()
+            # Drives 30 cm forward
+            self._bot.drive(lenght=30)
+            self._bot.stop_all()
+            # Turns robot.
             self._turn_assistant.turn_180_deg_on_spot()
-        # Drives 30 cm forward
-        self._bot.drive(lenght=30)
-        self._bot.stop_all()
-        # Turns robot.
-        self._turn_assistant.turn_180_deg_on_spot()
         self._bot.set_programm_type = ProgrammType.DONE
 
 

@@ -401,6 +401,7 @@ class ParkingLearner:
                     1 - self._alpha) * old_q_s_t + self._alpha * (self.get_reward() + self._y * np.amax(possible_actions_qtable))
             # Aborts parking, if the robot is to far away from the parking lot.
             if not is_in_range:
+                print('Position:[rho: {0}, phi: {1}, ori: {2}]'.format(self._state['rho'], self._state['phi'], self._state['orientation']))
                 self._parking = False
         self.end_parking()
 
