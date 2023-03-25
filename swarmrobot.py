@@ -74,9 +74,12 @@ class SwarmRobot:
         # Exit function if length is zero.
         if lenght == 0:
             return
-        for i in range(lenght):
-            # A degree of 30 is equals to 1 cm.
-            self._drive_motor.rotate_motor(degree=30)
+        # A degree of 30 is equals to 1 cm.
+        # If changing the tire size, adjust the step degree size change the following line.
+        step_degree = 30
+        step = -step_degree if lenght < 0  else step_degree
+        for i in range(abs(lenght)):
+            self._drive_motor.rotate_motor(degree=step)
             sleep(0.3)
         # Stops motor after driving to stop motor noice.
         self._drive_motor.rotate_motor(degree=0)
