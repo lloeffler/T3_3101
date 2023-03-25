@@ -24,7 +24,7 @@ class ParkingLearner:
     The exploration coutner limits the number of explorations to 250.000 explorations.
     """
 
-    def __init__(self, bot: SwarmRobot, qtable: np.ndarray = None, alpha: float = 1, y: float = 0.95, parkingdirection: Parkingdirection = Parkingdirection.FORWARD):
+    def __init__(self, bot: SwarmRobot, qtable: np.ndarray = None, alpha: float = 1, y: float = 0.95, parkingdirection: Parkingdirection = Parkingdirection.FORWARD, action: str = 'explore'):
         """
         Creates a new instance of a parking learner.
 
@@ -41,6 +41,8 @@ class ParkingLearner:
             The other expploration rate.
         parkingdirection: Parkingdirection
             The direction of parking the robot, either FORAWARD or BACKWARD.
+        action: str
+            The action to even 'explore' or 'utilize' at pakring, 
         """
         qtable_is_numpy_array = qtable.__class__ == 'numpy.ndarray'
         self._bot = bot
@@ -52,7 +54,7 @@ class ParkingLearner:
             'orientation': 0
         }
         self._parking = False
-        self._action = 'utilize' if qtable_is_numpy_array else 'explore'
+        self._action = action
         self._alpha = alpha
         self._y = y
         self._parking_direction = parkingdirection
