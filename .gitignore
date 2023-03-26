@@ -1,6 +1,6 @@
 error.log
-default.npz
-exhibition_parking.conf
+*.npz
+*.conf
 test.py
 Untitled-1.md
 __pycache__/*
