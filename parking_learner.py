@@ -44,7 +44,7 @@ class ParkingLearner:
         action: str
             The action to even 'explore' or 'utilize' at pakring, 
         """
-        qtable_is_numpy_array = qtable.__class__ == 'numpy.ndarray'
+        qtable_is_numpy_array = qtable.__class__ == np.ndarray
         self._bot = bot
         self._qtable = qtable if qtable_is_numpy_array else np.zeros(
             shape=(61, 36, 36, 5, 20))
@@ -154,22 +154,6 @@ class ParkingLearner:
         """
         return index - 10 if index < 10 else index - 9
 
-    def length2sec(self, lenght: int = 0) -> float:
-        """
-        Converts a length in cm to a time driven with a driving power of 20.
-
-        Parameter
-        ---------
-        length: int
-            The lenght to be driven in cm.
-
-        Returns
-        -------
-        float: The time to be waited, while the robot drives.
-        """
-        absolute_length = abs(lenght)
-        return absolute_length / 5
-
     # endregion
 
     def set_action_utilize(self):
@@ -268,7 +252,7 @@ class ParkingLearner:
         self._bot.set_drive_steer(self.index2direction(direction_index)) if self.index2direction(
             direction_index) != 0 else self._bot.straight()
         sleep(0.5)
-        drive_length = int(self.length2sec(self.index2dlength(length_index)))
+        drive_length = self.index2dlength(length_index)
         self._bot.drive(lenght=drive_length)
         return self.update_state(direction_index=direction_index, lenght_index=length_index)
 
@@ -287,12 +271,7 @@ class ParkingLearner:
         """
         self._bot.stop_all()
         sleep(0.5)
-        self._bot.set_drive_steer(-0.25)
-        sleep(0.5)
-        self._bot.set_drive_steer(0.25)
-        sleep(0.5)
-        self._bot.set_drive_steer(0)
-        sleep(0.5)
+        self._bot.steer_straight()
         self._parking = True
         self.parking(distance=distance, angle=angle, orientation=orientation)
 
@@ -365,6 +344,7 @@ class ParkingLearner:
         # Limits the number of explorations to 250.000 explorations.
         if self._exploration_counter == 250000 and self._action == 'explore':
             self.set_action_utilize()
+        print(self._action)
         while self._parking:
             # Decides to utilize the filled q-table oder explore and fill the q-table.
             # Uses q-table to find a way to park.
@@ -372,7 +352,7 @@ class ParkingLearner:
                 state_qtable = self._qtable[int(self._state['rho']), int(
                     self._state['phi']), int(self._state['orientation'])]
                 (action_direction_index, action_lenght_index) = np.unravel_index(
-                    state_qtable.argmax(), np.unravel_index(state_qtable.shape))
+                    state_qtable.argmax(), state_qtable.shape)
                 is_in_range = self.action(
                     action_direction_index, action_lenght_index)
                 # Stays in the parking lot for 30 seconds, after a succesfully parking manover.

@@ -622,8 +622,8 @@ if __name__ == '__main__':
         try:
             # If any error is catched, it is tried to write into an error log file.
             log_file = open("error.log", "a")
-            log_file.write("{}\nTraceback:\n{}".format(
-                str(exception), traceback.format_exc()))
+            log_file.write("[Exhibition|{0}] {1}\nTraceback:\n{2}".format(
+                datetime.datetime.now().isoformat(), str(exception), traceback.format_exc()))
             log_file.close()
         except Exception as inner_exception:
             # If the logging into a file failes, the error is printed to the command line.

@@ -62,6 +62,17 @@ class SwarmRobot:
         pos = self._steer_motor.position_from_factor(pnew)
         self._steer_motor.set_position(pos)
 
+    def steer_straight(self):
+        """
+        Steers the robot most possible straight.
+        """
+        self.set_drive_steer(-0.25)
+        sleep(0.3)
+        self.set_drive_steer(0.25)
+        sleep(0.3)
+        self.set_drive_steer(0)
+        sleep(0.3)
+
     def drive(self, lenght: int):
         """
         Drives the robot drive 'length' cm.

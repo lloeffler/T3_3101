@@ -28,7 +28,7 @@ class TurnAssistant:
         # self._bot._drive_motor.rotate_motor(1.2*self._full_rotation_deg)
         self._bot.drive(20)
         sleep(0.5)
-        self._bot.set_drive_steer(0)
+        self._bot.steer_straight()
         sleep(0.5)
 
     def turn_180_deg(self):
@@ -48,7 +48,7 @@ class TurnAssistant:
         # self._bot._drive_motor.rotate_motor(1.4*self._full_rotation_deg)
         self._bot.drive(24)
         sleep(0.5)
-        self._bot.set_drive_steer(0)
+        self._bot.steer_straight()
         sleep(0.5)
 
     def turn_180_deg_on_spot(self):
@@ -86,20 +86,20 @@ class TurnAssistant:
         sleep(0.5)
         # self._bot._drive_motor.rotate_motor(-0.6*self._full_rotation_deg)
         self._bot.drive(-10)
-        self._bot.set_drive_steer(0)
+        self._bot.steer_straight()
         sleep(0.5)
 
     def park_backwards(self):
         self.turn_180_deg_on_spot()
         sleep(0.5)
-        self._bot.set_drive_steer(0)
+        self._bot.steer_straight()
         sleep(0.5)
         # self._bot._drive_motor.rotate_motor(-1.0*self._full_rotation_deg)
         self._bot.drive(-17)
 
     def turn_0_deg(self):
         sleep(0.5)
-        self._bot.set_drive_steer(0)
+        self._bot.steer_straight()
         sleep(0.5)
         # self._bot._drive_motor.rotate_motor(1.1*self._full_rotation_deg)
         self._bot.drive(19)
