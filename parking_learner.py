@@ -292,14 +292,14 @@ class ParkingLearner:
 
         Returns
         -------
-        bool: true if calculated position is correct, proofed by optical detection.
+        bool: true if the robots position is correct.
         """
-        orientation = 18 if self._parking_direction == Parkingdirection.FORWARD else 0
-        calculated = (self._state['rho'] ==
-                      0 and self._state['orientation'] == orientation)
-        ''' somthing with opencv, check if parking lot entrance is in lower x% and in the middle of the picture.
-         if actual position and calculated position not true, recalculate current position, based on seen parking lot position. '''
-        return calculated
+        right_position  = False
+        if self._parking_direction == Parkingdirection.FORWARD:
+            right_position = (self._state['rho'] == 24 and self._state['phi'] == 18 and self._state['orientation'] == 18)
+        if self._parking_direction == Parkingdirection.BACKWARD:
+            right_position = (self._state['rho'] == 0 and self._state['orientation'] == 0)
+        return right_position
 
     def get_reward(self) -> float:
         """
@@ -355,10 +355,6 @@ class ParkingLearner:
                     state_qtable.argmax(), state_qtable.shape)
                 is_in_range = self.action(
                     action_direction_index, action_lenght_index)
-                # Stays in the parking lot for 30 seconds, after a succesfully parking manover.
-                if self.check_location():
-                    self._parking = False
-                    sleep(10)
             # Fills q-Table.
             if self._action == 'explore':
                 action_direction_index = random.randint(0, 4)
@@ -381,6 +377,10 @@ class ParkingLearner:
                 # Fills q-Table.
                 self._qtable[int(old_state['rho']), int(old_state['phi']), int(old_state['orientation']), action_direction_index, action_lenght_index] = (
                     1 - self._alpha) * old_q_s_t + self._alpha * (self.get_reward() + self._y * np.amax(possible_actions_qtable))
+            # Stays in the parking lot for 30 seconds, after a succesfully parking manover.
+            if self.check_location():
+                self._parking = False
+                sleep(10)
             # Aborts parking, if the robot is to far away from the parking lot.
             if not is_in_range:
                 print('Position:[rho: {0}, phi: {1}, ori: {2}]'.format(self._state['rho'], self._state['phi'], self._state['orientation']))
