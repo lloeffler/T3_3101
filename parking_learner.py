@@ -20,8 +20,9 @@ class ParkingLearner:
     Alpha is the exploration rate.
     y is the other exploration rate.
     The parkingdirection is the direction of parking the robot, either FORAWARD or BACKWARD. The Value of the orientation ist the angle in the parking position.
-    The turnings radius for all allowed steer angles are fix values stored in the array self._turning_radius.
     The exploration coutner limits the number of explorations to 250.000 explorations.
+    The turnings radius for all allowed steer angles are fix values stored in the array self._turning_radius.
+    The parking position contains the state of the right parking position, for all parking directions.
     """
 
     def __init__(self, bot: SwarmRobot, qtable: np.ndarray = None, alpha: float = 1, y: float = 0.95, parkingdirection: Parkingdirection = Parkingdirection.FORWARD, action: str = 'explore'):
@@ -33,7 +34,7 @@ class ParkingLearner:
         bot: SwarmRobot
             A instance of the robot.
         qtable: numpy.ndarray
-            A three demensional numpy.ndarray with shape=(61, 36, 36, 5, 20), containing the qvalue of the state and action pairs.
+            A five demensional numpy.ndarray with shape=(61, 36, 36, 5, 20), containing the q value of the state and action pairs.
             The fisrt three indices represent the state and the last two indices represent the possible actions(direction and length).
         alpha: float
             The exploration rate.
@@ -61,6 +62,17 @@ class ParkingLearner:
         self._exploration_counter = 0
         # Turning radia  for 0.5 and 1.0 steering.
         self._turning_radius = [68.0, 37.0]
+        self._parking_position = {
+            'FORWARD': {
+                'rho': 24,
+                'phi': 18,
+                'orientation': 18
+            },
+            'BACKWARD': {
+                'rho': 0,
+                'orientation': 0
+            }
+        }
 
     def change_parking_direction(self, new_parking_direction: Parkingdirection = Parkingdirection.FORWARD, new_qtable: np.ndarray = None) -> np.ndarray:
         """
@@ -75,7 +87,7 @@ class ParkingLearner:
 
         Returns
         -------
-        np.ndarray(60, 36, 36, 5, 20), dtype=float)): The previous q-table.
+        np.ndarray(61, 36, 36, 5, 20), dtype=float)): The previous q-table.
         """
         old_q_table = self._qtable
         self._parking_direction = new_parking_direction
@@ -294,12 +306,7 @@ class ParkingLearner:
         -------
         bool: true if the robots position is correct.
         """
-        right_position  = False
-        if self._parking_direction == Parkingdirection.FORWARD:
-            right_position = (self._state['rho'] == 24 and self._state['phi'] == 18 and self._state['orientation'] == 18)
-        if self._parking_direction == Parkingdirection.BACKWARD:
-            right_position = (self._state['rho'] == 0 and self._state['orientation'] == 0)
-        return right_position
+        return self._state['rho'] == self._parking_position[self._parking_direction.name]['rho'] and self._state['orientation'] == self._parking_position[self._parking_direction.name]['orientation'] and ((self._parking_direction == Parkingdirection.FORWARD and self._state['phi'] == self._parking_position[self._parking_direction.name]['phi']) or self._parking_direction == Parkingdirection.BACKWARD)
 
     def get_reward(self) -> float:
         """
@@ -313,9 +320,9 @@ class ParkingLearner:
             -100.0: If the robot is leaving the parking area.
         """
         reward = 0.0
-        if (self._state['rho'] == 0 and self._state['orientation'] == self._parking_direction.value):
+        if self._state['rho'] == self._parking_position[self._parking_direction.name]['rho'] and self._state['orientation'] == self._parking_position[self._parking_direction.name]['orientation'] and ((self._parking_direction == Parkingdirection.FORWARD and self._state['phi'] == self._parking_position[self._parking_direction.name]['phi']) or self._parking_direction == Parkingdirection.BACKWARD):
             reward = 100.0
-        if (self._state['rho'] > 60):
+        if self._state['rho'] > 60:
             reward = -100.0
         return reward
 
@@ -383,7 +390,8 @@ class ParkingLearner:
                 sleep(10)
             # Aborts parking, if the robot is to far away from the parking lot.
             if not is_in_range:
-                print('Position:[rho: {0}, phi: {1}, ori: {2}]'.format(self._state['rho'], self._state['phi'], self._state['orientation']))
+                print('Position:[rho: {0}, phi: {1}, ori: {2}]'.format(
+                    self._state['rho'], self._state['phi'], self._state['orientation']))
                 self._parking = False
         self.end_parking()
 
