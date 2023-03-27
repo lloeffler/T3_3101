@@ -306,7 +306,14 @@ class ParkingLearner:
         -------
         bool: true if the robots position is correct.
         """
-        return self._state['rho'] == self._parking_position[self._parking_direction.name]['rho'] and self._state['orientation'] == self._parking_position[self._parking_direction.name]['orientation'] and ((self._parking_direction == Parkingdirection.FORWARD and self._state['phi'] == self._parking_position[self._parking_direction.name]['phi']) or self._parking_direction == Parkingdirection.BACKWARD)
+        right_rho = self._state['rho'] == self._parking_position[self._parking_direction.name]['rho']
+        right_orientation = self._state['orientation'] == self._parking_position[self._parking_direction.name]['orientation']
+        right_phi = False
+        if self._parking_direction == Parkingdirection.FORWARD:
+            right_phi = self._state['phi'] == self._parking_position[self._parking_direction.name]['phi']
+        elif self._parking_direction == Parkingdirection.BACKWARD:
+            right_phi = True
+        return right_rho and right_phi and right_orientation
 
     def get_reward(self) -> float:
         """
@@ -320,7 +327,7 @@ class ParkingLearner:
             -100.0: If the robot is leaving the parking area.
         """
         reward = 0.0
-        if self._state['rho'] == self._parking_position[self._parking_direction.name]['rho'] and self._state['orientation'] == self._parking_position[self._parking_direction.name]['orientation'] and ((self._parking_direction == Parkingdirection.FORWARD and self._state['phi'] == self._parking_position[self._parking_direction.name]['phi']) or self._parking_direction == Parkingdirection.BACKWARD):
+        if self.check_location():
             reward = 100.0
         if self._state['rho'] > 60:
             reward = -100.0
