@@ -414,9 +414,9 @@ class Simulator:
         else:
             # Creates ne q-table pair.
             self._qtable_pair[18] = np.zeros(
-                shape=(60, 36, 36, 5, 20), dtype=float)
+                shape=(61, 36, 36, 5, 20), dtype=float)
             self._qtable_pair[0] = np.zeros(
-                shape=(60, 36, 36, 5, 20), dtype=float)
+                shape=(61, 36, 36, 5, 20), dtype=float)
         # Sets new q-table in parking_learner.
         if self._parking_learner != None:
             self._parking_learner.change_parking_direction(
