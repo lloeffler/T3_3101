@@ -46,7 +46,7 @@ class Simulator:
                 },
                 'qtable': {
                     'heading': 'Q-Table settings',
-                    'commmand': 'Enter "load" to load a new q-table.\nEnter "save" to save the current q-table.',
+                    'command': 'Enter "load" to load a new q-table.\nEnter "save" to save the current q-table.',
                     'load': {
                         'heading': 'Load a new q-table',
                         'command': 'Enter the name of q-table to load.\nIf the entered q-table does not exists, a empty q-table is loaded.\nEnter "abort" the abort.',
@@ -90,7 +90,7 @@ class Simulator:
                 },
                 'qtable': {
                     'heading': 'Q-Tabellen Einstellungen',
-                    'commmand': 'Geben Sie "laden" ein, um eine Q-Tabelle zu laden.\nGeben Sie "speichern" ein, um die aktuelle Q-Tabelle zu speichern.',
+                    'command': 'Geben Sie "laden" ein, um eine Q-Tabelle zu laden.\nGeben Sie "speichern" ein, um die aktuelle Q-Tabelle zu speichern.',
                     'load': {
                         'heading': 'Neue Q-Tabelle laden',
                         'command': 'Geben Sie den Namen der Q-Tabelle ein, um diese zu laden.\nWenn die eingegebene Q-Tabelle nicht existiert, wird eine neue angelegt.\nGeben Sie "abbrechen" zum Abbrechen ein.',
@@ -154,7 +154,7 @@ class Simulator:
                 "qtable_name": "default",
                 "alpha": 1.0,
                 "y": 0.95,
-                "direction": "{}".format(Parkingdirection.FORWARD.name),
+                "direction": Parkingdirection.FORWARD,
                 "action": "explore",
                 "color": True
             }
@@ -236,14 +236,14 @@ class Simulator:
         Clears comand line output
         """
         system('cls' if name == 'nt' else 'clear')
+        PrintLogo.print_color(
+            PrintLogo) if self.config['color'] else PrintLogo.print_bw(PrintLogo)
 
     def print_menu(self, execution_time: datetime.timedelta = None):
         """
         Prints main menu.
         """
         self.clear()
-        PrintLogo.print_color(
-            PrintLogo) if self.config['color'] else PrintLogo.print_bw(PrintLogo)
         print(self.language_package[self.config['language']]['command'])
         print(self.language_package[self.config['language']]['exit'])
         if execution_time != None:
@@ -253,6 +253,7 @@ class Simulator:
         """
         Prints settings menu.
         """
+        self.clear()
         print(
             self.language_package[self.config['language']]['settings']['heading'])
         print(
@@ -286,12 +287,14 @@ class Simulator:
         """
         Prints direction settings menu.
         """
+        self.clear()
         print(self.language_package[self.config['language']]
               ['settings']['direction']['heading'])
-        print("{} {}.".format(self.language_package[self.config['language']]['settings']['direction']['current'],
+        print("{0} {1}".format(self.language_package[self.config['language']]['settings']['direction']['current'],
               self.language_package[self.config['language']]['settings']['direction'][self._parking_learner._parking_direction.value]))
-        print("{}.".format(
+        print("{}".format(
             self.language_package[self.config['language']]['settings']['direction']['command']))
+        print(self.language_package[self.config['language']]['back'])
 
     def parking_direction_settings(self):
         """
@@ -305,13 +308,13 @@ class Simulator:
                 self._qtable_pair[self._parking_learner._parking_direction.value] = self._parking_learner._qtable
                 self._parking_learner.change_parking_direction(
                     new_parking_direction=Parkingdirection.FORWARD, new_qtable=self._qtable_pair[Parkingdirection.FORWARD.value])
-                self.config['direction'] = Parkingdirection.FORWARD.name
+                self.config['direction'] = Parkingdirection.FORWARD
                 break
             elif user_input == 'backward' or user_input == 'rueckwaerts':
                 self._qtable_pair[self._parking_learner._parking_direction.value] = self._parking_learner._qtable
                 self._parking_learner.change_parking_direction(
                     new_parking_direction=Parkingdirection.BACKWARD, new_qtable=self._qtable_pair[Parkingdirection.BACKWARD.value])
-                self.config['direction'] = Parkingdirection.BACKWARD.name
+                self.config['direction'] = Parkingdirection.BACKWARD
                 break
             else:
                 print(
@@ -323,9 +326,10 @@ class Simulator:
         """
         Prints q-table settings menu.
         """
+        self.clear()
         print(self.language_package[self.config['language']]
               ['settings']['qtable']['heading'])
-        print("{}.".format(
+        print("{}".format(
             self.language_package[self.config['language']]['settings']['qtable']['command']))
         print(self.language_package[self.config['language']]['back'])
 
@@ -359,6 +363,7 @@ class Simulator:
         wrong_input: bool = False
             Prints the wrong input message if set, True a wrong input was entered, by default False.
         """
+        self.clear()
         print(
             self.language_package[self.config['language']]['settings']['qtable']['load']['heading'])
         print(
@@ -426,6 +431,7 @@ class Simulator:
         """
         Prints q-table save menu.
         """
+        self.clear()
         print(
             self.language_package[self.config['language']]['settings']['qtable']['save']['heading'])
         print("{}{}".format(self.language_package[self.config['language']]
@@ -454,8 +460,11 @@ class Simulator:
         """
         Prints menu to change parking_learner action.
         """
+        self.clear()
         print(self.language_package[self.config['language']]
               ['settings']['action']['heading'])
+        print(self.language_package[self.config['language']]
+              ['settings']['action']['command'])
         print(self.language_package[self.config['language']]['back'])
 
     def action_settings(self):

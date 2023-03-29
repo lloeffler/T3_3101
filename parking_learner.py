@@ -89,9 +89,10 @@ class ParkingLearner:
         -------
         np.ndarray(61, 36, 36, 5, 20), dtype=float)): The previous q-table.
         """
+        new_qtable_is_numpy_array = new_qtable.__class__ == np.ndarray
         old_q_table = self._qtable
         self._parking_direction = new_parking_direction
-        self._qtable = new_qtable or np.zeros(
+        self._qtable = new_qtable if new_qtable_is_numpy_array else np.zeros(
             shape=(61, 36, 36, 5, 20))
         return old_q_table
 

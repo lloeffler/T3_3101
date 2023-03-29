@@ -182,7 +182,7 @@ class Exhibition:
                 "qtable_name": "default",
                 "alpha": 1.0,
                 "y": 0.95,
-                "direction": "{}".format(Parkingdirection.FORWARD.name),
+                "direction": Parkingdirection.FORWARD,
                 "action": "explore",
                 "color": True
             }
@@ -262,6 +262,8 @@ class Exhibition:
         Clears comand line output
         """
         system('cls' if name == 'nt' else 'clear')
+        PrintLogo.print_color(
+            PrintLogo) if self.config['color'] else PrintLogo.print_bw(PrintLogo)
 
     def print_wrong_input(self):
         """
@@ -280,8 +282,6 @@ class Exhibition:
         wrong_input: bool = False
         """
         self.clear()
-        PrintLogo.print_color(
-            PrintLogo) if self.config['color'] else PrintLogo.print_bw(PrintLogo)
         print(self.language_package[self.config['language']]['command'])
         if wrong_input:
             self.print_wrong_input()
@@ -297,6 +297,7 @@ class Exhibition:
         administrator_mode: bool = False
             If administrationmode is active, True, the q-table settings will be shown, by default False.
         """
+        self.clear()
         print(
             self.language_package[self.config['language']]['settings']['heading'])
         print(
@@ -338,12 +339,14 @@ class Exhibition:
         """
         Prints direction settings menu.
         """
+        self.clear()
         print(self.language_package[self.config['language']]
               ['settings']['direction']['heading'])
-        print("{} {}.".format(self.language_package[self.config['language']]['settings']['direction']['current'],
+        print("{0} {1}".format(self.language_package[self.config['language']]['settings']['direction']['current'],
               self.language_package[self.config['language']]['settings']['direction'][self._parking_learner._parking_direction.value]))
-        print("{}.".format(
+        print("{}".format(
             self.language_package[self.config['language']]['settings']['direction']['command']))
+        print(self.language_package[self.config['language']]['back'])
 
     def parking_direction_settings(self):
         """
@@ -358,13 +361,13 @@ class Exhibition:
                 self._qtable_pair[self._parking_learner._parking_direction.value] = self._parking_learner._qtable
                 self._parking_learner.change_parking_direction(
                     new_parking_direction=Parkingdirection.FORWARD, new_qtable=self._qtable_pair[Parkingdirection.FORWARD.value])
-                self.config['direction'] = Parkingdirection.FORWARD.name
+                self.config['direction'] = Parkingdirection.FORWARD
                 break
             elif user_input == 'backward' or user_input == 'rueckwaerts':
                 self._qtable_pair[self._parking_learner._parking_direction.value] = self._parking_learner._qtable
                 self._parking_learner.change_parking_direction(
                     new_parking_direction=Parkingdirection.BACKWARD, new_qtable=self._qtable_pair[Parkingdirection.BACKWARD.value])
-                self.config['direction'] = Parkingdirection.BACKWARD.name
+                self.config['direction'] = Parkingdirection.BACKWARD
                 break
             else:
                 wrong_input = True
@@ -377,9 +380,10 @@ class Exhibition:
         """
         Prints q-table settings menu.
         """
+        self.clear()
         print(self.language_package[self.config['language']]
               ['settings']['qtable']['heading'])
-        print("{}.".format(
+        print("{}".format(
             self.language_package[self.config['language']]['settings']['qtable']['command']))
         print(self.language_package[self.config['language']]['back'])
 
@@ -416,6 +420,7 @@ class Exhibition:
         wrong_input: bool = False
             Prints the wrong input message if set, True a wrong input was entered, by default False.
         """
+        self.clear()
         print(
             self.language_package[self.config['language']]['settings']['qtable']['load']['heading'])
         print(
@@ -479,6 +484,7 @@ class Exhibition:
         """
         Prints q-table save menu.
         """
+        self.clear()
         print(
             self.language_package[self.config['language']]['settings']['qtable']['save']['heading'])
         print("{}{}".format(self.language_package[self.config['language']]
@@ -506,6 +512,7 @@ class Exhibition:
         """
         Prints menu to change parking_learner action.
         """
+        self.clear()
         print(self.language_package[self.config['language']]
               ['settings']['action']['heading'])
         print(self.language_package[self.config['language']]
