@@ -2,6 +2,7 @@
 from time import sleep
 
 from swarmrobot import SwarmRobot
+from turn_assistant import TurnAssistant
 
 
 def right1(bot: SwarmRobot):
@@ -56,6 +57,18 @@ def right4(bot: SwarmRobot):
     sleep(0.5)
 
 
+def right90(turn_assitant: TurnAssistant):
+    """
+    Turns the robot about 90 degree to the right.
+
+    Parameter
+    ----------
+    turn_assitant: TurnAssistant
+        A instance of the turn assistand.
+    """
+    turn_assitant.turn_90_deg(direction=-1)
+
+
 def left1(bot: SwarmRobot):
     """
     Steers to 25% to the left.
@@ -108,6 +121,18 @@ def left4(bot: SwarmRobot):
     sleep(0.5)
 
 
+def left90(turn_assitant: TurnAssistant):
+    """
+    Turns the robot about 90 degree to the left.
+
+    Parameter
+    ----------
+    turn_assitant: TurnAssistant
+        A instance of the turn assistand.
+    """
+    turn_assitant.turn_90_deg(direction=1)
+
+
 def straight(bot: SwarmRobot):
     """
     Steers straight.
@@ -123,6 +148,30 @@ def straight(bot: SwarmRobot):
     sleep(0.5)
     bot.set_drive_steer(0.)
     sleep(0.5)
+
+
+def turn180(turn_assitant: TurnAssistant):
+    """
+    Turns the robot about 180 degree.
+
+    Parameter
+    ----------
+    turn_assitant: TurnAssistant
+        A instance of the turn assistand.
+    """
+    turn_assitant.turn_180_deg()
+
+
+def turn180onspot(turn_assitant: TurnAssistant):
+    """
+    Turns the robot about 180 degree.
+
+    Parameter
+    ----------
+    turn_assitant: TurnAssistant
+        A instance of the turn assistand.
+    """
+    turn_assitant.turn_180_deg_on_spot()
 
 
 def drive(bot: SwarmRobot, dspeed: int):
@@ -146,6 +195,7 @@ def drive(bot: SwarmRobot, dspeed: int):
     bot.set_drive_power(0)
     sleep(0.5)
 
+
 def rotate(bot: SwarmRobot):
     """
     Ask the user how many degree the motor should rotate.
@@ -156,6 +206,7 @@ def rotate(bot: SwarmRobot):
     degree = int(input(">"))
     bot._drive_motor.rotate_motor(degree=degree)
     sleep(0.5)
+
 
 def autorotate(bot: SwarmRobot):
     """
@@ -169,6 +220,7 @@ def autorotate(bot: SwarmRobot):
     for i in range(degree_steps):
         bot._drive_motor.rotate_motor(degree=30)
     bot._drive_motor.rotate_motor(degree=degree_rest)
+
 
 def reset(bot: SwarmRobot) -> int:
     """
@@ -232,6 +284,8 @@ bot.calibrate(False, True)
 
 bot.set_drive_steer(0)
 
+turn_assistant = TurnAssistant(bot=bot)
+
 help()
 
 user_input = input("enter something\n>")
@@ -247,6 +301,8 @@ while user_input != "end" and user_input != "exit" and user_input != "quit":
         right3(bot=bot)
     if user_input == "right4":
         right4(bot=bot)
+    if user_input == "lright90":
+        right90(turn_assitant=turn_assistant)
     if user_input == "left1":
         left1(bot=bot)
     if user_input == "left2":
@@ -255,6 +311,14 @@ while user_input != "end" and user_input != "exit" and user_input != "quit":
         left3(bot=bot)
     if user_input == "left4":
         left4(bot=bot)
+    if user_input == "left90":
+        left90(turn_assitant=turn_assistant)
+    if user_input == "straight":
+        straight(bot=bot)
+    if user_input == "turn180":
+        turn180(turn_assitant=turn_assistant)
+    if user_input == "turn180onspot":
+        turn180onspot(turn_assitant=turn_assistant)
     if user_input == "drive":
         drive(bot=bot, dspeed=speed)
     if user_input == "rotate":
@@ -267,6 +331,4 @@ while user_input != "end" and user_input != "exit" and user_input != "quit":
         speed = set_speed(speed=speed)
     if user_input == "help":
         help()
-    if user_input == "straight":
-        straight(bot=bot)
     user_input = input("enter something\n>")
