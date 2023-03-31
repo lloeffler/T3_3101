@@ -10,13 +10,22 @@ from pidcontroller import PIDController
 from line_tracking import LineTracker
 from programm_type import ProgrammType
 
+from constances import DRIVE_POWER_LIMIT, DRIVE_SLEEP_TIME, TURN_SLEEP_TIME, DEGREE_PER_CM
+
 
 class SwarmRobot:
     def __init__(self, programm_type: ProgrammType = ProgrammType.AUTOMATIC):
+        # Motors
         self._fork_lift_motor = CalibratedMotor(Motor._bp.PORT_A, calpow=50)
         self._fork_tilt_motor = CalibratedMotor(Motor._bp.PORT_B, calpow=40)
         self._drive_motor = Motor(Motor._bp.PORT_C)
         self._steer_motor = CalibratedMotor(Motor._bp.PORT_D, calpow=40)
+
+        # Save old power limit aka speed limit
+        self._old_power_limit = self._drive_motor.get_power_limit()
+
+        # Set new power limit aka speed limit
+        self._drive_motor.limit(power_limit=DRIVE_POWER_LIMIT)
 
         # Camera
         self._camera = cv2.VideoCapture(0)
@@ -50,6 +59,7 @@ class SwarmRobot:
 
     def __del__(self):
         self._steer_motor.to_init_position()
+        self._drive_motor.limit(power_limit=self._old_power_limit)
         self.stop_all()
 
     def change_drive_power(self, pnew):
@@ -62,18 +72,7 @@ class SwarmRobot:
         pos = self._steer_motor.position_from_factor(pnew)
         self._steer_motor.set_position(pos)
 
-    def steer_straight(self):
-        """
-        Steers the robot most possible straight.
-        """
-        self.set_drive_steer(-0.25)
-        sleep(0.3)
-        self.set_drive_steer(0.25)
-        sleep(0.3)
-        self.set_drive_steer(0)
-        sleep(0.3)
-
-    def drive(self, lenght: int):
+    def drive(self, length: int):
         """
         Drives the robot drive 'length' cm.
 
@@ -83,18 +82,14 @@ class SwarmRobot:
             The length a robot drives.
         """
         # Exit function if length is zero.
-        if lenght == 0:
+        if length == 0:
             return
-        # A degree of 30 is equals to 1 cm.
-        # If changing the tire size, adjust the step degree size change the following line.
-        step_degree = 30
-        step = -step_degree if lenght < 0  else step_degree
-        for i in range(abs(lenght)):
-            self._drive_motor.rotate_motor(degree=step)
-            sleep(0.3)
+        # Rotate motor to drive.
+        self._drive_motor.rotate_motor(degree=(DEGREE_PER_CM * length))
+        sleep(abs(length) * DRIVE_SLEEP_TIME)
         # Stops motor after driving to stop motor noice.
         self._drive_motor.rotate_motor(degree=0)
-        sleep(0.3)
+        sleep(DRIVE_SLEEP_TIME)
 
     def set_programm_type(self, programmtype: ProgrammType):
         """
@@ -126,11 +121,11 @@ class SwarmRobot:
         Steers staright, to compensate the steering backlash.
         """
         self.set_drive_steer(-0.25)
-        sleep(0.5)
+        sleep(TURN_SLEEP_TIME)
         self.set_drive_steer(0.25)
-        sleep(0.5)
-        self.set_drive_steer(0.0)
-        sleep(0.5)
+        sleep(TURN_SLEEP_TIME)
+        self.set_drive_steer(-0.15)
+        sleep(TURN_SLEEP_TIME)
 
     def _setup_autopilot(self):
         from time import sleep

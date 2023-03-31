@@ -16,6 +16,8 @@ from parking_learner import ParkingLearner
 from parkingdirection import Parkingdirection
 from print_logo import PrintLogo
 
+from constances import DISPLAY_CONFIRMATION_SLEEP_TIME
+
 
 class Simulator:
     """
@@ -480,7 +482,7 @@ class Simulator:
                 self.config['action'] = 'utilize'
                 print("'{}' {}".format(self._parking_learner._action,
                       self.language_package[self.config['language']]['settings']['action']['confirmation']))
-                sleep(1)
+                sleep(DISPLAY_CONFIRMATION_SLEEP_TIME)
                 return
             elif user_input == 'explore':
                 print(
@@ -496,7 +498,7 @@ class Simulator:
                 self.config['action'] = 'explore'
                 print("'{}' {}".format(self._parking_learner._action,
                       self.language_package[self.config['language']]['settings']['action']['confirmation']))
-                sleep(1)
+                sleep(DISPLAY_CONFIRMATION_SLEEP_TIME)
                 return
             elif user_input == "back":
                 return
@@ -541,7 +543,7 @@ class Simulator:
                 x + 1, single_end_execution_time - single_start_execution_time))
         end_time = datetime.datetime.now()
         print("Finished similation in {}".format(end_time - start_time))
-        sleep(2)
+        sleep(DISPLAY_CONFIRMATION_SLEEP_TIME)
         return end_time - start_time
 
 

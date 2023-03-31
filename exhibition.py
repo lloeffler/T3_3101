@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import sys
 import traceback
+import datetime
 
 from json import loads
 from re import compile
@@ -16,6 +17,8 @@ from parkingdirection import Parkingdirection
 from programm_type import ProgrammType
 from print_logo import PrintLogo
 from turn_assistant import TurnAssistant
+
+from constances import DISPLAY_CONFIRMATION_SLEEP_TIME
 
 
 class Exhibition:
@@ -38,7 +41,7 @@ class Exhibition:
     _qtable_pair: List/dict
         The current q-tables for parking forward an backward.
         A q-table is a three demensional numpy.ndarray with shape=(61, 36, 36, 9, 20).
-        The q-table contains the potential reward of every combination of state (relativ position of the robot to the parking lot) and action (lenght and direction driving).
+        The q-table contains the potential reward of every combination of state (relativ position of the robot to the parking lot) and action (length and direction driving).
     """
     language_package = {
         'english': {
@@ -533,7 +536,7 @@ class Exhibition:
                 self.config['action'] = 'utilize'
                 print("'{}' {}".format(self._parking_learner._action,
                       self.language_package[self.config['language']]['settings']['action']['confirmation']))
-                sleep(1)
+                sleep(DISPLAY_CONFIRMATION_SLEEP_TIME)
                 return
             elif user_input == 'explore':
                 print(
@@ -549,7 +552,7 @@ class Exhibition:
                 self.config['action'] = 'explore'
                 print("'{}' {}".format(self._parking_learner._action,
                       self.language_package[self.config['language']]['settings']['action']['confirmation']))
-                sleep(1)
+                sleep(DISPLAY_CONFIRMATION_SLEEP_TIME)
                 return
             else:
                 wrong_input = True
@@ -596,7 +599,7 @@ class Exhibition:
             self._bot.stop_all()
         else:
             # Drives 15 cm forward
-            self._bot.drive(lenght=15)
+            self._bot.drive(length=15)
             print(self.language_package[self.config['language']]['started'])
             self._parking_learner.start_parking()
             print(self.language_package[self.config['language']]['finished'])
@@ -605,9 +608,8 @@ class Exhibition:
             if self._parking_learner._parking_direction == Parkingdirection.FORWARD:
                 # Turns robot, if parked forward.
                 self._turn_assistant.turn_180_deg_on_spot()
-            # Drives 30 cm forward
-            self._bot.drive(lenght=30)
-            self._bot.stop_all()
+            # Drives back to start position
+            self._bot.drive(length=54 if self._parking_learner._parking_direction == Parkingdirection.FORWARD else 30)
             # Turns robot.
             self._turn_assistant.turn_180_deg_on_spot()
         self._bot.set_programm_type = ProgrammType.DONE

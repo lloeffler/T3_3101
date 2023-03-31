@@ -1,3 +1,5 @@
+from time import sleep
+
 from brickpi3 import BrickPi3
 
 
@@ -7,15 +9,35 @@ class Motor:
 
     def __init__(self, port):
         self._port = port
+        self._default_power_limit = 85
+        self._power_limit = 0
 
-        self._bp.set_motor_limits(self._port, 85)
+        self.limit(power_limit=self._default_power_limit)
 
     def status(self):
         return self._bp.get_motor_status(self._port)
+    
+    def limit(self, power_limit: int = 0):
+        """
+        Limits the powere of the motor.
+
+        Parameter
+        ---------
+        power_limit: int = 0
+            The motor will be limited at the power limit in percent, by default 0.
+            A powerlimit of 0 will unset the powere limit, it is set to 100 percent.
+        """
+        self._bp.set_motor_limits(self._port, power=power_limit)
+        self._power_limit = power_limit
+
+    def get_power_limit(self) -> int:
+        """
+        Returns the current power limit of this motor.
+        """
+        return self._power_limit
 
     def change_power(self, pnew):
         import math
-        import time
 
         if 100 < abs(pnew):
             return
@@ -34,7 +56,7 @@ class Motor:
         for _ in range(steps):
             pcur += inc
             self._bp.set_motor_power(self._port, pcur)
-            time.sleep(0.25)
+            sleep(0.25)
         self._bp.set_motor_power(self._port, pnew)
 
     def set_power(self, pnew):
@@ -73,8 +95,6 @@ class CalibratedMotor(Motor):
             self._pinit = None
 
     def calibrate(self, verbose=False):
-        import time
-
         CALIBRATE_SLEEP = 0.75
 
         if verbose:
@@ -83,7 +103,7 @@ class CalibratedMotor(Motor):
         encprev, encnow = 0, None
         while encprev != encnow:
             encprev = encnow
-            time.sleep(CALIBRATE_SLEEP)
+            sleep(CALIBRATE_SLEEP)
             encnow = self._bp.get_motor_encoder(self._port)
         self._pmin = encnow
         self.set_power(0)
@@ -96,7 +116,7 @@ class CalibratedMotor(Motor):
         encprev, encnow = 0, None
         while encprev != encnow:
             encprev = encnow
-            time.sleep(CALIBRATE_SLEEP)
+            sleep(CALIBRATE_SLEEP)
             encnow = self._bp.get_motor_encoder(self._port)
         self._pmax = encnow
         self.set_power(0)
@@ -109,12 +129,10 @@ class CalibratedMotor(Motor):
         self._pinit = (self._pmax + self._pmin) * 0.5
         if verbose:
             print('pinit = {}', self._pinit)
-        time.sleep(0.5)
+        sleep(0.5)
         self.to_init_position()
 
     def calibrate_offset(self, offset, verbose=False):
-        import time
-
         CALIBRATE_SLEEP = 0.75
 
         if verbose:
@@ -123,7 +141,7 @@ class CalibratedMotor(Motor):
         encprev, encnow = 0, None
         while encprev != encnow:
             encprev = encnow
-            time.sleep(CALIBRATE_SLEEP)
+            sleep(CALIBRATE_SLEEP)
             encnow = self._bp.get_motor_encoder(self._port)
         self._pmin = encnow
         self.set_power(0)
@@ -136,7 +154,7 @@ class CalibratedMotor(Motor):
         self._pinit = (self._pmax + self._pmin) * 0.5
         if verbose:
             print('pinit = {}', self._pinit)
-        time.sleep(0.5)
+        sleep(0.5)
         self.to_init_position()
 
     def set_position(self, pnew):
