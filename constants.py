@@ -1,5 +1,5 @@
 """
-Constance values for controlling the swarmrobot.
+Constant values for controlling the swarmrobot or simulator.
 """
 # How much percent of the power, the drive motor uses to drive.
 # When chaning this value, you need to adjust the DRIVE_SLEEP_TIME!
@@ -16,3 +16,6 @@ PARKING_TIME = 10
 # Rotation degree per centi meter (cm).
 # If changing the tire size, adjust the DEGREE_PER_CM!
 DEGREE_PER_CM = 30
+
+# How many times the simulator tries random actions to learn and fill the q table.
+NUMBER_OF_SIMULATIONS = 1000000

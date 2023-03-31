@@ -5,7 +5,7 @@ from time import sleep
 from motor import Motor
 from swarmrobot import SwarmRobot
 
-from constances import TURN_SLEEP_TIME
+from constants import TURN_SLEEP_TIME
 
 
 class TurnAssistant:

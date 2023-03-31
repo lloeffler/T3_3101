@@ -16,7 +16,7 @@ from parking_learner import ParkingLearner
 from parkingdirection import Parkingdirection
 from print_logo import PrintLogo
 
-from constances import DISPLAY_CONFIRMATION_SLEEP_TIME
+from constants import DISPLAY_CONFIRMATION_SLEEP_TIME, NUMBER_OF_SIMULATIONS
 
 
 class Simulator:
@@ -525,7 +525,7 @@ class Simulator:
         print("Start simulation")
         start_time = datetime.datetime.now()
         # To change the number of runs, change to number in the following line.
-        for x in range(250000):
+        for x in range(NUMBER_OF_SIMULATIONS):
             if random_start:
                 start_distance = randint(0, 60)
                 start_angle = randint(0, 35)

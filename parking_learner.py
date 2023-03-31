@@ -8,7 +8,7 @@ from swarmrobot import SwarmRobot
 from parkingdirection import Parkingdirection
 from programm_type import ProgrammType
 
-from constances import TURN_SLEEP_TIME, PARKING_TIME
+from constants import TURN_SLEEP_TIME, PARKING_TIME
 
 
 class ParkingLearner:

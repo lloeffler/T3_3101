@@ -1,7 +1,9 @@
-import time
+from time import sleep
 
 import cv2 as cv
 import numpy as numpy
+
+from constants import TURN_SLEEP_TIME
 
 
 class LineTracker:
@@ -80,13 +82,12 @@ class LineTracker:
             else:
                 steer = bot.steer * -1
                 bot.set_drive_steer(steer)
-                time.sleep(0.5)
-                bot._drive_motor.rotate_motor(-0.6*510)
-                time.sleep(0.5)
+                sleep(TURN_SLEEP_TIME)
+                bot.drive(10)
                 bot.set_drive_steer(0)
-                time.sleep(0.5)
-                bot._drive_motor.rotate_motor(0.6*510)
-                time.sleep(0.5)
+                sleep(TURN_SLEEP_TIME)
+                bot.drive(10)
+                sleep(TURN_SLEEP_TIME)
                 bot.set_drive_steer(bot.steer)
 
                 return self.track_line(frame, event, bot)

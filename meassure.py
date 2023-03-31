@@ -4,7 +4,7 @@ from time import sleep
 from swarmrobot import SwarmRobot
 from turn_assistant import TurnAssistant
 
-from constances import TURN_SLEEP_TIME
+from constants import TURN_SLEEP_TIME
 
 
 def right1(bot: SwarmRobot):

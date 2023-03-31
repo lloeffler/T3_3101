@@ -18,7 +18,7 @@ from programm_type import ProgrammType
 from print_logo import PrintLogo
 from turn_assistant import TurnAssistant
 
-from constances import DISPLAY_CONFIRMATION_SLEEP_TIME
+from constants import DISPLAY_CONFIRMATION_SLEEP_TIME
 
 
 class Exhibition:

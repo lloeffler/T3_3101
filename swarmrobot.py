@@ -10,7 +10,7 @@ from pidcontroller import PIDController
 from line_tracking import LineTracker
 from programm_type import ProgrammType
 
-from constances import DRIVE_POWER_LIMIT, DRIVE_SLEEP_TIME, TURN_SLEEP_TIME, DEGREE_PER_CM
+from constants import DRIVE_POWER_LIMIT, DRIVE_SLEEP_TIME, TURN_SLEEP_TIME, DEGREE_PER_CM
 
 
 class SwarmRobot:

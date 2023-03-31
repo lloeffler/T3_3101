@@ -6,6 +6,7 @@ Created by my self:
 - print_logo.py
 - programm_types.py
 - test.py
+- constants.py
 
 Copied fiels from swarmrobot, based on this repo: https://github.com/1Basileus/Swarmrobotlib
 - bar_code_detection.py
