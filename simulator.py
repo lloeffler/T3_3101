@@ -16,7 +16,7 @@ from parking_learner import ParkingLearner
 from parkingdirection import Parkingdirection
 from print_logo import PrintLogo
 
-from constants import DISPLAY_CONFIRMATION_SLEEP_TIME, NUMBER_OF_SIMULATIONS
+from constants import DISPLAY_CONFIRMATION_SLEEP_TIME, NUMBER_OF_SIMULATIONS, SIZE_STATE_RHO, SIZE_STATE_PHI, SIZE_STATE_ORIENTATION, SIZE_ACTION_DIRECTION, SIZE_ACTION_LENTGH
 
 
 class Simulator:
@@ -421,9 +421,9 @@ class Simulator:
         else:
             # Creates ne q-table pair.
             self._qtable_pair[18] = np.zeros(
-                shape=(61, 36, 36, 5, 20), dtype=float)
+                shape=(SIZE_STATE_RHO, SIZE_STATE_PHI, SIZE_STATE_ORIENTATION, SIZE_ACTION_DIRECTION, SIZE_ACTION_LENTGH), dtype=float)
             self._qtable_pair[0] = np.zeros(
-                shape=(61, 36, 36, 5, 20), dtype=float)
+                shape=(SIZE_STATE_RHO, SIZE_STATE_PHI, SIZE_STATE_ORIENTATION, SIZE_ACTION_DIRECTION, SIZE_ACTION_LENTGH), dtype=float)
         # Sets new q-table in parking_learner.
         if self._parking_learner != None:
             self._parking_learner.change_parking_direction(
@@ -527,9 +527,9 @@ class Simulator:
         # To change the number of runs, change to number in the following line.
         for x in range(NUMBER_OF_SIMULATIONS):
             if random_start:
-                start_distance = randint(0, 60)
-                start_angle = randint(0, 35)
-                start_orientation = randint(0, 35)
+                start_distance = randint(0, SIZE_STATE_RHO - 1)
+                start_angle = randint(0, SIZE_STATE_PHI - 1)
+                start_orientation = randint(0, SIZE_STATE_ORIENTATION - 1)
             else:
                 start_distance = 15
                 start_angle = 0

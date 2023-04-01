@@ -18,7 +18,7 @@ from programm_type import ProgrammType
 from print_logo import PrintLogo
 from turn_assistant import TurnAssistant
 
-from constants import DISPLAY_CONFIRMATION_SLEEP_TIME, START_DISTANCE, END_DISTANCE_FORWARD, END_DISTANCE_BACKWARD
+from constants import DISPLAY_CONFIRMATION_SLEEP_TIME, START_DISTANCE, END_DISTANCE_FORWARD, END_DISTANCE_BACKWARD, SIZE_STATE_RHO, SIZE_STATE_PHI, SIZE_STATE_ORIENTATION, SIZE_STATE_ORIENTATION, SIZE_STATE_ORIENTATION
 
 
 class Exhibition:
@@ -475,9 +475,9 @@ class Exhibition:
         else:
             # Creates ne q-table pair.
             self._qtable_pair[18] = np.zeros(
-                shape=(61, 36, 36, 5, 20), dtype=float)
+                shape=(SIZE_STATE_RHO, SIZE_STATE_PHI, SIZE_STATE_ORIENTATION, SIZE_STATE_ORIENTATION, SIZE_STATE_ORIENTATION), dtype=float)
             self._qtable_pair[0] = np.zeros(
-                shape=(61, 36, 36, 5, 20), dtype=float)
+                shape=(SIZE_STATE_RHO, SIZE_STATE_PHI, SIZE_STATE_ORIENTATION, SIZE_STATE_ORIENTATION, SIZE_STATE_ORIENTATION), dtype=float)
         # Sets new q-table in parking_learner.
         if self._parking_learner != None:
             self._parking_learner.change_parking_direction(

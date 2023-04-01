@@ -8,7 +8,7 @@ from swarmrobot import SwarmRobot
 from parkingdirection import Parkingdirection
 from programm_type import ProgrammType
 
-from constants import TURN_SLEEP_TIME, PARKING_TIME
+from constants import TURN_SLEEP_TIME, TURNING_RADIUS_50, TURNING_RADIUS_100, TURNING_DIRECTIONS, PARKING_TIME, FORWARD_PARKING_RHO, FORWARD_PARKING_PHI, FORWARD_PARKING_ORIENTATION, BACKWARD_PARKING_RHO, BACKWARD_PARKING_ORIENTATION, MAXIMAL_DISTANCE_TO_PARKING_LOT, SIZE_STATE_RHO, SIZE_STATE_PHI, SIZE_STATE_ORIENTATION, SIZE_ACTION_DIRECTION, SIZE_ACTION_LENTGH, BACKWARD_ACTION_LENGTH_SUBTRAHEND, FORWARD_ACTION_LENGTH_SUBTRAHEND, MAXIMAL_RANDOM_ACTION_DIRECTION, MAXIMAL_RANDOM_ACTION_LENGTH
 
 
 class ParkingLearner:
@@ -50,7 +50,7 @@ class ParkingLearner:
         qtable_is_numpy_array = qtable.__class__ == np.ndarray
         self._bot = bot
         self._qtable = qtable if qtable_is_numpy_array else np.zeros(
-            shape=(61, 36, 36, 5, 20))
+            shape=(SIZE_STATE_RHO, SIZE_STATE_PHI, SIZE_STATE_ORIENTATION, SIZE_ACTION_DIRECTION, SIZE_ACTION_LENTGH))
         self._state = {
             'rho': 0,
             'phi': 0,
@@ -63,16 +63,16 @@ class ParkingLearner:
         self._parking_direction = parkingdirection
         self._exploration_counter = 0
         # Turning radia  for 0.5 and 1.0 steering.
-        self._turning_radius = [68.0, 37.0]
+        self._turning_radius = [TURNING_RADIUS_50, TURNING_RADIUS_100]
         self._parking_position = {
             'FORWARD': {
-                'rho': 24,
-                'phi': 18,
-                'orientation': 18
+                'rho': FORWARD_PARKING_RHO,
+                'phi': FORWARD_PARKING_PHI,
+                'orientation': FORWARD_PARKING_ORIENTATION
             },
             'BACKWARD': {
-                'rho': 0,
-                'orientation': 0
+                'rho': BACKWARD_PARKING_RHO,
+                'orientation': BACKWARD_PARKING_ORIENTATION
             }
         }
 
@@ -95,7 +95,7 @@ class ParkingLearner:
         old_q_table = self._qtable
         self._parking_direction = new_parking_direction
         self._qtable = new_qtable if new_qtable_is_numpy_array else np.zeros(
-            shape=(61, 36, 36, 5, 20))
+            shape=(SIZE_STATE_RHO, SIZE_STATE_PHI, SIZE_STATE_ORIENTATION, SIZE_ACTION_DIRECTION, SIZE_ACTION_LENTGH))
         return old_q_table
 
     # region conversions
@@ -151,8 +151,7 @@ class ParkingLearner:
         -------
         float: The turning drirection, based on the index parameter. By default the direction is straight, so 0.0.
         """
-        directions = [-1.0, -0.5, 0.0, 0.5, 1.0]
-        return directions[index]
+        return TURNING_DIRECTIONS[index]
 
     def index2dlength(self, index: int = 10) -> int:
         """
@@ -167,7 +166,7 @@ class ParkingLearner:
         -------
         int: The length the robot drives forward or backward, based on the index parameter.
         """
-        return index - 10 if index < 10 else index - 9
+        return index - BACKWARD_ACTION_LENGTH_SUBTRAHEND if index < 10 else index - FORWARD_ACTION_LENGTH_SUBTRAHEND
 
     # endregion
 
@@ -244,10 +243,11 @@ class ParkingLearner:
         # Sets new position as robot state.
         [rho_t, phi_t] = self.cart2pol(x_t, y_t)
         self._state['rho'] = int(rho_t)
-        self._state['phi'] = int(np.rint(np.rad2deg(phi_t)/10)) % 36
+        self._state['phi'] = int(
+            np.rint(np.rad2deg(phi_t)/10)) % SIZE_STATE_PHI
         self._state['orientation'] = int(
-            np.rint(np.rad2deg(orientation_t)/10)) % 36
-        return rho_t <= 60.0
+            np.rint(np.rad2deg(orientation_t)/10)) % SIZE_STATE_ORIENTATION
+        return rho_t <= MAXIMAL_DISTANCE_TO_PARKING_LOT
 
     def action(self, direction_index: int, length_index: int) -> bool:
         """
@@ -256,7 +256,7 @@ class ParkingLearner:
         Parameter
         ----------
         direction_index: int 
-            Index of the steering impact from 0 to 5
+            Index of the steering impact from 0 to 5.
         length_index: int
             Index of how long the robot wil drive.
 
@@ -332,7 +332,7 @@ class ParkingLearner:
         reward = 0.0
         if self.check_location():
             reward = 100.0
-        if self._state['rho'] > 60:
+        if self._state['rho'] > MAXIMAL_DISTANCE_TO_PARKING_LOT:
             reward = -100.0
         return reward
 
@@ -374,8 +374,10 @@ class ParkingLearner:
                     action_direction_index, action_length_index)
             # Fills q-Table.
             if self._action == 'explore':
-                action_direction_index = random.randint(0, 4)
-                action_length_index = random.randint(0, 19)
+                action_direction_index = random.randint(
+                    0, MAXIMAL_RANDOM_ACTION_DIRECTION)
+                action_length_index = random.randint(
+                    0, MAXIMAL_RANDOM_ACTION_LENGTH)
                 old_state = {
                     'rho': self._state['rho'],
                     'phi': self._state['phi'],
@@ -386,7 +388,7 @@ class ParkingLearner:
                 old_q_s_t = self._qtable[int(old_state['rho']), int(old_state['phi']), int(
                     old_state['orientation']), action_direction_index, action_length_index]
                 # Checks if state is out of range, sets possible action q table based on check.
-                if self._state['rho'] <= 60:
+                if self._state['rho'] <= MAXIMAL_DISTANCE_TO_PARKING_LOT:
                     possible_actions_qtable = self._qtable[int(self._state['rho']), int(
                         self._state['phi']), int(self._state['orientation'])]
                 else:
@@ -454,8 +456,10 @@ class ParkingLearner:
         self._state['orientation'] = orientation
         is_in_range = True
         while self._parking:
-            action_direction_index = random.randint(0, 4)
-            action_length_index = random.randint(0, 19)
+            action_direction_index = random.randint(
+                0, MAXIMAL_RANDOM_ACTION_DIRECTION)
+            action_length_index = random.randint(
+                0, MAXIMAL_RANDOM_ACTION_LENGTH)
             old_state = {
                 'rho': self._state['rho'],
                 'phi': self._state['phi'],
@@ -467,7 +471,7 @@ class ParkingLearner:
             old_q_s_t = self._qtable[int(old_state['rho']), int(old_state['phi']), int(
                 old_state['orientation']), action_direction_index, action_length_index]
             # Checks if state is out of range, sets possible action q table based on check.
-            if self._state['rho'] <= 60:
+            if self._state['rho'] <= MAXIMAL_DISTANCE_TO_PARKING_LOT:
                 possible_actions_qtable = self._qtable[int(self._state['rho']), int(
                     self._state['phi']), int(self._state['orientation'])]
             else:
