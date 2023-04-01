@@ -18,7 +18,7 @@ from programm_type import ProgrammType
 from print_logo import PrintLogo
 from turn_assistant import TurnAssistant
 
-from constants import DISPLAY_CONFIRMATION_SLEEP_TIME
+from constants import DISPLAY_CONFIRMATION_SLEEP_TIME, START_DISTANCE, END_DISTANCE_FORWARD, END_DISTANCE_BACKWARD
 
 
 class Exhibition:
@@ -598,8 +598,8 @@ class Exhibition:
             # Stops Robot.
             self._bot.stop_all()
         else:
-            # Drives 15 cm forward
-            self._bot.drive(length=15)
+            # Drives forward
+            self._bot.drive(length=START_DISTANCE)
             print(self.language_package[self.config['language']]['started'])
             self._parking_learner.start_parking()
             print(self.language_package[self.config['language']]['finished'])
@@ -609,7 +609,7 @@ class Exhibition:
                 # Turns robot, if parked forward.
                 self._turn_assistant.turn_180_deg_on_spot()
             # Drives back to start position
-            self._bot.drive(length=54 if self._parking_learner._parking_direction == Parkingdirection.FORWARD else 30)
+            self._bot.drive(length=END_DISTANCE_FORWARD if self._parking_learner._parking_direction == Parkingdirection.FORWARD else END_DISTANCE_BACKWARD)
             # Turns robot.
             self._turn_assistant.turn_180_deg_on_spot()
         self._bot.set_programm_type = ProgrammType.DONE
