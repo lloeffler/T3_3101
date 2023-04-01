@@ -4,7 +4,7 @@ Constant values for controlling the swarmrobot, exhibition and simulator.
 
 # region robot_drive_constants
 
-DRIVE_POWER_LIMIT = 30
+DRIVE_POWER_LIMIT = int(30)
 """
 int:
 How much percent of the power, the drive motor uses to drive.
@@ -26,7 +26,7 @@ float:
 Time the robot program sleeps, while a the robot turns.
 """
 
-DEGREE_PER_CM = 30
+DEGREE_PER_CM = int(30)
 """
 int:
 Rotation degree per centi meter (cm).
@@ -123,20 +123,20 @@ The time a confirmation will be shown.
 # region exhibition
 
 # Because of the much movement in the mechanics and gears, the distance has to be less than 15.
-START_DISTANCE = 13
+START_DISTANCE = int(13)
 """
 int:
 The distance the robot drives forward at the beginning of the programm for the exhibition in centimeter (cm).
 The robot should drive about 15 cm and then start the parking progress.
 """
 
-END_DISTANCE_FORWARD = 54
+END_DISTANCE_FORWARD = int(54)
 """
 int:
 The distance the robot drives back to the starting position in centimeter (cm), when parking forward.
 """
 
-END_DISTANCE_BACKWARD = 30
+END_DISTANCE_BACKWARD = int(30)
 """
 int:
 The distance the robot drives back to the starting position in centimeter (cm), when parking backward.
@@ -146,7 +146,7 @@ The distance the robot drives back to the starting position in centimeter (cm), 
 
 # region simulator
 
-NUMBER_OF_SIMULATIONS = 1000000
+NUMBER_OF_SIMULATIONS = int(1000000)
 """
 int:
 How many times the simulator tries random actions to learn and fill the q table.
@@ -157,21 +157,21 @@ How many times the simulator tries random actions to learn and fill the q table.
 # region qtable
 # Q-tbale saves state as polar coordinates and orientation of the robot and actions with turning direction and drive length.
 
-SIZE_STATE_RHO = MAXIMAL_DISTANCE_TO_PARKING_LOT + 1
+SIZE_STATE_RHO = int(MAXIMAL_DISTANCE_TO_PARKING_LOT + 1)
 """
 int:
 Number of possible rho values in state part of q-table.
 Depends on MAXIMAL_DISTANCE_TO_PARKING_LOT.
 """
 
-SIZE_STATE_PHI = 36
+SIZE_STATE_PHI = int(36)
 """
 int:
 Number of possible phi values in state part of q-table.
 360 degree of a full circle devided by 10 to reduce the ram usage.
 """
 
-SIZE_STATE_ORIENTATION = 36
+SIZE_STATE_ORIENTATION = int(36)
 """
 int:
 Number of possible orientation values in state part of q-table.
@@ -186,7 +186,7 @@ Number of possible turning direction values in action part of q-table.
 Depends on TURNING_DIRECTIONS.
 """
 
-SIZE_ACTION_LENTGH = 20
+SIZE_ACTION_LENTGH = int(20)
 """
 int:
 Number of possible drive length values in action part of q-table.
@@ -195,7 +195,7 @@ IMPORTANT:
 Need to be a even number!
 """
 
-BACKWARD_ACTION_LENGTH_SUBTRAHEND = SIZE_ACTION_LENTGH / 2
+BACKWARD_ACTION_LENGTH_SUBTRAHEND = int(SIZE_ACTION_LENTGH / 2)
 """
 int:
 Based on SIZE_ACTION_LENTGH subtrahend for index to length conversion to drive backward.
