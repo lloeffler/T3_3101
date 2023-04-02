@@ -214,7 +214,7 @@ class Exhibition:
         """
         return '{0}{1}"language": "{2}",{1}{3}"qtable_name": "{4}",{1}{3}"alpha": {5},{1}{3}"y": {6},{1}{3}"direction": "{7}",{1}{3}"action": "{8}",{1}{3}"color": "{9}"{10}{11}'.format('{', '\n\t' if pretty else '', self.config['language'], '' if pretty else ' ', self.config['qtable_name'], self.config['alpha'], self.config['y'], self.config['direction'].name, self.config['action'], self.config['color'], '\n' if pretty else '', '}')
 
-    def main(self, administrator_mode: bool = False, park_slot_detection: bool = False):
+    def main(self, administrator_mode: bool = False, park_lot_detection: bool = False):
         """
         The main function, which handles inputs.
 
@@ -228,7 +228,7 @@ class Exhibition:
         while user_input != 'quit' and user_input != 'exit':
             wrong_input = False
             if user_input == 'start':
-                self.start(park_slot_detection)
+                self.start(park_lot_detection)
             elif user_input == 'settings' or user_input == 'einstellungen':
                 self.settings(administrator_mode)
             elif user_input == 'english' or user_input == 'englisch':
@@ -561,17 +561,17 @@ class Exhibition:
                 self.print_wrong_input()
             user_input = input('> ').lower()
 
-    def start(self, park_slot_detection: bool = False):
+    def start(self, park_lot_detection: bool = False):
         """
         Let drive the robot for about 15 cm and then start the automated parking.
         1Basileus / Swarmrobotlib
 
         Parameter
         ---------
-        park_slot_detection: bool
+        park_lot_detection: bool
             If the parking slot detection is automated, while the robot follows a line or a exhibition specific programm runs for the 'Hanover Messe'.
         """
-        if park_slot_detection:
+        if park_lot_detection:
             # Setup automatic Linedetection.
             self._bot.set_autopilot_state(active=True)
             # Setup Navigation.
@@ -620,13 +620,13 @@ if __name__ == '__main__':
         # Checks for administrator_mode in comandline arguments.
         administrator_mode = True if 'administrator_mode' in sys.argv[
             1:] or 'administratormode' in sys.argv[1:] else False
-        # Checks for park_slot_detection in comandline arguments.
-        park_slot_detection = True if 'park_slot_detection' in sys.argv[
-            1:] or 'parkslotdetection' in sys.argv[1:] else False
+        # Checks for park_lot_detection in comandline arguments.
+        park_lot_detection = True if 'park_lot_detection' in sys.argv[
+            1:] or 'parklotdetection' in sys.argv[1:] else False
         # Generates exhibition instance.
         runner = Exhibition()
         # Executes exhibition application.
-        runner.main(administrator_mode, park_slot_detection)
+        runner.main(administrator_mode, park_lot_detection)
     except Exception as exception:
         try:
             # If any error is catched, it is tried to write into an error log file.
