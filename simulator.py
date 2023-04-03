@@ -51,14 +51,14 @@ class Simulator:
                     'command': 'Enter "load" to load a new q-table.\nEnter "save" to save the current q-table.',
                     'load': {
                         'heading': 'Load a new q-table',
-                        'command': 'Enter the name of q-table to load.\nIf the entered q-table does not exists, a empty q-table is loaded.\nEnter "abort" the abort.',
+                        'command': 'Enter the name of q-table to load.\nIf the entered q-table does not exists, a empty q-table is loaded.\nEnter "abort" to abort.',
                         'save': 'Do you want to save the current q-table?\nEnter "yes" to save.\nEnter "no" to continue without saving.',
                         'not_found': 'No q-table named like this was found, creat a one.'
                     },
                     'save': {
                         'heading': 'Save the current q-table',
                         'current': 'The current q-table is named ',
-                        'command': 'Are you sure, you want to save the current q-table and override the saved one?\nEnter "yes" to confirm.\nEnter "no" the abort.'
+                        'command': 'Are you sure, you want to save the current q-table and override the saved one?\nEnter "yes" to confirm.\nEnter "no" to abort.'
                     }
                 },
                 'action': {

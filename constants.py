@@ -130,16 +130,19 @@ The distance the robot drives forward at the beginning of the programm for the e
 The robot should drive about 15 cm and then start the parking progress.
 """
 
-END_DISTANCE_FORWARD = int(54)
+# Because of the much movement in the mechanics and gears, the distance has to be less than 54.
+END_DISTANCE_FORWARD = int(48)
 """
 int:
 The distance the robot drives back to the starting position in centimeter (cm), when parking forward.
+The robot should drive about 54 cm back to its starting position.
 """
 
 END_DISTANCE_BACKWARD = int(30)
 """
 int:
 The distance the robot drives back to the starting position in centimeter (cm), when parking backward.
+The robot should drive about 30 cm back to its starting position.
 """
 
 # endregion exhibition
