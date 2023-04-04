@@ -86,17 +86,11 @@ class ParkingLearner:
             The new parking direction.
         new_qtable: np.ndarray(shape=(61, 36, 36, 5, 20))
             The new 5 dimensional q-table filled, filled with floats.
-
-        Returns
-        -------
-        np.ndarray(61, 36, 36, 5, 20), dtype=float)): The previous q-table.
         """
         new_qtable_is_numpy_array = new_qtable.__class__ == np.ndarray
-        old_q_table = self._qtable
         self._parking_direction = new_parking_direction
         self._qtable = new_qtable if new_qtable_is_numpy_array else np.zeros(
             shape=(SIZE_STATE_RHO, SIZE_STATE_PHI, SIZE_STATE_ORIENTATION, SIZE_ACTION_DIRECTION, SIZE_ACTION_LENTGH))
-        return old_q_table
 
     # region conversions
 

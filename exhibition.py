@@ -18,7 +18,7 @@ from programm_type import ProgrammType
 from print_logo import PrintLogo
 from turn_assistant import TurnAssistant
 
-from constants import DISPLAY_CONFIRMATION_SLEEP_TIME, START_DISTANCE, END_DISTANCE_FORWARD, END_DISTANCE_BACKWARD, SIZE_STATE_RHO, SIZE_STATE_PHI, SIZE_STATE_ORIENTATION, SIZE_STATE_ORIENTATION, SIZE_STATE_ORIENTATION
+from constants import DISPLAY_CONFIRMATION_SLEEP_TIME, START_DISTANCE, END_DISTANCE_FORWARD, END_DISTANCE_BACKWARD, SIZE_STATE_RHO, SIZE_STATE_PHI, SIZE_STATE_ORIENTATION, SIZE_ACTION_DIRECTION, SIZE_ACTION_LENTGH
 
 
 class Exhibition:
@@ -62,14 +62,14 @@ class Exhibition:
                 },
                 'direction': {
                     'heading': 'Parking direction',
-                    'current': 'The current parking direction is ',
-                    18: 'forward',
-                    0: 'backward',
+                    'current': 'The current parking direction is',
+                    Parkingdirection.FORWARD: 'forward',
+                    Parkingdirection.BACKWARD: 'backward',
                     'command': 'To change the parking direction enter either "forward" or "backward".'
                 },
                 'qtable': {
                     'heading': 'Q-Table settings',
-                    'commmand': 'Enter "load" to load a new q-table.\nEnter "save" to save the current q-table.',
+                    'command': 'Enter "load" to load a new q-table.\nEnter "save" to save the current q-table.',
                     'load': {
                         'heading': 'Load a new q-table',
                         'command': 'Enter the name of q-table to load.\nIf the entered q-table does not exists, a empty q-table is loaded.\nEnter "abort" to abort.',
@@ -108,14 +108,14 @@ class Exhibition:
                 },
                 'direction': {
                     'heading': 'Einparkrichtung',
-                    'current': 'Die aktuelle Einparkrichtung ist ',
-                    18: 'vorwaerts',
-                    0: 'rueckwaerts',
+                    'current': 'Die aktuelle Einparkrichtung ist',
+                    Parkingdirection.FORWARD: 'vorwaerts',
+                    Parkingdirection.BACKWARD: 'rueckwaerts',
                     'command': 'Um die Einparkrichtung zu aendern, entweder "vorwaerts" oder "rueckwaerts" eingeben.'
                 },
                 'qtable': {
                     'heading': 'Q-Tabellen Einstellungen',
-                    'commmand': 'Geben Sie "laden" ein, um eine Q-Tabelle zu laden.\nGeben Sie "speichern" ein, um die aktuelle Q-Tabelle zu speichern.',
+                    'command': 'Geben Sie "laden" ein, um eine Q-Tabelle zu laden.\nGeben Sie "speichern" ein, um die aktuelle Q-Tabelle zu speichern.',
                     'load': {
                         'heading': 'Neue Q-Tabelle laden',
                         'command': 'Geben Sie den Namen der Q-Tabelle ein, um diese zu laden.\nWenn die eingegebene Q-Tabelle nicht existiert, wird eine neue angelegt.\nGeben Sie "abbrechen" zum Abbrechen ein.',
@@ -153,7 +153,7 @@ class Exhibition:
         self.laod_qtable_pair(name=self.config['qtable_name'])
         # Creates instance of parking_learner.
         self._parking_learner = ParkingLearner(
-            bot=self._bot, qtable=self._qtable_pair[self.config['direction'].value], alpha=self.config['alpha'], y=self.config['y'], parkingdirection=self.config['direction'], action=self.config['action'])
+            bot=self._bot, qtable=self._qtable_pair[self.config['direction']], alpha=self.config['alpha'], y=self.config['y'], parkingdirection=self.config['direction'], action=self.config['action'])
         # Createst instance of turn assistant.
         self._turn_assistant = TurnAssistant(bot=self._bot)
         print('Initialazion exhibition done.')
@@ -346,7 +346,7 @@ class Exhibition:
         print(self.language_package[self.config['language']]
               ['settings']['direction']['heading'])
         print("{0} {1}".format(self.language_package[self.config['language']]['settings']['direction']['current'],
-              self.language_package[self.config['language']]['settings']['direction'][self._parking_learner._parking_direction.value]))
+              self.language_package[self.config['language']]['settings']['direction'][self._parking_learner._parking_direction]))
         print("{}".format(
             self.language_package[self.config['language']]['settings']['direction']['command']))
         print(self.language_package[self.config['language']]['back'])
@@ -354,22 +354,20 @@ class Exhibition:
     def parking_direction_settings(self):
         """
         Handles user input for direction settings.
-        Sets parking direction and matching q-table par for forward an backward parking.
+        Sets parking direction and matching q-table pair for forward an backward parking.
         """
         self.print_direciton_settings_menu()
         user_input = input('> ').lower()
         while user_input != 'back' and user_input != 'zurueck':
             wrong_input = False
             if user_input == 'forward' or user_input == 'vorwaerts':
-                self._qtable_pair[self._parking_learner._parking_direction.value] = self._parking_learner._qtable
                 self._parking_learner.change_parking_direction(
-                    new_parking_direction=Parkingdirection.FORWARD, new_qtable=self._qtable_pair[Parkingdirection.FORWARD.value])
+                    new_parking_direction=Parkingdirection.FORWARD, new_qtable=self._qtable_pair[Parkingdirection.FORWARD])
                 self.config['direction'] = Parkingdirection.FORWARD
                 break
             elif user_input == 'backward' or user_input == 'rueckwaerts':
-                self._qtable_pair[self._parking_learner._parking_direction.value] = self._parking_learner._qtable
                 self._parking_learner.change_parking_direction(
-                    new_parking_direction=Parkingdirection.BACKWARD, new_qtable=self._qtable_pair[Parkingdirection.BACKWARD.value])
+                    new_parking_direction=Parkingdirection.BACKWARD, new_qtable=self._qtable_pair[Parkingdirection.BACKWARD])
                 self.config['direction'] = Parkingdirection.BACKWARD
                 break
             else:
@@ -437,7 +435,7 @@ class Exhibition:
             print(
                 self.language_package[self.config['language']]['settings']['qtable']['load']['save'])
             user_input = input('> ').lower()
-            while user_input != 'yes' and user_input != 'ja' or user_input != 'no' and user_input != 'nein':
+            while user_input != 'yes' and user_input != 'ja' and user_input != 'no' and user_input != 'nein':
                 if user_input == 'abort' or user_input == 'abbrechen':
                     return
                 print(
@@ -470,18 +468,18 @@ class Exhibition:
         if isfile(path):
             # Loads q-table pair from file.
             with np.load(path, allow_pickle=True) as data:
-                self._qtable_pair[18] = data[Parkingdirection.FORWARD.name]
-                self._qtable_pair[0] = data[Parkingdirection.BACKWARD.name]
+                self._qtable_pair[Parkingdirection.FORWARD] = data[Parkingdirection.FORWARD.name]
+                self._qtable_pair[Parkingdirection.BACKWARD] = data[Parkingdirection.BACKWARD.name]
         else:
-            # Creates ne q-table pair.
-            self._qtable_pair[18] = np.zeros(
-                shape=(SIZE_STATE_RHO, SIZE_STATE_PHI, SIZE_STATE_ORIENTATION, SIZE_STATE_ORIENTATION, SIZE_STATE_ORIENTATION), dtype=float)
-            self._qtable_pair[0] = np.zeros(
-                shape=(SIZE_STATE_RHO, SIZE_STATE_PHI, SIZE_STATE_ORIENTATION, SIZE_STATE_ORIENTATION, SIZE_STATE_ORIENTATION), dtype=float)
+            # Creates new q-table pair.
+            self._qtable_pair[Parkingdirection.FORWARD] = np.zeros(
+                shape=(SIZE_STATE_RHO, SIZE_STATE_PHI, SIZE_STATE_ORIENTATION, SIZE_ACTION_DIRECTION, SIZE_ACTION_LENTGH), dtype=float)
+            self._qtable_pair[Parkingdirection.BACKWARD] = np.zeros(
+                shape=(SIZE_STATE_RHO, SIZE_STATE_PHI, SIZE_STATE_ORIENTATION, SIZE_ACTION_DIRECTION, SIZE_ACTION_LENTGH), dtype=float)
         # Sets new q-table in parking_learner.
         if self._parking_learner != None:
             self._parking_learner.change_parking_direction(
-                new_parking_direction=self._parking_learner._parking_direction, new_qtable=self._qtable_pair[self._parking_learner._parking_direction.value])
+                new_parking_direction=self._parking_learner._parking_direction, new_qtable=self._qtable_pair[self._parking_learner._parking_direction])
 
     def print_save_qtable_menu(self):
         """
@@ -507,9 +505,8 @@ class Exhibition:
             self.print_save_qtable_menu()
         # Saves the current q-table pair, if the question was confirmed.
         if user_input == 'yes' or user_input == 'ja':
-            self._qtable_pair[self._parking_learner._parking_direction.value] = self._parking_learner._qtable
-            np.savez_compressed(self.config['qtable_name'], FORWARD=self._qtable_pair[Parkingdirection.FORWARD.value],
-                                BACKWARD=self._qtable_pair[Parkingdirection.FORWARD.value])
+            np.savez_compressed(self.config['qtable_name'], FORWARD=self._qtable_pair[Parkingdirection.FORWARD],
+                                BACKWARD=self._qtable_pair[Parkingdirection.BACKWARD])
 
     def print_action_settings_menu(self):
         """
@@ -609,7 +606,8 @@ class Exhibition:
                 # Turns robot, if parked forward.
                 self._turn_assistant.turn_180_deg_on_spot()
             # Drives back to start position
-            self._bot.drive(length=END_DISTANCE_FORWARD if self._parking_learner._parking_direction == Parkingdirection.FORWARD else END_DISTANCE_BACKWARD)
+            self._bot.drive(length=END_DISTANCE_FORWARD if self._parking_learner._parking_direction ==
+                            Parkingdirection.FORWARD else END_DISTANCE_BACKWARD)
             # Turns robot.
             self._turn_assistant.turn_180_deg_on_spot()
         self._bot.set_programm_type = ProgrammType.DONE
