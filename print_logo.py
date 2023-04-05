@@ -48,3 +48,5 @@ if __name__ == '__main__':
     PrintLogo.print_bw()
     print()
     PrintLogo.print_color()
+
+# Original Author: Lukas Loeffler

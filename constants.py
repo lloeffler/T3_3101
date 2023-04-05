@@ -233,3 +233,5 @@ Please don't change.
 """
 
 # endregion qtable
+
+# Original Author: Lukas Loeffler

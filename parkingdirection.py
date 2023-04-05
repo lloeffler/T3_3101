@@ -9,3 +9,5 @@ class Parkingdirection(Enum):
     """
     FORWARD = 18
     BACKWARD = 0
+
+# Original Author: Lukas Loeffler

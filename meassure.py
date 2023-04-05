@@ -345,3 +345,5 @@ while user_input != "end" and user_input != "exit" and user_input != "quit":
     if user_input == "help":
         help()
     user_input = input("enter something\n>")
+
+# Original Author: Lukas Loeffler

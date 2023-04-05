@@ -529,7 +529,8 @@ class Exhibition:
         self.clear()
         print(self.language_package[self.config['language']]
               ['settings']['action']['heading'])
-        print("{0}'{1}'.".format(self.language_package[self.config['language']]['settings']['action']['current'], self.config['action']))
+        print("{0}'{1}'.".format(
+            self.language_package[self.config['language']]['settings']['action']['current'], self.config['action']))
         print(self.language_package[self.config['language']]
               ['settings']['action']['command'])
         print(self.language_package[self.config['language']]['back'])
@@ -653,3 +654,5 @@ if __name__ == '__main__':
             traceback.print_exception()
             print('Inner Exception')
             traceback.print_exception()
+
+# Original Author: Lukas Loeffler

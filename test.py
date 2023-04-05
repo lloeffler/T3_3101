@@ -22,3 +22,5 @@ with np.load(file='default.npz', allow_pickle=True) as data:
         print(np.max(test_2))
     except Exception as exception:
         print(exception)
+
+# Original Author: Lukas Loeffler
