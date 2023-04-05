@@ -9,7 +9,7 @@ with np.load(file='default.npz', allow_pickle=True) as data:
     except:
         print('FORWARD not found')
     try:
-        test_2 = data['BACKWORD']
+        test_2 = data['BACKWARD']
     except:
         print('BACKWARD not found')
 

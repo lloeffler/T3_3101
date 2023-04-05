@@ -65,11 +65,13 @@ class Exhibition:
                     'current': 'The current parking direction is',
                     Parkingdirection.FORWARD: 'forward',
                     Parkingdirection.BACKWARD: 'backward',
-                    'command': 'To change the parking direction enter either "forward" or "backward".'
+                    'command': 'To change the parking direction enter either "forward" or "backward".',
+                    'confirmation': 'is set now as pariking direction.'
                 },
                 'qtable': {
                     'heading': 'Q-Table settings',
                     'command': 'Enter "load" to load a new q-table.\nEnter "save" to save the current q-table.',
+                    'current': 'The current q-table is named ',
                     'load': {
                         'heading': 'Load a new q-table',
                         'command': 'Enter the name of q-table to load.\nIf the entered q-table does not exists, a empty q-table is loaded.\nEnter "abort" to abort.',
@@ -78,12 +80,12 @@ class Exhibition:
                     },
                     'save': {
                         'heading': 'Save the current q-table',
-                        'current': 'The current q-table is named ',
                         'command': 'Are you sure, you want to save the current q-table and override the saved one?\nEnter "yes" to confirm.\nEnter "no" to abort.'
                     }
                 },
                 'action': {
                     'heading': 'Parking-Learner action',
+                    'current': 'The current action is ',
                     'command': 'Enter "explore" to change the parking-learner action and let the robot learn how to park.\nEnter "utilize" to change the parking-learner action and utilize the q-table.',
                     'explore': 'Enter how many tries the robot can learn ho to park. If greater or eqals 250.000, the robot will not change to utilize automaticly.\nNo input, decimals or negative numbers resets number of tries.',
                     'confirmation': 'is set now as parking-learner action.'
@@ -111,11 +113,13 @@ class Exhibition:
                     'current': 'Die aktuelle Einparkrichtung ist',
                     Parkingdirection.FORWARD: 'vorwaerts',
                     Parkingdirection.BACKWARD: 'rueckwaerts',
-                    'command': 'Um die Einparkrichtung zu aendern, entweder "vorwaerts" oder "rueckwaerts" eingeben.'
+                    'command': 'Um die Einparkrichtung zu aendern, entweder "vorwaerts" oder "rueckwaerts" eingeben.',
+                    'confirmation': 'ist jetzt als Einparkrichtung eingestellt.'
                 },
                 'qtable': {
                     'heading': 'Q-Tabellen Einstellungen',
                     'command': 'Geben Sie "laden" ein, um eine Q-Tabelle zu laden.\nGeben Sie "speichern" ein, um die aktuelle Q-Tabelle zu speichern.',
+                    'current': 'Die aktuelle Q-Tabelle heißt ',
                     'load': {
                         'heading': 'Neue Q-Tabelle laden',
                         'command': 'Geben Sie den Namen der Q-Tabelle ein, um diese zu laden.\nWenn die eingegebene Q-Tabelle nicht existiert, wird eine neue angelegt.\nGeben Sie "abbrechen" zum Abbrechen ein.',
@@ -124,12 +128,12 @@ class Exhibition:
                     },
                     'save': {
                         'heading': 'Speichern der aktuellen Q-Tabelle',
-                        'current': 'Die aktuelle Q-Tabelle heißt ',
                         'command': 'Sind Sie sicher, dass sie die akutelle Q-Tabelle speichern und ueberschreiben moechten?\nGeben Sie "ja" zum Bestaetigen ein.\nGeben Sie "nein" zum Abbrechen ein.'
                     }
                 },
                 'action': {
                     'heading': 'Parklerner Action',
+                    'current': 'Die aktuelle Action ist ',
                     'command': 'Geben Sie "explore" ein, um den Roboter einparken lernen zu lassen.\nGeben Sie "utilize" ein, um die bisher gelernte Q-Tabelle auszunutzen.',
                     'explore': 'Geben Sie ein, wie viele Versuche der Roboter hat, um einparken zu lernen. Bei 250.000 oder mehr, aendert sich die Action nicht mehr automatisch.\nKeine Eingabe, Dezimalzahlen oder negative Zahlen setzen die Anzahl der Versuche zurueck.',
                     'confirmation': 'ist jetzt als Action des Parklerners eingestellt.'
@@ -345,7 +349,7 @@ class Exhibition:
         self.clear()
         print(self.language_package[self.config['language']]
               ['settings']['direction']['heading'])
-        print("{0} {1}".format(self.language_package[self.config['language']]['settings']['direction']['current'],
+        print("{0} {1}.".format(self.language_package[self.config['language']]['settings']['direction']['current'],
               self.language_package[self.config['language']]['settings']['direction'][self._parking_learner._parking_direction]))
         print("{}".format(
             self.language_package[self.config['language']]['settings']['direction']['command']))
@@ -364,11 +368,17 @@ class Exhibition:
                 self._parking_learner.change_parking_direction(
                     new_parking_direction=Parkingdirection.FORWARD, new_qtable=self._qtable_pair[Parkingdirection.FORWARD])
                 self.config['direction'] = Parkingdirection.FORWARD
+                print("{0} {1}".format(self.language_package[self.config['language']]['settings']['direction'][self._parking_learner._parking_direction].capitalize(),
+                      self.language_package[self.config['language']]['settings']['direction']['confirmation']))
+                sleep(DISPLAY_CONFIRMATION_SLEEP_TIME)
                 break
             elif user_input == 'backward' or user_input == 'rueckwaerts':
                 self._parking_learner.change_parking_direction(
                     new_parking_direction=Parkingdirection.BACKWARD, new_qtable=self._qtable_pair[Parkingdirection.BACKWARD])
                 self.config['direction'] = Parkingdirection.BACKWARD
+                print("{0} {1}".format(self.language_package[self.config['language']]['settings']['direction'][self._parking_learner._parking_direction].capitalize(),
+                      self.language_package[self.config['language']]['settings']['direction']['confirmation']))
+                sleep(DISPLAY_CONFIRMATION_SLEEP_TIME)
                 break
             else:
                 wrong_input = True
@@ -384,6 +394,8 @@ class Exhibition:
         self.clear()
         print(self.language_package[self.config['language']]
               ['settings']['qtable']['heading'])
+        print("{0}{1}.".format(self.language_package[self.config['language']]
+              ['settings']['qtable']['current'], self.config['qtable_name']))
         print("{}".format(
             self.language_package[self.config['language']]['settings']['qtable']['command']))
         print(self.language_package[self.config['language']]['back'])
@@ -424,6 +436,8 @@ class Exhibition:
         self.clear()
         print(
             self.language_package[self.config['language']]['settings']['qtable']['load']['heading'])
+        print("{}{}".format(self.language_package[self.config['language']]
+              ['settings']['qtable']['current'], self.config['qtable_name']))
         print(
             self.language_package[self.config['language']]['settings']['qtable']['load']['command'])
         if wrong_input == True:
@@ -489,7 +503,7 @@ class Exhibition:
         print(
             self.language_package[self.config['language']]['settings']['qtable']['save']['heading'])
         print("{}{}".format(self.language_package[self.config['language']]
-              ['settings']['qtable']['save']['current'], self.config['qtable_name']))
+              ['settings']['qtable']['current'], self.config['qtable_name']))
         print(self.language_package[self.config['language']]
               ['settings']['qtable']['save']['command'])
 
@@ -515,6 +529,7 @@ class Exhibition:
         self.clear()
         print(self.language_package[self.config['language']]
               ['settings']['action']['heading'])
+        print("{0}'{1}'.".format(self.language_package[self.config['language']]['settings']['action']['current'], self.config['action']))
         print(self.language_package[self.config['language']]
               ['settings']['action']['command'])
         print(self.language_package[self.config['language']]['back'])
@@ -531,7 +546,7 @@ class Exhibition:
             if user_input == 'utilize':
                 self._parking_learner.set_action_utilize()
                 self.config['action'] = 'utilize'
-                print("'{}' {}".format(self._parking_learner._action,
+                print("'{0}' {1}".format(self._parking_learner._action,
                       self.language_package[self.config['language']]['settings']['action']['confirmation']))
                 sleep(DISPLAY_CONFIRMATION_SLEEP_TIME)
                 return
@@ -547,7 +562,7 @@ class Exhibition:
                 self._parking_learner.set_action_explore(
                     exploration_counter=exploration_counter)
                 self.config['action'] = 'explore'
-                print("'{}' {}".format(self._parking_learner._action,
+                print("'{0}' {1}".format(self._parking_learner._action,
                       self.language_package[self.config['language']]['settings']['action']['confirmation']))
                 sleep(DISPLAY_CONFIRMATION_SLEEP_TIME)
                 return
