@@ -89,8 +89,9 @@ class Navigator:
                     qr_img = cv.filter2D(qr_img, -1, kernel)
                     qr_img = self.automatic_brightness_and_contrast(qr_img)
 
-                    # Show and save image
-                    cv.imshow('qrImg', qr_img)
+                    if self.preview:
+                        # Show and save image
+                        cv.imshow('qrImg', qr_img)
                     date = "/home/pi/qrImg/qrImg_" + \
                         datetime.utcnow().strftime(
                             '%Y-%m-%d %H:%M:%S.%f')[:-3] + ".jpg"

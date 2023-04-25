@@ -175,7 +175,7 @@ class SwarmRobot:
 
         if self._navigator == None:
             self._navigator = Navigator(self._camera.get(cv2.CAP_PROP_FRAME_WIDTH), self._camera.get(
-                cv2.CAP_PROP_FRAME_HEIGHT), self, preview=True, debug=False)
+                cv2.CAP_PROP_FRAME_HEIGHT), self, preview=False, debug=False)
 
         def navigate(event):
             try:
@@ -211,7 +211,7 @@ class SwarmRobot:
 
         if self._intersection_detector == None:
             self._intersection_detector = IntersectionDetection(self._camera.get(
-                cv2.CAP_PROP_FRAME_WIDTH), self._camera.get(cv2.CAP_PROP_FRAME_HEIGHT), self, preview=True, debug=False)
+                cv2.CAP_PROP_FRAME_WIDTH), self._camera.get(cv2.CAP_PROP_FRAME_HEIGHT), self, preview=False, debug=False)
 
         def detect_intersection():
             try:
