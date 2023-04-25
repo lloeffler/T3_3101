@@ -1,7 +1,8 @@
 #classifier==2.0
-numpy==1.12.1
-#opencv-python==3.4.10.37
+numpy==1.13.3
+scikit-build ==0.11.1
+opencv-python==4.4.0.42
 pyzbar==0.1.9
 scipy==0.18.1
-#skimage==0.0
+scikit-image==0.15.0
 spidev==3.4
