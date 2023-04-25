@@ -144,6 +144,10 @@ class Exhibition:
 
     def __init__(self):
         print("Python versoin: {}".format(sys.version))
+        if administrator_mode:
+            print("Administrator Mode")
+        if park_lot_detection:
+            print("Park lot detection ")
         # Create instance of the robot.
         self._bot = SwarmRobot(programm_type=ProgrammType.PARKING)
         print('Calibrate robot')
