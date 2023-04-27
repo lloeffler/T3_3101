@@ -14,7 +14,7 @@ from constants import DRIVE_POWER_LIMIT, DRIVE_SLEEP_TIME, TURN_SLEEP_TIME, DEGR
 
 
 class SwarmRobot:
-    def __init__(self, programm_type: ProgrammType = ProgrammType.AUTOMATIC):
+    def __init__(self, programm_type: ProgrammType = ProgrammType.AUTOMATIC, preview_mode: bool = False):
         # Motors
         self._fork_lift_motor = CalibratedMotor(Motor._bp.PORT_A, calpow=50)
         self._fork_tilt_motor = CalibratedMotor(Motor._bp.PORT_B, calpow=40)
@@ -26,6 +26,9 @@ class SwarmRobot:
 
         # Set new power limit aka speed limit
         self._drive_motor.limit(power_limit=DRIVE_POWER_LIMIT)
+
+        # Set preview mode, to use out of cunstructor
+        self._preview_mode = preview_mode
 
         # Camera
         self._camera = cv2.VideoCapture(0)
@@ -43,7 +46,7 @@ class SwarmRobot:
         self._track_active = False
         self._pid_controller = PIDController(verbose=False)
         self._line_tracker = LineTracker(self._camera.get(cv2.CAP_PROP_FRAME_WIDTH), self._camera.get(
-            cv2.CAP_PROP_FRAME_HEIGHT), preview=False, debug=False)
+            cv2.CAP_PROP_FRAME_HEIGHT), preview=self._preview_mode, debug=False)
 
         # Navigation
         self._programm_type = programm_type
@@ -175,7 +178,7 @@ class SwarmRobot:
 
         if self._navigator == None:
             self._navigator = Navigator(self._camera.get(cv2.CAP_PROP_FRAME_WIDTH), self._camera.get(
-                cv2.CAP_PROP_FRAME_HEIGHT), self, preview=False, debug=False)
+                cv2.CAP_PROP_FRAME_HEIGHT), self, preview=self._preview_mode, debug=False)
 
         def navigate(event):
             try:
@@ -211,7 +214,7 @@ class SwarmRobot:
 
         if self._intersection_detector == None:
             self._intersection_detector = IntersectionDetection(self._camera.get(
-                cv2.CAP_PROP_FRAME_WIDTH), self._camera.get(cv2.CAP_PROP_FRAME_HEIGHT), self, preview=False, debug=False)
+                cv2.CAP_PROP_FRAME_WIDTH), self._camera.get(cv2.CAP_PROP_FRAME_HEIGHT), self, preview=self._preview_mode, debug=False)
 
         def detect_intersection():
             try:

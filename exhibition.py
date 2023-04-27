@@ -142,14 +142,16 @@ class Exhibition:
         }
     }
 
-    def __init__(self):
+    def __init__(self, preview_mode: bool = False):
         print("Python versoin: {}".format(sys.version))
         if administrator_mode:
             print("Administrator Mode")
         if park_lot_detection:
             print("Park lot detection ")
+        if preview_mode:
+            print("Preview Mode ")
         # Create instance of the robot.
-        self._bot = SwarmRobot(programm_type=ProgrammType.PARKING)
+        self._bot = SwarmRobot(programm_type=ProgrammType.PARKING, preview_mode=preview_mode)
         print('Calibrate robot')
         # Waits a second before calibrating the robot.
         sleep(1)
@@ -641,8 +643,11 @@ if __name__ == '__main__':
         # Checks for park_lot_detection in comandline arguments.
         park_lot_detection = True if 'park_lot_detection' in sys.argv[
             1:] or 'parklotdetection' in sys.argv[1:] else False
+        # Checks for park_lot_detection in comandline arguments.
+        preview_mode = True if 'preview_mode' in sys.argv[
+            1:] or 'previewmode' in sys.argv[1:] else False
         # Generates exhibition instance.
-        runner = Exhibition()
+        runner = Exhibition(preview_mode)
         # Executes exhibition application.
         runner.main(administrator_mode, park_lot_detection)
     except Exception as exception:
