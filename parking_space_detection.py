@@ -9,6 +9,9 @@ class ParkingSpaceDetection:
     # number of failed tries
     failed_tries = 0
 
+    def __init__(self, debug: bool=False):
+        self.debug = debug
+
     def detect_red_line(self, img):
         # threshold on red color
         lowcolor = (0, 36, 235)  # (0,0,75)
@@ -23,7 +26,8 @@ class ParkingSpaceDetection:
         contours = cv.findContours(
             thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
         contours = contours[0] if len(contours) == 2 else contours[1]
-        print('Contours', contours)
+        if self.debug:
+            print('Contours', contours)
         # for c in contours:
         #    area = cv.contourArea(c)
         #    if area > 5000:

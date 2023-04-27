@@ -43,7 +43,7 @@ class Navigator:
             width=self.resolution[0], height=self.resolution[1], bot=bot)
         self.qr_detector = QrDetection()
         self.bar_code_detector = BarCodeDetection()
-        self.parking_detector = ParkingSpaceDetection()
+        self.parking_detector = ParkingSpaceDetection(self.debug)
         self.parking_learner = ParkingLearner(
             bot=bot, qtable=qtable, alpha=alpha, y=y, parkingdirection=parkingdirection)
 
@@ -102,8 +102,10 @@ class Navigator:
                         qr_img)
                     if is_parking_space:
                         self._detected = True
+                        print("Park");
                         # Start parking procedure
                         self.turn_intersection('parking')
+                        self._event.clear()
                         return
                     else:
 
