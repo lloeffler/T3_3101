@@ -167,6 +167,7 @@ class Exhibition:
         # Creates instance of parking_learner.
         self._parking_learner = ParkingLearner(
             bot=self._bot, qtable=self._qtable_pair[self.config['direction']], alpha=self.config['alpha'], y=self.config['y'], parkingdirection=self.config['direction'], action=self.config['action'])
+        self._bot.set_parking_learner(self)
         # Createst instance of turn assistant.
         self._turn_assistant = TurnAssistant(bot=self._bot)
         print('Initialazion exhibition done.')

@@ -4,6 +4,7 @@ from time import sleep
 from threading import Thread, Event
 
 import cv2
+from T3_3101.parking_learner import ParkingLearner
 
 from motor import CalibratedMotor, Motor
 from pidcontroller import PIDController
@@ -64,6 +65,9 @@ class SwarmRobot:
         self.intersection = []
         self.intersection_img = None
 
+        # Parking
+        self._parking_learner = None
+
     def __del__(self):
         self._steer_motor.to_init_position()
         self._drive_motor.limit(power_limit=self._old_power_limit)
@@ -78,6 +82,17 @@ class SwarmRobot:
     def set_drive_steer(self, pnew):
         pos = self._steer_motor.position_from_factor(pnew)
         self._steer_motor.set_position(pos)
+
+    def set_parking_learner(self, parking_learner: ParkingLearner):
+        """
+        Sets parking learner to currentc self._parking_learner
+        
+        Parameter
+        ---------
+        parking_learner : ParkingLearner
+            The new parking learner.
+        """
+        self._parking_learner = parking_learner
 
     def drive(self, length: int):
         """
@@ -182,7 +197,7 @@ class SwarmRobot:
 
         if self._navigator == None:
             self._navigator = Navigator(self._camera.get(cv2.CAP_PROP_FRAME_WIDTH), self._camera.get(
-                cv2.CAP_PROP_FRAME_HEIGHT), self, preview=self._preview_mode, debug=self._debug_mode)
+                cv2.CAP_PROP_FRAME_HEIGHT), self, parking_learner=self._parking_learner, preview=self._preview_mode, debug=self._debug_mode)
 
         def navigate(event):
             try:

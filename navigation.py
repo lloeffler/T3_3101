@@ -24,7 +24,7 @@ class Navigator:
     Macht navigation durhc den linien parkour anhand der barcodes.
     """
 
-    def __init__(self, width, height, bot: SwarmRobot, kernel_size=(5, 5), preview=False, debug=False, qtable: np.ndarray = None, alpha: float = 1, y: float = 0.95, parkingdirection: Parkingdirection = Parkingdirection.FORWARD):
+    def __init__(self, width, height, bot: SwarmRobot, parking_learner: ParkingLearner, kernel_size=(5, 5), preview: bool=False, debug: bool=False):
         # Define Region of interest
         self.resolution = (int(width), int(height))
         w = self.resolution[0]//3
@@ -44,8 +44,7 @@ class Navigator:
         self.qr_detector = QrDetection()
         self.bar_code_detector = BarCodeDetection()
         self.parking_detector = ParkingSpaceDetection(self.debug)
-        self.parking_learner = ParkingLearner(
-            bot=bot, qtable=qtable, alpha=alpha, y=y, parkingdirection=parkingdirection)
+        self.parking_learner = parking_learner
 
         self.bot = bot
         self.ta = TurnAssistant(bot)
