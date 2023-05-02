@@ -4,7 +4,6 @@ from time import sleep
 from threading import Thread, Event
 
 import cv2
-from T3_3101.parking_learner import ParkingLearner
 
 from motor import CalibratedMotor, Motor
 from pidcontroller import PIDController
@@ -83,7 +82,7 @@ class SwarmRobot:
         pos = self._steer_motor.position_from_factor(pnew)
         self._steer_motor.set_position(pos)
 
-    def set_parking_learner(self, parking_learner: ParkingLearner):
+    def set_parking_learner(self, parking_learner):
         """
         Sets parking learner to currentc self._parking_learner
         

@@ -3,12 +3,28 @@ from time import sleep
 import cv2 as cv
 import numpy as numpy
 
-from T3_3101.swarmrobot import SwarmRobot
 from constants import TURN_SLEEP_TIME
 
 
 class LineTracker:
-    def __init__(self, width, height, bot:SwarmRobot, method='contour', kernel_size=(5, 5), preview=False, debug=False):
+    def __init__(self, width, height, bot, method='contour', kernel_size=(5, 5), preview: bool=False, debug: bool=False):
+        """
+        Parameter
+        ---------
+        width: int
+        height: int
+            width and heigth describe the pixel resolution of the tracking image?
+        bot: SwarmRobot
+            Instance of the robot itself. Used to adjust the steering.
+        method: str
+            [?DEPRICATED?] Defined by previos students. I don't know what it is for, probably it could be remove.
+        kernel_size: tupel
+            Size of kernel for gausian blur.
+        preview: bool
+            WARNING only set true when using a GUI! If true, the current frame with detected lines will be displayed in a window next to the console.
+        debug: bool
+            WARNING only set true when using a GUI! If true, the current frame will be displayed in the single steps like black and white, blured and so on.
+        """
         # Define Region of interest
         self.resolution = (int(width), int(height))
         w = self.resolution[0]//3
