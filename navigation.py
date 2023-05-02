@@ -141,6 +141,7 @@ class Navigator:
 
         if cv.waitKey(1) == ord("d"):
             self.bot.stop_all()
+            self.bot.straight()
             cv.destroyAllWindows()
             exit()
 
