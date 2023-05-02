@@ -49,7 +49,7 @@ class SwarmRobot:
         self._track_active = False
         self._pid_controller = PIDController(verbose=False)
         self._line_tracker = LineTracker(self._camera.get(cv2.CAP_PROP_FRAME_WIDTH), self._camera.get(
-            cv2.CAP_PROP_FRAME_HEIGHT), preview=self._preview_mode, debug=self._debug_mode)
+            cv2.CAP_PROP_FRAME_HEIGHT), preview=self._preview_mode, bot=self, debug=self._debug_mode)
 
         # Navigation
         self._programm_type = programm_type
@@ -62,6 +62,7 @@ class SwarmRobot:
         self._intsecdet_active = False
         self._intersection_detector = None
         self.intersection = []
+        self.intersection_img = None
 
     def __del__(self):
         self._steer_motor.to_init_position()

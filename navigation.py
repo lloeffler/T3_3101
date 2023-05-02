@@ -99,14 +99,14 @@ class Navigator:
 
                     # When it contains parking space
                     is_parking_space = self.parking_detector.detect_red_line(
-                        qr_img)
+                        self.bot.intersection_img)
                     if is_parking_space:
                         self._detected = True
                         print("Park");
                         # Start parking procedure
                         self.turn_intersection('parking')
                         self._event.clear()
-                        return
+                        self.bot.change_drive_power(self.bot.power_lvl)
                     else:
 
                         lable = ""
@@ -140,6 +140,7 @@ class Navigator:
         #    self.bot._drive_motor.rotate_motor(-0.2*self.bot.full_rotation_deg)
 
         if cv.waitKey(1) == ord("d"):
+            self.bot.stop_all()
             cv.destroyAllWindows()
             exit()
 

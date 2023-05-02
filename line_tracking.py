@@ -3,11 +3,12 @@ from time import sleep
 import cv2 as cv
 import numpy as numpy
 
+from swarmrobot import SwarmRobot
 from constants import TURN_SLEEP_TIME
 
 
 class LineTracker:
-    def __init__(self, width, height, method='contour', kernel_size=(5, 5), preview=False, debug=False):
+    def __init__(self, width, height, method='contour', kernel_size=(5, 5), bot:SwarmRobot = None, preview=False, debug=False):
         # Define Region of interest
         self.resolution = (int(width), int(height))
         w = self.resolution[0]//3
@@ -25,6 +26,9 @@ class LineTracker:
 
         # number of failed tries
         self.failed_tries = 0
+
+        # SwarmRobot
+        self.bot = bot;
 
     def track_line(self, frame, event, bot):
         if not event.isSet():
@@ -77,6 +81,8 @@ class LineTracker:
                     cv.drawContours(frame, contours, -1, (0, 255, 0), 1)
 
                     cv.imshow('Preview', frame)
+
+                self.bot.intersection_img = frame
 
                 return ((cx*2) / frame.shape[1]) - 1
             else:
