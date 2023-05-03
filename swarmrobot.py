@@ -3,7 +3,7 @@ import traceback
 from time import sleep
 from threading import Thread, Event
 
-import cv2
+import cv2 as cv
 
 from motor import CalibratedMotor, Motor
 from pidcontroller import PIDController
@@ -34,7 +34,7 @@ class SwarmRobot:
         self._debug_mode = debug_mode
 
         # Camera
-        self._camera = cv2.VideoCapture(0)
+        self._camera = cv.VideoCapture(0)
 
         self._event = Event()
 
@@ -48,8 +48,8 @@ class SwarmRobot:
         self._track_process = None
         self._track_active = False
         self._pid_controller = PIDController(verbose=False)
-        self._line_tracker = LineTracker(self._camera.get(cv2.CAP_PROP_FRAME_WIDTH), self._camera.get(
-            cv2.CAP_PROP_FRAME_HEIGHT), preview=self._preview_mode, bot=self, debug=self._debug_mode)
+        self._line_tracker = LineTracker(self._camera.get(cv.CAP_PROP_FRAME_WIDTH), self._camera.get(
+            cv.CAP_PROP_FRAME_HEIGHT), preview=self._preview_mode, bot=self, debug=self._debug_mode)
 
         # Navigation
         self._programm_type = programm_type
@@ -156,6 +156,9 @@ class SwarmRobot:
             try:
                 while True:
                     if not self._track_active:
+                        # Close all preview and debug windows
+                        if self.preview or self.debug:
+                            cv.destroyAllWindows()
                         sleep(0.5)
 
                     if self._track_active:
@@ -196,13 +199,16 @@ class SwarmRobot:
         from navigation import Navigator
 
         if self._navigator == None:
-            self._navigator = Navigator(self._camera.get(cv2.CAP_PROP_FRAME_WIDTH), self._camera.get(
-                cv2.CAP_PROP_FRAME_HEIGHT), self, parking_learner=self._parking_learner, preview=self._preview_mode, debug=self._debug_mode)
+            self._navigator = Navigator(self._camera.get(cv.CAP_PROP_FRAME_WIDTH), self._camera.get(
+                cv.CAP_PROP_FRAME_HEIGHT), self, parking_learner=self._parking_learner, preview=self._preview_mode, debug=self._debug_mode)
 
         def navigate(event):
             try:
                 while True:
                     if not self._navigation_active:
+                        # Close all preview and debug windows
+                        if self.preview or self.debug:
+                            cv.destroyAllWindows()
                         sleep(5)
 
                     if self._navigation_active:
@@ -233,12 +239,15 @@ class SwarmRobot:
 
         if self._intersection_detector == None:
             self._intersection_detector = IntersectionDetection(self._camera.get(
-                cv2.CAP_PROP_FRAME_WIDTH), self._camera.get(cv2.CAP_PROP_FRAME_HEIGHT), self, preview=self._preview_mode, debug=self._debug_mode)
+                cv.CAP_PROP_FRAME_WIDTH), self._camera.get(cv.CAP_PROP_FRAME_HEIGHT), self, preview=self._preview_mode, debug=self._debug_mode)
 
         def detect_intersection():
             try:
                 while True:
                     if not self._intsecdet_active:
+                        # Close all preview and debug windows
+                        if self.preview or self.debug:
+                            cv.destroyAllWindows()
                         sleep(5)
 
                     if self._intsecdet_active:
