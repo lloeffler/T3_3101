@@ -157,7 +157,7 @@ class SwarmRobot:
                 while True:
                     if not self._track_active:
                         # Close all preview and debug windows
-                        if self.preview or self.debug:
+                        if self._preview_mode or self._debug_mode:
                             cv.destroyAllWindows()
                         sleep(0.5)
 
@@ -207,7 +207,7 @@ class SwarmRobot:
                 while True:
                     if not self._navigation_active:
                         # Close all preview and debug windows
-                        if self.preview or self.debug:
+                        if self._preview_mode or self._debug_mode:
                             cv.destroyAllWindows()
                         sleep(5)
 
@@ -246,7 +246,7 @@ class SwarmRobot:
                 while True:
                     if not self._intsecdet_active:
                         # Close all preview and debug windows
-                        if self.preview or self.debug:
+                        if self._preview_mode or self._debug_mode:
                             cv.destroyAllWindows()
                         sleep(5)
 
