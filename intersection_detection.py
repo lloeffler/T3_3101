@@ -7,6 +7,7 @@ import cv2 as cv
 
 from collections import defaultdict
 
+from constants import RED_LOW, RED_HIGH
 
 class IntersectionDetection:
 
@@ -125,15 +126,20 @@ class IntersectionDetection:
     #             cv.line(img, (x1, y1), (x2, y2), color, 1)
 
     def detect_intersection(self, img):
-
         height, width, _ = img.shape
         height_crop = int(height / 4)
         width_crop = int(width / 4)
         resized = img[height - height_crop:height,
                       width_crop:width - width_crop, :]
 
-        # Convert to grayscale
         try:
+            # Turn red dots into black
+            mask = cv.inRange(resized, RED_LOW, RED_HIGH)
+            resized[mask != 0] = [0, 0, 0]
+            #if self.debug:
+            cv.imshow('red_to_black', resized)
+
+            # Convert to grayscale
             gray = cv.cvtColor(resized, cv.COLOR_BGR2GRAY)
         except Exception as exception:
             self.failed_tries += 1
@@ -155,6 +161,9 @@ class IntersectionDetection:
         thresh_type = cv.THRESH_BINARY_INV
         bin_img = cv.adaptiveThreshold(
             blur, 255, adapt_type, thresh_type, 11, 2)
+        
+        if self.debug:
+            cv.imshow('bin_img-intersecrtion', bin_img)
 
         # Detect lines
         rho = 2

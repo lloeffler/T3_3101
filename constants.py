@@ -55,6 +55,22 @@ Contains 2 times the number of TURN_RADIUS_XX to drive left and right plus one d
 
 # endregion robot_drive_constants
 
+# region color-bound
+
+RED_LOW = (0,0,75) # (0, 36, 235) alternative values, from former students
+"""
+tuple[literal]:
+The low bound of filtering red color out of an image. 
+"""
+
+RED_HIGH = (67, 112, 255)  # (50,50,135) alternative values, from former students
+"""
+tuple[literal]:
+The high bound of filtering red color out of an image. 
+"""
+
+# endregion color-bound
+
 # region parking
 
 PARKING_TIME = 10.0

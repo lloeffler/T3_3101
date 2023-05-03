@@ -101,9 +101,11 @@ class Navigator:
                         self.bot.intersection_img)
                     if is_parking_space:
                         self._detected = True
-                        print("Park");
                         # Start parking procedure
                         self.turn_intersection('parking')
+                        # Turns the robot, if it parkes forward.
+                        if self.parking_learner._parking_direction == Parkingdirection.FORWARD:
+                            self.ta.turn_180_deg_on_spot()
                         self._event.clear()
                         self.bot.change_drive_power(self.bot.power_lvl)
                     else:
@@ -159,7 +161,8 @@ class Navigator:
     def turn_intersection(self, direction):
         steering_angle = 0
         self.bot.set_drive_steer(steering_angle)
-        print(direction)
+        if self.preview or self.debug:
+            print(direction)
         if direction == "r":
             self.ta.turn_90_deg(-1)
         elif direction == "l":

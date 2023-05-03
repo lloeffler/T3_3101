@@ -167,7 +167,7 @@ class Exhibition:
         # Creates instance of parking_learner.
         self._parking_learner = ParkingLearner(
             bot=self._bot, qtable=self._qtable_pair[self.config['direction']], alpha=self.config['alpha'], y=self.config['y'], parkingdirection=self.config['direction'], action=self.config['action'])
-        self._bot.set_parking_learner(self)
+        self._bot.set_parking_learner(self._parking_learner)
         # Createst instance of turn assistant.
         self._turn_assistant = TurnAssistant(bot=self._bot)
         print('Initialazion exhibition done.')
@@ -608,9 +608,10 @@ class Exhibition:
             while self._bot._programm_type != ProgrammType.DONE:
                 sleep(1)
                 if self._bot._programm_type == ProgrammType.ENDPARKING:
-                    self._bot.set_programm_type = ProgrammType.DONE
+                    self._bot.set_programm_type(ProgrammType.DONE)
                     sleep(2)
             # Stops Robot.
+            self._bot._event.set()
             self._bot.stop_all()
             # Stops autopilot.
             self._bot.set_autopilot_state(active=False)

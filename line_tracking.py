@@ -61,8 +61,12 @@ class LineTracker:
             except Exception as exception:
                 self.failed_tries += 1
                 if self.failed_tries > 5:
+                    print('Line tracking error, please check error log.')
                     raise exception
                 return
+            
+            # Reset failed tries after a successfull trie, to prevent just stopping after to many fails.
+            self.failed_tries = 0
 
             # Gausian blur
             blur = cv.GaussianBlur(gray, self.kernel_size, 0)

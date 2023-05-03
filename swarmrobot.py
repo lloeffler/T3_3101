@@ -149,6 +149,7 @@ class SwarmRobot:
         sleep(TURN_SLEEP_TIME)
 
     def _setup_autopilot(self):
+        import datetime
         from time import sleep
 
         def follow(event):
@@ -171,9 +172,8 @@ class SwarmRobot:
             except Exception as exception:
                 self.stop_all()
                 # Logs error to error log file or prints to console.
-                self.log_error(exception)
-            finally:
-                self.stop_all()
+                self.log_error("[Autopilot|{0}] {1}\nTraceback:\n{2}".format(
+                    datetime.datetime.now().isoformat(), str(exception), traceback.format_exc()))
 
         self._track_process = Thread(
             group=None, target=follow, daemon=True, args=(self._event,))
@@ -191,6 +191,7 @@ class SwarmRobot:
         from .classifier import Classifier
 
     def _setup_navigation(self):
+        import datetime
         from time import sleep
         from navigation import Navigator
 
@@ -213,9 +214,8 @@ class SwarmRobot:
             except Exception as exception:
                 self.stop_all()
                 # Logs error to error log file or prints to console.
-                self.log_error(exception)
-            finally:
-                self.stop_all()
+                self.log_error("[Navigation|{0}] {1}\nTraceback:\n{2}".format(
+                    datetime.datetime.now().isoformat(), str(exception), traceback.format_exc()))
 
         self._navigation_process = Thread(
             group=None, target=navigate, daemon=True, args=(self._event,))
@@ -227,6 +227,7 @@ class SwarmRobot:
             self._setup_navigation()
 
     def _setup_intersection_detection(self):
+        import datetime
         from time import sleep
         from intersection_detection import IntersectionDetection
 
@@ -250,9 +251,8 @@ class SwarmRobot:
             except Exception as exception:
                 self.stop_all()
                 # Logs error to error log file or prints to console.
-                self.log_error(exception)
-            finally:
-                self.stop_all()
+                self.log_error("[Intersection Detection|{0}] {1}\nTraceback:\n{2}".format(
+                    datetime.datetime.now().isoformat(), str(exception), traceback.format_exc()))
 
         self._intsecdet_process = Thread(
             group=None, target=detect_intersection, daemon=True)
