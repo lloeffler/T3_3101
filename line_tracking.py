@@ -102,8 +102,6 @@ class LineTracker:
 
                     cv.imshow('Preview', frame)
 
-                self.bot.intersection_img = frame
-
                 return ((cx*2) / frame.shape[1]) - 1
             else:
                 steer = bot.steer * -1

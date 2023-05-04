@@ -3,14 +3,17 @@ import numpy as np
 
 from constants import RED_LOW, RED_HIGH
 
+
 class ParkingSpaceDetection:
     """
-    erkennt parkplatz, soll auch position des roboters bestimmen
+    Detects a parking lot.
+    To do so, it checks if a given image of an intersection has red lines.
+    Should calculate relativ position of the robot to the parking lot.
     """
     # number of failed tries
     failed_tries = 0
 
-    def __init__(self, debug: bool=False):
+    def __init__(self, debug: bool = False):
         self.debug = debug
 
     def detect_red_line(self, img):
@@ -54,3 +57,24 @@ class ParkingSpaceDetection:
             return True
 
         return False
+
+    def calculate_position(self, img, intersection: list[list[int]]) -> tuple:
+        """
+        Calculates relative position of the robot to the parking lot aka intersection in the image.
+
+        Parameter
+        ---------
+        img: Mat
+            Image containing the intersection with the parking lot.
+        intersection: list[list[int]]
+            Coordinates of the intersection.
+
+        Returns
+        -------
+        tuple: Position with rho, phi and orientation of the robot relativ to the parking lot aka intersection.
+        """
+        x_picture = intersection[0][0]
+        y_picture = intersection[0][1]
+        if self.debug:
+            cv.imshow('calculated-position', img)
+        return (0, 0, 0)

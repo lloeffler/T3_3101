@@ -16,8 +16,6 @@ class TurnAssistant:
     def __init__(self, bot: SwarmRobot):
         self._bot = bot
 
-        self._full_rotation_deg = 510
-
     def turn_90_deg(self, direction):
         """
         Turns the robot about 90 degrees.

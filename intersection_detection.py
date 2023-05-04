@@ -131,6 +131,9 @@ class IntersectionDetection:
         width_crop = int(width / 4)
         resized = img[height - height_crop:height,
                       width_crop:width - width_crop, :]
+        
+        # Copy of colored imagesection with the intersection
+        resized_full_colored = resized
 
         try:
             # Turn red dots into black
@@ -177,8 +180,10 @@ class IntersectionDetection:
             # Cluster line angles into 2 groups (vertical and horizontal)
             segmented = self.segment_by_angle_kmeans(lines, 2)
 
-        # Find the intersections of each vertical line with each horizontal line
+            # Find the intersections of each vertical line with each horizontal line
             intersections = self.segmented_intersections(segmented)
+
+            self._bot.intersection_img = resized_full_colored
 
         self._bot.intersection = intersections
         # print(datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3])
