@@ -18,7 +18,7 @@ class Application:
         self.run = True
         self.paused = False
         self.img_name = ''
-        self.paused_menu = 'save: saves current image\nresume: resumes image stream\nexit: quits programm\n>'
+        self.paused_menu = '{}\nsave: saves current image\nresume: resumes image stream\nexit: quits programm\n>'
 
     def main(self):
         """
@@ -46,9 +46,9 @@ class Application:
                     # Pause menue
                     if self.paused:
                         # Read user input.
-                        user_input = input(self.paused_menu)
+                        user_input = input(self.paused_menu.format(img_name))
                         while user_input != 'exit' and user_input != 'resume':
-                            user_input = input(self.paused_menu)
+                            user_input = input(self.paused_menu.format(img_name))
 
                         # Save image, if user input was save.
                         if user_input == 'save':
