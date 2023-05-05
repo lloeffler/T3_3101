@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 import datetime
-import msvcrt
 import traceback
 from threading import Thread, Event
 from time import sleep
@@ -46,8 +45,7 @@ def react():
     try:
         while run:
             if not paused:
-                key = msvcrt.getch()
-                print('Pressed {} to pause'.format(key.decode()))
+                key = input('press enter to pause.')
                 paused = True
                 sleep(0.5)
     except Exception as exception:
