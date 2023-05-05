@@ -1,7 +1,10 @@
 import cv2 as cv
 import numpy as np
 
+from skimage.transform import ProjectiveTransform, AffineTransform
+
 from constants import RED_LOW, RED_HIGH
+from parking_learner import cart2pol
 
 
 class ParkingSpaceDetection:
@@ -73,8 +76,32 @@ class ParkingSpaceDetection:
         -------
         tuple: Position with rho, phi and orientation of the robot relativ to the parking lot aka intersection.
         """
-        x_picture = intersection[0][0]
-        y_picture = intersection[0][1]
+
+        # Known pixel
+        src = np.array([[320, 480], [320, 0], [547, 300], [447, 67]])
+
+        # Known coordinates
+        dst = np.array([[8.1, 0.0], [50.5, 0.0], [17.0, 11.5], [43.0, 11.5]])
+
+        # affine transformation
+        affine_transformation = AffineTransform()
+        affine_transformation.estimate(src, dst)
+
+        # projective Transformation
+        projective_transformation = ProjectiveTransform()
+        projective_transformation.estimate(src, dst)
+
+        # Calculation of the coordinate
+        new_point = np.array([intersection[0][0], intersection[0][1]])
+        affine_transformed_point = affine_transformation(new_point)
+        projective_transformed_point = projective_transformation(new_point)
+
+        # Transformation to polar coordinates
+        rho, phi = cart2pol(x=affine_transformed_point[0], y=affine_transformed_point[1])
+        
         if self.debug:
-            cv.imshow('calculated-position', img)
-        return (0, 0, 0)
+            print('affine: x={0} y={1}'.format(affine_transformed_point[0], affine_transformed_point[1]))
+            print('projective: x={0} y={1}'.format(projective_transformed_point[0], projective_transformed_point[1]))
+
+        # Calculation of the orientation
+        return (round(rho), round(phi), 18)

@@ -10,6 +10,85 @@ from programm_type import ProgrammType
 
 from constants import TURN_SLEEP_TIME, TURNING_RADIUS_50, TURNING_RADIUS_100, TURNING_DIRECTIONS, PARKING_TIME, FORWARD_PARKING_RHO, FORWARD_PARKING_PHI, FORWARD_PARKING_ORIENTATION, BACKWARD_PARKING_RHO, BACKWARD_PARKING_ORIENTATION, MAXIMAL_DISTANCE_TO_PARKING_LOT, SIZE_STATE_RHO, SIZE_STATE_PHI, SIZE_STATE_ORIENTATION, SIZE_ACTION_DIRECTION, SIZE_ACTION_LENTGH, BACKWARD_ACTION_LENGTH_SUBTRAHEND, FORWARD_ACTION_LENGTH_SUBTRAHEND, MAXIMAL_RANDOM_ACTION_DIRECTION, MAXIMAL_RANDOM_ACTION_LENGTH
 
+# region conversions
+
+@staticmethod
+def cart2pol(x: float, y: float):
+    """
+    Converts cartesian coordinates into polar coordinates.
+
+    Parameter
+    ----------
+    x: float
+        Distance between point and y-axis.
+    y: float
+        Distance between point and x-axis.
+
+    Returns
+    ------
+    tuple : rho and phi in radians of given point.
+    """
+    rho = np.sqrt(x**2 + y**2)
+    phi = np.arctan2(y, x)
+    return (rho, phi)
+
+
+@staticmethod
+def pol2cart(rho: float, phi: float):
+    """
+    Converts polar coordinates into cartesian coordinates.
+
+    Parameter
+    ----------
+    rho: float 
+        Radius of the point in the unitary circle.
+    phi: float 
+        Angle of phi of the point in the unitary circle in radians.
+
+    Returns
+    ------
+    tuple: x and y of given point.
+    """
+    x = rho * np.cos(phi)
+    y = rho * np.sin(phi)
+    return (x, y)
+
+
+@staticmethod
+def index2direction(index: int = 2) -> float:
+    """
+    Converts an index of the q-sub-table to a direction float.
+
+    Parameter
+    ---------
+    index: int
+        The index of the q-subt-table, corresponding a direction.
+
+    Returns
+    -------
+    float: The turning drirection, based on the index parameter. By default the direction is straight, so 0.0.
+    """
+    return TURNING_DIRECTIONS[index]
+
+
+@staticmethod
+def index2dlength(index: int = 10) -> int:
+    """
+    Converts an index of the q-sub-table to a length int.
+
+    Parameter
+    ---------
+    index: int
+        The index of the q-subt-table, corresponding a length.
+
+    Returns
+    -------
+    int: The length the robot drives forward or backward, based on the index parameter.
+    """
+    return index - BACKWARD_ACTION_LENGTH_SUBTRAHEND if index < 10 else index - FORWARD_ACTION_LENGTH_SUBTRAHEND
+
+# endregion
+
 
 class ParkingLearner:
     """
@@ -92,78 +171,6 @@ class ParkingLearner:
         self._qtable = new_qtable if new_qtable_is_numpy_array else np.zeros(
             shape=(SIZE_STATE_RHO, SIZE_STATE_PHI, SIZE_STATE_ORIENTATION, SIZE_ACTION_DIRECTION, SIZE_ACTION_LENTGH))
 
-    # region conversions
-
-    def cart2pol(self, x: float, y: float):
-        """
-        Converts cartesian coordinates into polar coordinates.
-
-        Parameter
-        ----------
-        x: float
-            Distance between point and y-axis.
-        y: float
-            Distance between point and x-axis.
-
-        Returns
-        ------
-        tuple : rho and phi in radians of given point.
-        """
-        rho = np.sqrt(x**2 + y**2)
-        phi = np.arctan2(y, x)
-        return (rho, phi)
-
-    def pol2cart(self, rho: float, phi: float):
-        """
-        Converts polar coordinates into cartesian coordinates.
-
-        Parameter
-        ----------
-        rho: float 
-            Radius of the point in the unitary circle.
-        phi: float 
-            Angle of phi of the point in the unitary circle in radians.
-
-        Returns
-        ------
-        tuple: x and y of given point.
-        """
-        x = rho * np.cos(phi)
-        y = rho * np.sin(phi)
-        return (x, y)
-
-    def index2direction(self, index: int = 2) -> float:
-        """
-        Converts an index of the q-sub-table to a direction float.
-
-        Parameter
-        ---------
-        index: int
-            The index of the q-subt-table, corresponding a direction.
-
-        Returns
-        -------
-        float: The turning drirection, based on the index parameter. By default the direction is straight, so 0.0.
-        """
-        return TURNING_DIRECTIONS[index]
-
-    def index2dlength(self, index: int = 10) -> int:
-        """
-        Converts an index of the q-sub-table to a length int.
-
-        Parameter
-        ---------
-        index: int
-            The index of the q-subt-table, corresponding a length.
-
-        Returns
-        -------
-        int: The length the robot drives forward or backward, based on the index parameter.
-        """
-        return index - BACKWARD_ACTION_LENGTH_SUBTRAHEND if index < 10 else index - FORWARD_ACTION_LENGTH_SUBTRAHEND
-
-    # endregion
-
     def set_action_utilize(self):
         """
         Sets self._action to 'utilize', to change behavior.
@@ -205,10 +212,10 @@ class ParkingLearner:
         rad_phi = np.deg2rad(self._state['phi'] * 10)
         rad_orientation = np.deg2rad(self._state['orientation'] * 10)
         # Calculates new State
-        [x, y] = self.pol2cart(state_rho, rad_phi)
+        [x, y] = pol2cart(state_rho, rad_phi)
         if direction == 0.0:
             # Robot drives straight forward.
-            [delta_x, delta_y] = self.pol2cart(
+            [delta_x, delta_y] = pol2cart(
                 length, rad_orientation)
             x_t = x + delta_x
             y_t = y + delta_y
@@ -219,8 +226,8 @@ class ParkingLearner:
             turning_index = 1 if direction_index == 1 or direction_index == 3 else 0
             turning_radius = self._turning_radius[turning_index]
             # Calculating centre of rotation (x_m, y_m) of the turning circle.
-            [x_m_delta, y_m_delta] = self.pol2cart(turning_radius, rad_orientation + (
-                1.5 * np.pi)) if direction > 0 else self.pol2cart(turning_radius, rad_orientation + (0.5 * np.pi))
+            [x_m_delta, y_m_delta] = pol2cart(turning_radius, rad_orientation + (
+                1.5 * np.pi)) if direction > 0 else pol2cart(turning_radius, rad_orientation + (0.5 * np.pi))
             x_m = x + x_m_delta
             y_m = y + y_m_delta
             # Calculating perimeter of the turningcicle.
@@ -228,14 +235,14 @@ class ParkingLearner:
             turning_radiant = 2 * np.pi * \
                 (-self.index2dlength(length_index)/turning_perimeter)
             # Calculating new robot coordinates.
-            [x_delta_t, y_delta_t] = self.pol2cart(
+            [x_delta_t, y_delta_t] = pol2cart(
                 self._turning_radius[turning_index], (rad_orientation + np.pi + turning_radiant))
             # Calculates new robot orientation
             orientation_t = rad_orientation + turning_radiant
             x_t = x_m + x_delta_t
             y_t = y_m + y_delta_t
         # Sets new position as robot state.
-        [rho_t, phi_t] = self.cart2pol(x_t, y_t)
+        [rho_t, phi_t] = cart2pol(x_t, y_t)
         self._state['rho'] = int(rho_t)
         self._state['phi'] = int(
             np.rint(np.rad2deg(phi_t)/10)) % SIZE_STATE_PHI
