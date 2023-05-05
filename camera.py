@@ -57,7 +57,7 @@ class Application:
                                     print('saved image successful.')
                                 else:
                                     print('faild to save image.')
-                            else:
+                            elif user_input != 'exit' and user_input != 'resume':
                                 print('wrong input')
 
                         if user_input == 'resume':
