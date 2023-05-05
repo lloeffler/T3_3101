@@ -36,7 +36,7 @@ class Application:
                     if not self.paused:
                         _, frame = self.camera.read()
                         if frame is not None and _ is not None:
-                            img_name = datetime.datetime.now().__str__()
+                            img_name = datetime.datetime.now().strftime('%Y.%m.%d-%H.%M.%S')
                             cv.imshow('camera', frame)
                             # Needed show image.
                             cv.waitKey(1)
@@ -46,20 +46,25 @@ class Application:
                     # Pause menue
                     if self.paused:
                         # Read user input.
-                        user_input = input(self.paused_menu.format(img_name))
+                        user_input = ''
                         while user_input != 'exit' and user_input != 'resume':
-                            user_input = input(self.paused_menu.format(img_name))
+                            user_input = input(
+                                self.paused_menu.format(img_name))
 
-                        # Save image, if user input was save.
-                        if user_input == 'save':
-                            cv.imwrite('{}.png'.format(img_name), frame)
+                            if user_input == 'save':
+                                # Save image, if user input was save.
+                                if cv.imwrite(img_name + '.png', frame):
+                                    print('saved image successful.')
+                                else:
+                                    print('faild to save image.')
+                            else:
+                                print('wrong input')
 
-                        # Resume execution.
                         if user_input == 'resume':
+                            # Resume execution.
                             self.paused = False
-
-                        # Stops execution and lead tu application exit.
-                        if user_input == 'exit':
+                        elif user_input == 'exit':
+                            # Stops execution and lead tu application exit.
                             self.run = False
                             cv.destroyAllWindows()
             except Exception as exception:
