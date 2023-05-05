@@ -1,63 +1,95 @@
 #!/usr/bin/python3
+
 import datetime
 import traceback
-from threading import Thread, Event
+from threading import Thread
 from time import sleep
 
 import cv2 as cv
 
-event = Event()
-camera = cv.VideoCapture(0)
-run = True
-paused = False
-img_name = ''
-paused_menu = 'save: saves current image\nresume: resumes image stream\nexit: quits programm\n>'
+
+class Application:
+    """
+    Application to show what the camera sees, take a picture and pause the videostreamlike showed images.
+    """
+
+    def __init__(self):
+        self.camera = cv.VideoCapture(0)
+        self.run = True
+        self.paused = False
+        self.img_name = ''
+        self.paused_menu = 'save: saves current image\nresume: resumes image stream\nexit: quits programm\n>'
+
+    def main(self):
+        """
+        The main function, that executes the programm.
+        """
+
+        def show():
+            """
+            Threaded function to show streamlike images from the camera and handle pause menu with userinput.
+            """
+            try:
+                while self.run:
+
+                    if not self.paused:
+                        _, frame = self.camera.read()
+                        if frame is not None:
+                            img_name = datetime.datetime.now().isoformat()
+                            cv.imshow('camera', frame)
+
+                    # Pause menue
+                    if self.paused:
+                        # Read user input.
+                        user_input = input(self.paused_menu)
+                        while user_input != 'exit' and user_input != 'resume':
+                            user_input = input(self.paused_menu)
+
+                        # Save image, if user input was save.
+                        if user_input == 'save':
+                            cv.imwrite('{}.png'.format(img_name), frame)
+
+                        # Resume execution.
+                        if user_input == 'resume':
+                            self.paused = False
+
+                        # Stops execution and lead tu application exit.
+                        if user_input == 'exit':
+                            self.run = False
+            except Exception as exception:
+                print(str(exception), traceback.format_exc())
+
+        def pause():
+            """
+            Pauses stream like execution and let show thread run into pause menue.
+            """
+            try:
+                while self.run:
+                    if not self.paused:
+                        input('press enter to pause.')
+                        self.paused = True
+                        sleep(0.5)
+            except Exception as exception:
+                print(str(exception), traceback.format_exc())
+
+        # Generate threads.
+        show_image_thread = Thread(
+            group=None, target=show, daemon=True)
+        pause_thread = Thread(
+            group=None, target=pause, daemon=True)
+
+        # Start threads.
+        show_image_thread.start()
+        pause_thread.start()
+
+        # Join threads.
+        show_image_thread.join()
+        pause_thread.join()
 
 
-def show(event):
+if __name__ == '__main__':
     try:
-        while run:
-
-            if not paused:
-                _, frame = camera.read()
-                if frame is not None:
-                    img_name = datetime.datetime.now().isoformat()
-                    cv.imshow('camera', frame)
-
-            if paused:
-                user_input = input(paused_menu)
-                while user_input != 'exit' and user_input != 'resume':
-                    user_input = input(paused_menu)
-
-                if user_input == 'save':
-                    cv.imwrite('{}.png'.format(img_name), frame)
-
-                if user_input == 'resume':
-                    paused = False
-
-                if user_input == 'exit':
-                    run = False
+        application = Application()
+        application.main()
     except Exception as exception:
         print(str(exception), traceback.format_exc())
-
-
-def react():
-    try:
-        while run:
-            if not paused:
-                key = input('press enter to pause.')
-                paused = True
-                sleep(0.5)
-    except Exception as exception:
-        print(str(exception), traceback.format_exc())
-
-show_image_thread = Thread(
-    group=None, target=show, daemon=True, args=(event))
-react_thread = Thread(
-    group=None, target=react, daemon=True)
-
-show_image_thread.start()
-react_thread.start()
-
-show_image_thread.join()
-react_thread.join()
