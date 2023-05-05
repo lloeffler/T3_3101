@@ -32,11 +32,16 @@ class Application:
             try:
                 while self.run:
 
+                    # Videostreamlike image output.
                     if not self.paused:
                         _, frame = self.camera.read()
-                        if frame is not None:
-                            img_name = datetime.datetime.now().isoformat()
+                        if frame is not None and _ is not None:
+                            img_name = datetime.datetime.now().__str__()
                             cv.imshow('camera', frame)
+                            # Needed show image.
+                            cv.waitKey(1)
+                        else:
+                            print('no image')
 
                     # Pause menue
                     if self.paused:
@@ -56,6 +61,7 @@ class Application:
                         # Stops execution and lead tu application exit.
                         if user_input == 'exit':
                             self.run = False
+                            cv.destroyAllWindows()
             except Exception as exception:
                 print(str(exception), traceback.format_exc())
 
@@ -78,13 +84,16 @@ class Application:
         pause_thread = Thread(
             group=None, target=pause, daemon=True)
 
-        # Start threads.
-        show_image_thread.start()
-        pause_thread.start()
+        if self.camera.isOpened():
+            # Start threads.
+            show_image_thread.start()
+            pause_thread.start()
 
-        # Join threads.
-        show_image_thread.join()
-        pause_thread.join()
+            # Join threads.
+            show_image_thread.join()
+            pause_thread.join()
+        else:
+            print('could not open camera')
 
 
 if __name__ == '__main__':
