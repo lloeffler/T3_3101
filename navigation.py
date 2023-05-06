@@ -43,7 +43,7 @@ class Navigator:
             width=self.resolution[0], height=self.resolution[1], bot=bot)
         self.qr_detector = QrDetection()
         self.bar_code_detector = BarCodeDetection()
-        self.parking_detector = ParkingSpaceDetection(self.debug)
+        self.parking_detector = ParkingSpaceDetection(intersection_detector= self.int_detector, debug=self.debug)
         self.parking_learner = parking_learner
 
         self.bot = bot
@@ -101,8 +101,9 @@ class Navigator:
                         self.bot.intersection_img)
                     if is_parking_space:
                         self._detected = True
+                        rho, phi, orientation = self.parking_detector.calculate_position(intersections=intersection, intersection_index=n)
                         # Start parking procedure
-                        self.turn_intersection('parking')
+                        self.parking_learner.start_parking(distance=rho, angle=phi, orientation=orientation)
                         # Turns the robot, if it parkes forward.
                         if self.parking_learner._parking_direction == Parkingdirection.FORWARD:
                             self.ta.turn_180_deg_on_spot()
@@ -169,8 +170,6 @@ class Navigator:
             self.ta.turn_90_deg(1)
         elif direction == "g":
             self.ta.turn_0_deg()
-        elif direction == "parking":
-            self.parking_learner.start_parking()
         elif direction == "stop":
             self.bot.stop_all()
 

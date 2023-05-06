@@ -1,6 +1,7 @@
 """
 Constant values for controlling the swarmrobot, exhibition and simulator.
 """
+from numpy import pi
 
 # region robot_drive_constants
 
@@ -54,6 +55,16 @@ Contains 2 times the number of TURN_RADIUS_XX to drive left and right plus one d
 """
 
 # endregion robot_drive_constants
+
+# region intersection_detection
+
+MAXIMAL_THETA_RADIANT_VERTICAL = pi /4
+"""
+float:
+How much the theta angle is allowed to different from pi/2 (90 dregree as radiant).
+"""
+
+# endregion intersection_detection
 
 # region color-bound
 

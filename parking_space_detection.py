@@ -1,8 +1,11 @@
 import cv2 as cv
 import numpy as np
 
+from math import degrees
+
 from skimage.transform import ProjectiveTransform, AffineTransform
 
+from intersection_detection import IntersectionDetection
 from constants import RED_LOW, RED_HIGH
 from parking_learner import cart2pol
 
@@ -16,8 +19,9 @@ class ParkingSpaceDetection:
     # number of failed tries
     failed_tries = 0
 
-    def __init__(self, debug: bool = False):
+    def __init__(self, intersection_detector: IntersectionDetection, debug: bool = False):
         self.debug = debug
+        self._intersection_detector = intersection_detector
 
     def detect_red_line(self, img):
         # threshold on red color
@@ -61,16 +65,16 @@ class ParkingSpaceDetection:
 
         return False
 
-    def calculate_position(self, img, intersection: list[list[int]]) -> tuple:
+    def calculate_position(self, intersections: list, intersection_index: int) -> tuple:
         """
         Calculates relative position of the robot to the parking lot aka intersection in the image.
 
         Parameter
         ---------
-        img: Mat
-            Image containing the intersection with the parking lot.
-        intersection: list[list[int]]
-            Coordinates of the intersection.
+        intersections: list
+            Liast of all intersections.
+        intersection_index: int
+            Index of the intersection looked for.
 
         Returns
         -------
@@ -92,16 +96,32 @@ class ParkingSpaceDetection:
         projective_transformation.estimate(src, dst)
 
         # Calculation of the coordinate
-        new_point = np.array([intersection[0][0], intersection[0][1]])
+        new_point = np.array([intersections[intersection_index]
+                             [0][0], intersections[intersection_index][0][1]])
         affine_transformed_point = affine_transformation(new_point)
         projective_transformed_point = projective_transformation(new_point)
 
         # Transformation to polar coordinates
-        rho, phi = cart2pol(x=affine_transformed_point[0], y=affine_transformed_point[1])
-        
-        if self.debug:
-            print('affine: x={0} y={1}'.format(affine_transformed_point[0], affine_transformed_point[1]))
-            print('projective: x={0} y={1}'.format(projective_transformed_point[0], projective_transformed_point[1]))
+        rho, phi = cart2pol(
+            x=affine_transformed_point[0], y=affine_transformed_point[1])
 
-        # Calculation of the orientation
-        return (round(rho), round(phi), 18)
+        if self.debug:
+            print('affine: x={0} y={1}'.format(
+                affine_transformed_point[0], affine_transformed_point[1]))
+            print('projective: x={0} y={1}'.format(
+                projective_transformed_point[0], projective_transformed_point[1]))
+
+        # Get lines of intersection.
+        intersection_lines = self._intersection_detector.get_lines_from_intersection(
+            intersection_index=intersection_index)
+        # Get vertical line from intersection.
+        line_rho, line_theta = self._intersection_detector.get_vertical_line(intersection_lines)[0]
+        # Calculation of the orientation, based on the theta value of the vertical line in the intersection.
+        # Difference between line angle and pi/2 (90 degree as radiant).
+        delta_theta = line_theta - (np.pi/2)
+        # Not rounded orientation as radiant.
+        # Pi (180 degree as radiant) is the default orientation when the line is measured with pi/2 (90 degree as radiant) to the images x-axis.
+        orientation_radiant = np.pi - delta_theta
+        # Not rounded orientation.
+        orientation = degrees(orientation_radiant)/10
+        return (int(round(rho)), int(round(phi)), int(round(orientation)))

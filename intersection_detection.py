@@ -7,7 +7,7 @@ import cv2 as cv
 
 from collections import defaultdict
 
-from constants import RED_LOW, RED_HIGH
+from constants import RED_LOW, RED_HIGH, MAXIMAL_THETA_RADIANT_VERTICAL
 
 class IntersectionDetection:
 
@@ -20,6 +20,8 @@ class IntersectionDetection:
         self.roi_y1 = self.resolution[1] - h
         self.roi_x2 = self.roi_x1 + w
         self.roi_y2 = self.roi_y1 + h
+
+        self.lines = None
 
         # Constants
         self.kernel_size = kernel_size
@@ -172,13 +174,13 @@ class IntersectionDetection:
         rho = 2
         theta = np.pi / 180
         thresh = 350
-        lines = cv.HoughLines(bin_img, rho, theta, thresh)
+        self.lines = cv.HoughLines(bin_img, rho, theta, thresh)
 
         # print("Found lines: %d" % (len(lines)))
         intersections = []
-        if lines is not None:
+        if self.lines is not None:
             # Cluster line angles into 2 groups (vertical and horizontal)
-            segmented = self.segment_by_angle_kmeans(lines, 2)
+            segmented = self.segment_by_angle_kmeans(self.lines, 2)
 
             # Find the intersections of each vertical line with each horizontal line
             intersections = self.segmented_intersections(segmented)
@@ -207,6 +209,80 @@ class IntersectionDetection:
                 return n
             n = n+1
         return -1
+    
+    def get_lines_from_intersection(self, intersection_index: int):
+        """
+        Gets the lines that form the interscetion idetified by the given intersection index.
+
+        Parameter
+        ---------
+        intersection_index: int
+            index of the intersection, formed from the lines of interest.
+
+        Retunrs
+        -------
+        list[]: Lines with rho and theta, that form the intersection with the index of intersection_index.
+        """
+        # Get the intersection coordinates
+        intersection = self._bot.intersection[intersection_index][0]
+
+        # Find the lines that form the intersection
+        lines = []
+        for group in self.lines:
+            for line in group:
+                rho, theta = line[0]
+                a = np.cos(theta)
+                b = np.sin(theta)
+                x0 = a * rho
+                y0 = b * rho
+                x1 = int(x0 + 1000 * (-b))
+                y1 = int(y0 + 1000 * (a))
+                x2 = int(x0 - 1000 * (-b))
+                y2 = int(y0 - 1000 * (a))
+
+                # Check if the line passes through the intersection
+                if abs((y2 - y1) * intersection[0] - (x2 - x1) * intersection[1] + x2 * y1 - y2 * x1) < 1e-6:
+                    lines.append(line)
+
+        return lines
+    
+    def get_vertical_line(self, lines: list) -> (list | None):
+        """
+        Checks if a line in the given list of lines is vertical and returns the first vertical line.
+
+        Parameter
+        ---------
+        lines: list
+            List of lines to be checked.
+        
+        Returns
+        -------
+        None: If no vertical line is contained.
+        list: List containing the first vertical line in the given lines. the line has rho, the distanceto the coordinates origin (0,0), and theta, the angle to the x-axis.
+        """
+        for line in lines:
+            rho, theta = line[0]
+            if abs(theta - np.pi / 2) < MAXIMAL_THETA_RADIANT_VERTICAL:
+                return line[0]
+    
+    def get_horizontal_line(self, lines:list) -> (tuple | None):
+        """
+        Checks if a line in the given list of lines is horizontal and returns the first vertical line.
+
+        Parameter
+        ---------
+        lines: list
+            List of lines to be checked.
+        
+        Returns
+        -------
+        None: If no horizontal line is contained.
+        list: List containing the first horizontal line in the given lines. the line has rho, the distanceto the coordinates origin (0,0), and theta, the angle to the x-axis.
+        """
+        for line in lines:
+            rho, theta = line[0]
+            if not abs(theta - np.pi / 2) < MAXIMAL_THETA_RADIANT_VERTICAL:
+                return line[0]
 
     # img_with_segmented_lines = np.copy(img)
     #

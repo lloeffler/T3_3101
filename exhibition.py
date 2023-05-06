@@ -191,7 +191,7 @@ class Exhibition:
             else:
                 print(
                     'Configurationfile does not match to the needed format or content. Please check your configurationfile.')
-                raise Exception('Missmatching configfile')
+                raise ValueError('Missmatching configfile')
         # If config does not match to the nedded format, de default configuration is loaded.
         else:
             self.config = {
@@ -660,10 +660,13 @@ if __name__ == '__main__':
         runner.main(administrator_mode, park_lot_detection)
     except Exception as exception:
         try:
+            error_str = "[Exhibition|{0}] {1}\nTraceback:\n{2}".format(
+                datetime.datetime.now().isoformat(), str(exception), traceback.format_exc())
+            if debug_mode:
+                print(error_str)
             # If any error is catched, it is tried to write into an error log file.
             log_file = open("error.log", "a")
-            log_file.write("[Exhibition|{0}] {1}\nTraceback:\n{2}".format(
-                datetime.datetime.now().isoformat(), str(exception), traceback.format_exc()))
+            log_file.write(error_str)
             log_file.close()
         except Exception as inner_exception:
             # If the logging into a file failes, the error is printed to the command line.
