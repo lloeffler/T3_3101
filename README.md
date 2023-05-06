@@ -1,5 +1,7 @@
 # T3_3101 - Reinforced Learing/Q-Learning: Swarmrobot parking
 
+Recommended terminal size: 115 x 25
+
 ### Created by my self:
 - constants.py
 - exhibition.py
