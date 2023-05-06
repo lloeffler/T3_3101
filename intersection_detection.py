@@ -1,6 +1,6 @@
 import sys
 
-from datetime import datetime # Usage is commented.
+from datetime import datetime  # Usage is commented.
 
 import numpy as np
 import cv2 as cv
@@ -8,6 +8,7 @@ import cv2 as cv
 from collections import defaultdict
 
 from constants import RED_LOW, RED_HIGH, MAXIMAL_THETA_RADIANT_VERTICAL
+
 
 class IntersectionDetection:
 
@@ -133,7 +134,7 @@ class IntersectionDetection:
         width_crop = int(width / 4)
         resized = img[height - height_crop:height,
                       width_crop:width - width_crop, :]
-        
+
         # Copy of colored imagesection with the intersection
         resized_full_colored = resized
 
@@ -141,7 +142,7 @@ class IntersectionDetection:
             # Turn red dots into black
             mask = cv.inRange(resized, RED_LOW, RED_HIGH)
             resized[mask != 0] = [0, 0, 0]
-            #if self.debug:
+            # if self.debug:
             cv.imshow('red_to_black', resized)
 
             # Convert to grayscale
@@ -166,7 +167,7 @@ class IntersectionDetection:
         thresh_type = cv.THRESH_BINARY_INV
         bin_img = cv.adaptiveThreshold(
             blur, 255, adapt_type, thresh_type, 11, 2)
-        
+
         if self.debug:
             cv.imshow('bin_img-intersecrtion', bin_img)
 
@@ -209,7 +210,7 @@ class IntersectionDetection:
                 return n
             n = n+1
         return -1
-    
+
     def get_lines_from_intersection(self, intersection_index: int):
         """
         Gets the lines that form the interscetion idetified by the given intersection index.
@@ -245,8 +246,8 @@ class IntersectionDetection:
                     lines.append(line)
 
         return lines
-    
-    def get_vertical_line(self, lines: list) -> (list | None):
+
+    def get_vertical_line(self, lines: list):
         """
         Checks if a line in the given list of lines is vertical and returns the first vertical line.
 
@@ -254,7 +255,7 @@ class IntersectionDetection:
         ---------
         lines: list
             List of lines to be checked.
-        
+
         Returns
         -------
         None: If no vertical line is contained.
@@ -264,8 +265,8 @@ class IntersectionDetection:
             rho, theta = line[0]
             if abs(theta - np.pi / 2) < MAXIMAL_THETA_RADIANT_VERTICAL:
                 return line[0]
-    
-    def get_horizontal_line(self, lines:list) -> (tuple | None):
+
+    def get_horizontal_line(self, lines: list):
         """
         Checks if a line in the given list of lines is horizontal and returns the first vertical line.
 
@@ -273,7 +274,7 @@ class IntersectionDetection:
         ---------
         lines: list
             List of lines to be checked.
-        
+
         Returns
         -------
         None: If no horizontal line is contained.
