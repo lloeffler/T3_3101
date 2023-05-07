@@ -142,8 +142,8 @@ class IntersectionDetection:
             # Turn red dots into black
             mask = cv.inRange(resized, RED_LOW, RED_HIGH)
             resized[mask != 0] = [0, 0, 0]
-            # if self.debug:
-            cv.imshow('red_to_black', resized)
+            if self.debug:
+                cv.imshow('red_to_black', resized)
 
             # Convert to grayscale
             gray = cv.cvtColor(resized, cv.COLOR_BGR2GRAY)
