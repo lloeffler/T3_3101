@@ -1,6 +1,7 @@
 import sys
 
 from datetime import datetime  # Usage is commented.
+# from time import sleep
 
 import numpy as np
 import cv2 as cv
@@ -22,7 +23,7 @@ class IntersectionDetection:
         self.roi_x2 = self.roi_x1 + w
         self.roi_y2 = self.roi_y1 + h
 
-        self.lines = None
+        self.lines = []
 
         # Constants
         self.kernel_size = kernel_size
@@ -136,7 +137,7 @@ class IntersectionDetection:
                       width_crop:width - width_crop, :]
 
         # Copy of colored imagesection with the intersection
-        resized_full_colored = resized
+        resized_full_colored = resized.copy()
 
         try:
             # Turn red dots into black
@@ -179,7 +180,7 @@ class IntersectionDetection:
 
         # print("Found lines: %d" % (len(lines)))
         intersections = []
-        if self.lines is not None:
+        if len(self.lines) > 0 :
             # Cluster line angles into 2 groups (vertical and horizontal)
             segmented = self.segment_by_angle_kmeans(self.lines, 2)
 
@@ -228,7 +229,12 @@ class IntersectionDetection:
         intersection = self._bot.intersection[intersection_index][0]
 
         # Find the lines that form the intersection
+        #intersection_lines = []
         lines = []
+        # while len(self.lines) <= 0:
+        #     sleep(0.02)
+        # intersection_lines = self.lines.copy()
+        # if len(intersection_lines) > 0 :
         for group in self.lines:
             for line in group:
                 rho, theta = line[0]

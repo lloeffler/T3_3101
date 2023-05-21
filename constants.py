@@ -74,7 +74,7 @@ tuple[literal]:
 The low bound of filtering red color out of an image. 
 """
 
-RED_HIGH = (67, 112, 255)  # (50,50,135) alternative values, from former students
+RED_HIGH = (75, 75, 255)  # (50,50,135) (67, 112, 255) alternative values, from former students
 """
 tuple[literal]:
 The high bound of filtering red color out of an image. 

@@ -39,11 +39,10 @@ class Navigator:
         self.preview = preview
         self.debug = debug
 
-        self.int_detector = IntersectionDetection(
-            width=self.resolution[0], height=self.resolution[1], bot=bot)
+        self.int_detector = self.bot._intersection_detector
         self.qr_detector = QrDetection()
         self.bar_code_detector = BarCodeDetection()
-        self.parking_detector = ParkingSpaceDetection(intersection_detector= self.int_detector, debug=self.debug)
+        self.parking_detector = ParkingSpaceDetection(intersection_detector= self.bot._intersection_detector, debug=self.debug)
         self.parking_learner = parking_learner
 
         self.bot = bot

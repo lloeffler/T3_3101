@@ -206,8 +206,8 @@ class ParkingLearner:
         boolean : True if the robot is less equals 60 cm from the parking lot away.
         """
         # Converts indicies and rounded state to calculateready numbers.
-        length = self.index2dlength(length_index)
-        direction = self.index2direction(direction_index)
+        length = index2dlength(length_index)
+        direction = index2direction(direction_index)
         state_rho = self._state['rho']
         rad_phi = np.deg2rad(self._state['phi'] * 10)
         rad_orientation = np.deg2rad(self._state['orientation'] * 10)
@@ -233,7 +233,7 @@ class ParkingLearner:
             # Calculating perimeter of the turningcicle.
             turning_perimeter = 2 * np.pi * turning_radius
             turning_radiant = 2 * np.pi * \
-                (-self.index2dlength(length_index)/turning_perimeter)
+                (-index2dlength(length_index)/turning_perimeter)
             # Calculating new robot coordinates.
             [x_delta_t, y_delta_t] = pol2cart(
                 self._turning_radius[turning_index], (rad_orientation + np.pi + turning_radiant))
@@ -265,10 +265,10 @@ class ParkingLearner:
         -------
         boolean: True if the robot is less equals 60 cm from the parking lot away.
         """
-        self._bot.set_drive_steer(self.index2direction(direction_index)) if self.index2direction(
+        self._bot.set_drive_steer(index2direction(direction_index)) if index2direction(
             direction_index) != 0 else self._bot.straight()
         sleep(TURN_SLEEP_TIME)
-        drive_length = self.index2dlength(length_index)
+        drive_length = index2dlength(length_index)
         self._bot.drive(length=drive_length)
         return self.update_state(direction_index=direction_index, length_index=length_index)
 

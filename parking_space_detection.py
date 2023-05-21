@@ -103,13 +103,13 @@ class ParkingSpaceDetection:
 
         # Transformation to polar coordinates
         rho, phi = cart2pol(
-            x=affine_transformed_point[0], y=affine_transformed_point[1])
+            x=affine_transformed_point[0][0], y=affine_transformed_point[0][1])
 
         if self.debug:
             print('affine: x={0} y={1}'.format(
-                affine_transformed_point[0], affine_transformed_point[1]))
+                affine_transformed_point[0][0], affine_transformed_point[0][1]))
             print('projective: x={0} y={1}'.format(
-                projective_transformed_point[0], projective_transformed_point[1]))
+                projective_transformed_point[0][0], projective_transformed_point[0][1]))
 
         # Get lines of intersection.
         intersection_lines = self._intersection_detector.get_lines_from_intersection(
