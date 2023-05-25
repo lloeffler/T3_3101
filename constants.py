@@ -135,6 +135,12 @@ The maximal distance between the parking lot entrance and the robot in centimete
 When the Robot is further away, the parking will be aborted.
 """
 
+DEFAULT_ORIENTATION = int(18)
+"""
+int:
+The default orientation of the robot relative to th parking lot.
+"""
+
 # endregion parking
 
 # region display_time

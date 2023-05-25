@@ -23,7 +23,7 @@ from constants import DISPLAY_CONFIRMATION_SLEEP_TIME, NUMBER_OF_SIMULATIONS, SI
 
 class Simulator(Exhibition):
     """
-    A clas to simulate the exhibiton parking application.
+    A class to simulate the exhibiton parking application.
     """
 
     def __init__(self, random_start: bool = False):

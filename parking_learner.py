@@ -206,16 +206,16 @@ class ParkingLearner:
         boolean : True if the robot is less equals 60 cm from the parking lot away.
         """
         # Converts indicies and rounded state to calculateready numbers.
-        length = index2dlength(length_index)
-        direction = index2direction(direction_index)
+        length = index2dlength.__func__(length_index)
+        direction = index2direction.__func__(direction_index)
         state_rho = self._state['rho']
         rad_phi = np.deg2rad(self._state['phi'] * 10)
         rad_orientation = np.deg2rad(self._state['orientation'] * 10)
         # Calculates new State
-        [x, y] = pol2cart(state_rho, rad_phi)
+        [x, y] = pol2cart.__func__(state_rho, rad_phi)
         if direction == 0.0:
             # Robot drives straight forward.
-            [delta_x, delta_y] = pol2cart(
+            [delta_x, delta_y] = pol2cart.__func__(
                 length, rad_orientation)
             x_t = x + delta_x
             y_t = y + delta_y
@@ -226,23 +226,23 @@ class ParkingLearner:
             turning_index = 1 if direction_index == 1 or direction_index == 3 else 0
             turning_radius = self._turning_radius[turning_index]
             # Calculating centre of rotation (x_m, y_m) of the turning circle.
-            [x_m_delta, y_m_delta] = pol2cart(turning_radius, rad_orientation + (
-                1.5 * np.pi)) if direction > 0 else pol2cart(turning_radius, rad_orientation + (0.5 * np.pi))
+            [x_m_delta, y_m_delta] = pol2cart.__func__(turning_radius, rad_orientation + (
+                1.5 * np.pi)) if direction > 0 else pol2cart.__func__(turning_radius, rad_orientation + (0.5 * np.pi))
             x_m = x + x_m_delta
             y_m = y + y_m_delta
             # Calculating perimeter of the turningcicle.
             turning_perimeter = 2 * np.pi * turning_radius
             turning_radiant = 2 * np.pi * \
-                (-index2dlength(length_index)/turning_perimeter)
+                (-index2dlength.__func__(length_index)/turning_perimeter)
             # Calculating new robot coordinates.
-            [x_delta_t, y_delta_t] = pol2cart(
+            [x_delta_t, y_delta_t] = pol2cart.__func__(
                 self._turning_radius[turning_index], (rad_orientation + np.pi + turning_radiant))
             # Calculates new robot orientation
             orientation_t = rad_orientation + turning_radiant
             x_t = x_m + x_delta_t
             y_t = y_m + y_delta_t
         # Sets new position as robot state.
-        [rho_t, phi_t] = cart2pol(x_t, y_t)
+        [rho_t, phi_t] = cart2pol.__func__(x_t, y_t)
         self._state['rho'] = int(rho_t)
         self._state['phi'] = int(
             np.rint(np.rad2deg(phi_t)/10)) % SIZE_STATE_PHI
@@ -265,10 +265,10 @@ class ParkingLearner:
         -------
         boolean: True if the robot is less equals 60 cm from the parking lot away.
         """
-        self._bot.set_drive_steer(index2direction(direction_index)) if index2direction(
+        self._bot.set_drive_steer(index2direction.__func__(direction_index)) if index2direction.__func__(
             direction_index) != 0 else self._bot.straight()
         sleep(TURN_SLEEP_TIME)
-        drive_length = index2dlength(length_index)
+        drive_length = index2dlength.__func__(length_index)
         self._bot.drive(length=drive_length)
         return self.update_state(direction_index=direction_index, length_index=length_index)
 

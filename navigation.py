@@ -39,10 +39,10 @@ class Navigator:
         self.preview = preview
         self.debug = debug
 
-        self.int_detector = self.bot._intersection_detector
+        self.int_detector = bot._intersection_detector
         self.qr_detector = QrDetection()
         self.bar_code_detector = BarCodeDetection()
-        self.parking_detector = ParkingSpaceDetection(intersection_detector= self.bot._intersection_detector, debug=self.debug)
+        self.parking_detector = ParkingSpaceDetection(intersection_detector= bot._intersection_detector, debug=self.debug, preview=self.preview)
         self.parking_learner = parking_learner
 
         self.bot = bot
@@ -59,7 +59,8 @@ class Navigator:
                 cv.imshow('preview', image)
             self._event = event
             # Detect Intersection in image
-            intersection = self.bot.intersection
+            intersection = self.bot.intersection.copy()
+            detected_lines = self.int_detector.segmented.copy()
             # When intersection is detected and wsn't allready detected
             if len(intersection) > 0 and self._detected == False:
                 # Pause line tracking
@@ -100,7 +101,7 @@ class Navigator:
                         self.bot.intersection_img)
                     if is_parking_space:
                         self._detected = True
-                        rho, phi, orientation = self.parking_detector.calculate_position(intersections=intersection, intersection_index=n)
+                        rho, phi, orientation = self.parking_detector.calculate_position(intersections=intersection, intersection_index=n, detected_lines=detected_lines)
                         # Start parking procedure
                         self.parking_learner.start_parking(distance=rho, angle=phi, orientation=orientation)
                         # Turns the robot, if it parkes forward.

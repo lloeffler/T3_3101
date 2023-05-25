@@ -24,6 +24,7 @@ class IntersectionDetection:
         self.roi_y2 = self.roi_y1 + h
 
         self.lines = []
+        self.segmented = []
 
         # Constants
         self.kernel_size = kernel_size
@@ -73,10 +74,10 @@ class IntersectionDetection:
         for i, line in zip(range(len(lines)), lines):
             segmented[labels[i]].append(line)
 
-        segmented = list(segmented.values())
+        self.segmented = list(segmented.values())
         # print("Segmented lines into two groups: %d, %d" % (len(segmented[0]), len(segmented[1])))
 
-        return segmented
+        return self.segmented
 
     def intersection(self, line1, line2):
         """
@@ -143,7 +144,7 @@ class IntersectionDetection:
             # Turn red dots into black
             mask = cv.inRange(resized, RED_LOW, RED_HIGH)
             resized[mask != 0] = [0, 0, 0]
-            if self.debug:
+            if self.preview:
                 cv.imshow('red_to_black', resized)
 
             # Convert to grayscale
@@ -180,12 +181,12 @@ class IntersectionDetection:
 
         # print("Found lines: %d" % (len(lines)))
         intersections = []
-        if len(self.lines) > 0 :
+        if self.lines is not None and len(self.lines) > 0 :
             # Cluster line angles into 2 groups (vertical and horizontal)
-            segmented = self.segment_by_angle_kmeans(self.lines, 2)
+            self.segmented = self.segment_by_angle_kmeans(self.lines, 2)
 
             # Find the intersections of each vertical line with each horizontal line
-            intersections = self.segmented_intersections(segmented)
+            intersections = self.segmented_intersections(self.segmented)
 
             self._bot.intersection_img = resized_full_colored
 
@@ -212,7 +213,7 @@ class IntersectionDetection:
             n = n+1
         return -1
 
-    def get_lines_from_intersection(self, intersection_index: int):
+    def get_lines_from_intersection(self, intersection_index: int, detected_lines: list):
         """
         Gets the lines that form the interscetion idetified by the given intersection index.
 
@@ -226,16 +227,14 @@ class IntersectionDetection:
         list[]: Lines with rho and theta, that form the intersection with the index of intersection_index.
         """
         # Get the intersection coordinates
-        intersection = self._bot.intersection[intersection_index][0]
+        intersection = self._bot.intersection[intersection_index][0] # macht probleme
+        if self.debug:
+            print('intersection[0] : {0} intersection[1] : {1}'.format(intersection[0], intersection[1]))
 
         # Find the lines that form the intersection
-        #intersection_lines = []
         lines = []
-        # while len(self.lines) <= 0:
-        #     sleep(0.02)
-        # intersection_lines = self.lines.copy()
-        # if len(intersection_lines) > 0 :
-        for group in self.lines:
+        # additional to lines, i need to make segmented from line 77 into a object vairable
+        for group in detected_lines:
             for line in group:
                 rho, theta = line[0]
                 a = np.cos(theta)
@@ -248,7 +247,7 @@ class IntersectionDetection:
                 y2 = int(y0 - 1000 * (a))
 
                 # Check if the line passes through the intersection
-                if abs((y2 - y1) * intersection[0] - (x2 - x1) * intersection[1] + x2 * y1 - y2 * x1) < 1e-6:
+                if abs((y2 - y1) * intersection[0] - (x2 - x1) * intersection[1] + x2 * y1 - y2 * x1) < 1e-6: # macht probleme
                     lines.append(line)
 
         return lines

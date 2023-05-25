@@ -595,12 +595,12 @@ class Exhibition:
             If the parking slot detection is automated, while the robot follows a line or a exhibition specific programm runs for the 'Hanover Messe'.
         """
         if park_lot_detection:
+            # Setup intersection detection.
+            self._bot.set_intsecdet_state(active=True)
             # Setup automatic Linedetection.
             self._bot.set_autopilot_state(active=True)
             # Setup Navigation.
             self._bot.set_navigaton_state(active=True)
-            # Setup intersection detection.
-            self._bot.set_intsecdet_state(active=True)
             # Set velocity of Bot.
             self._bot.set_power_lvl(20)
             self._bot.set_drive_power(self._bot.power_lvl)

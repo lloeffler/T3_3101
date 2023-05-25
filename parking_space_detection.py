@@ -1,3 +1,6 @@
+import traceback
+import datetime
+
 import cv2 as cv
 import numpy as np
 
@@ -6,7 +9,7 @@ from math import degrees
 from skimage.transform import ProjectiveTransform, AffineTransform
 
 from intersection_detection import IntersectionDetection
-from constants import RED_LOW, RED_HIGH
+from constants import RED_LOW, RED_HIGH, DEFAULT_ORIENTATION
 from parking_learner import cart2pol
 
 
@@ -19,7 +22,8 @@ class ParkingSpaceDetection:
     # number of failed tries
     failed_tries = 0
 
-    def __init__(self, intersection_detector: IntersectionDetection, debug: bool = False):
+    def __init__(self, intersection_detector: IntersectionDetection, debug: bool = False, preview: bool = False):
+        self.preview = preview
         self.debug = debug
         self._intersection_detector = intersection_detector
 
@@ -37,6 +41,8 @@ class ParkingSpaceDetection:
         contours = contours[0] if len(contours) == 2 else contours[1]
         if self.debug:
             print('Contours', contours)
+        if self.preview:
+            cv.imshow('thresh', thresh)
         # for c in contours:
         #    area = cv.contourArea(c)
         #    if area > 5000:
@@ -65,7 +71,7 @@ class ParkingSpaceDetection:
 
         return False
 
-    def calculate_position(self, intersections: list, intersection_index: int) -> tuple:
+    def calculate_position(self, intersections: list, intersection_index: int, detected_lines: list) -> tuple:
         """
         Calculates relative position of the robot to the parking lot aka intersection in the image.
 
@@ -102,7 +108,7 @@ class ParkingSpaceDetection:
         projective_transformed_point = projective_transformation(new_point)
 
         # Transformation to polar coordinates
-        rho, phi = cart2pol(
+        rho, phi = cart2pol.__func__(
             x=affine_transformed_point[0][0], y=affine_transformed_point[0][1])
 
         if self.debug:
@@ -110,18 +116,29 @@ class ParkingSpaceDetection:
                 affine_transformed_point[0][0], affine_transformed_point[0][1]))
             print('projective: x={0} y={1}'.format(
                 projective_transformed_point[0][0], projective_transformed_point[0][1]))
-
-        # Get lines of intersection.
-        intersection_lines = self._intersection_detector.get_lines_from_intersection(
-            intersection_index=intersection_index)
-        # Get vertical line from intersection.
-        line_rho, line_theta = self._intersection_detector.get_vertical_line(intersection_lines)[0]
-        # Calculation of the orientation, based on the theta value of the vertical line in the intersection.
-        # Difference between line angle and pi/2 (90 degree as radiant).
-        delta_theta = line_theta - (np.pi/2)
-        # Not rounded orientation as radiant.
-        # Pi (180 degree as radiant) is the default orientation when the line is measured with pi/2 (90 degree as radiant) to the images x-axis.
-        orientation_radiant = np.pi - delta_theta
-        # Not rounded orientation.
-        orientation = degrees(orientation_radiant)/10
+            
+        try:
+            # Get lines of intersection.
+            intersection_lines = self._intersection_detector.get_lines_from_intersection(
+                intersection_index=intersection_index, detected_lines=detected_lines)
+            print('intersection_lines: {}'.format(intersection_lines))
+            # Get vertical line from intersection.
+            line_rho, line_theta = self._intersection_detector.get_vertical_line(intersection_lines)[0] #macht probleme
+            # Calculation of the orientation, based on the theta value of the vertical line in the intersection.
+            # Difference between line angle and pi/2 (90 degree as radiant).
+            delta_theta = line_theta - (np.pi/2)
+            # Not rounded orientation as radiant.
+            # Pi (180 degree as radiant) is the default orientation when the line is measured with pi/2 (90 degree as radiant) to the images x-axis.
+            orientation_radiant = np.pi - delta_theta
+            # Not rounded orientation.
+            orientation = degrees(orientation_radiant)/10 # weiter als zeile 122 war ich noch nicht
+        except Exception as exception:
+            orientation = DEFAULT_ORIENTATION
+            error_str = "[Parking_space_detection|{0}] {1}\nTraceback:\n{2}".format(
+                datetime.datetime.now().isoformat(), str(exception), traceback.format_exc())
+            if self.debug:
+                print(error_str)
+            log_file = open("error.log", "a")
+            log_file.write(error_str)
+            log_file.close()
         return (int(round(rho)), int(round(phi)), int(round(orientation)))
