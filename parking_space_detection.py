@@ -6,7 +6,7 @@ import numpy as np
 
 from math import degrees
 
-from skimage.transform import ProjectiveTransform, AffineTransform
+from skimage.transform import AffineTransform
 
 from intersection_detection import IntersectionDetection
 from constants import RED_LOW, RED_HIGH, DEFAULT_ORIENTATION
@@ -88,25 +88,21 @@ class ParkingSpaceDetection:
         """
 
         # Known pixel
-        src = np.array([[320, 480], [320, 0], [547, 300], [447, 67]])
+        src = np.array([[220, 480], [220, 0], [220, 47], [447, 300], [347, 67]])
+        # src = np.array([[320, 480], [320, 0], [320, 47], [547, 300], [447, 67]]) # meassured values.
 
         # Known coordinates
-        dst = np.array([[8.1, 0.0], [50.5, 0.0], [17.0, 11.5], [43.0, 11.5]])
+        dst = np.array([[50.5, 0.0], [8.1, 0.0], [10.0, 0.0], [43.0, 11.5], [17.0, 11.5]])
 
         # affine transformation
         affine_transformation = AffineTransform()
         affine_transformation.estimate(src, dst)
 
-        # projective Transformation
-        projective_transformation = ProjectiveTransform()
-        projective_transformation.estimate(src, dst)
-
         # Calculation of the coordinate
         new_point = np.array([intersections[intersection_index]
                              [0][0], intersections[intersection_index][0][1]])
         affine_transformed_point = affine_transformation(new_point)
-        projective_transformed_point = projective_transformation(new_point)
-
+        
         # Transformation to polar coordinates
         rho, phi = cart2pol.__func__(
             x=affine_transformed_point[0][0], y=affine_transformed_point[0][1])
@@ -114,8 +110,6 @@ class ParkingSpaceDetection:
         if self.debug:
             print('affine: x={0} y={1}'.format(
                 affine_transformed_point[0][0], affine_transformed_point[0][1]))
-            print('projective: x={0} y={1}'.format(
-                projective_transformed_point[0][0], projective_transformed_point[0][1]))
             
         try:
             # Get lines of intersection.
@@ -123,7 +117,7 @@ class ParkingSpaceDetection:
                 intersection_index=intersection_index, detected_lines=detected_lines)
             print('intersection_lines: {}'.format(intersection_lines))
             # Get vertical line from intersection.
-            line_rho, line_theta = self._intersection_detector.get_vertical_line(intersection_lines)[0] #macht probleme
+            line_rho, line_theta = self._intersection_detector.get_vertical_line(intersection_lines)[0] # Causes problems
             # Calculation of the orientation, based on the theta value of the vertical line in the intersection.
             # Difference between line angle and pi/2 (90 degree as radiant).
             delta_theta = line_theta - (np.pi/2)
@@ -131,7 +125,7 @@ class ParkingSpaceDetection:
             # Pi (180 degree as radiant) is the default orientation when the line is measured with pi/2 (90 degree as radiant) to the images x-axis.
             orientation_radiant = np.pi - delta_theta
             # Not rounded orientation.
-            orientation = degrees(orientation_radiant)/10 # weiter als zeile 122 war ich noch nicht
+            orientation = degrees(orientation_radiant)/10 # Exception raised at line 123
         except Exception as exception:
             orientation = DEFAULT_ORIENTATION
             error_str = "[Parking_space_detection|{0}] {1}\nTraceback:\n{2}".format(

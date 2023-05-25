@@ -227,7 +227,7 @@ class IntersectionDetection:
         list[]: Lines with rho and theta, that form the intersection with the index of intersection_index.
         """
         # Get the intersection coordinates
-        intersection = self._bot.intersection[intersection_index][0] # macht probleme
+        intersection = self._bot.intersection[intersection_index][0] # Causes problems
         if self.debug:
             print('intersection[0] : {0} intersection[1] : {1}'.format(intersection[0], intersection[1]))
 
@@ -247,7 +247,7 @@ class IntersectionDetection:
                 y2 = int(y0 - 1000 * (a))
 
                 # Check if the line passes through the intersection
-                if abs((y2 - y1) * intersection[0] - (x2 - x1) * intersection[1] + x2 * y1 - y2 * x1) < 1e-6: # macht probleme
+                if abs((y2 - y1) * intersection[0] - (x2 - x1) * intersection[1] + x2 * y1 - y2 * x1) < 1e-6: # Causes problems
                     lines.append(line)
 
         return lines
