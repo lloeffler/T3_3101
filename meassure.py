@@ -283,7 +283,7 @@ def help():
     print("drive1 -> robot drive 1 cm forward")
     print("set_speed -> enter new driving speed")
     print("reset -> resets speed and steering")
-    print("end -> quits programm")
+    print("exit -> quits programm")
     print("help -> prints this help")
 
 
