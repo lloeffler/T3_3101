@@ -59,8 +59,8 @@ class Navigator:
                 cv.imshow('preview', image)
             self._event = event
             # Detect Intersection in image
-            intersection = self.bot.intersection.copy()
-            detected_lines = self.int_detector.segmented.copy()
+            intersection = self.bot.intersection
+            detected_lines = self.int_detector.segmented
             # When intersection is detected and wsn't allready detected
             if len(intersection) > 0 and self._detected == False:
                 # Pause line tracking
