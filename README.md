@@ -192,7 +192,8 @@ Contains important values to controll the swarmrobot and for the software behavi
 
 ## Disclamer
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND!
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND! Take a look at LICENSE.md.
+License from https://choosealicense.com/licenses/mit/.
 
 ## Files
 
@@ -209,15 +210,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND!
 - simulator.py
 - test.py
 
-### Copied fiels from swarmrobot, based on this repo: https://github.com/1Basileus/Swarmrobotlib
-
-- bar_code_detection.py
-- brickpi3.py
-- pidcontroller.py
-- qr_detection.py
-- stop.py
-
-### Modified fiels from swarmrobot based on this repo: https://github.com/1Basileus/Swarmrobotlib
+### Modified files from swarmrobot based on this repo: https://github.com/1Basileus/Swarmrobotlib
 
 - intersection_detection.py
 - line_tracking.py
@@ -227,5 +220,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND!
 - qr_test.py
 - swarmrobot.py
 - turn_assistant.py
+
+### Copied files from swarmrobot, based on this repo: https://github.com/1Basileus/Swarmrobotlib
+
+- bar_code_detection.py
+- pidcontroller.py
+- qr_detection.py
+- stop.py
+
+### Copied files from swarmrobot, based on this repo: https://github.com/DexterInd/BrickPi3
+
+- brickpi3.py
 
 ###### Author: Lukas Loeffler
