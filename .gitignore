@@ -1,3 +1,4 @@
+# Ignore
 error.log
 *.npz
 *.conf
@@ -6,3 +7,7 @@ Untitled-1.md
 __pycache__/*
 .python-version
 *.png
+
+# Allow
+!default.npz
+!exhibition_parking.conf
